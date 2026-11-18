@@ -14,4 +14,7 @@ export * from './chargeMessageResult';
 export * from './extractedOrderItem';
 export * from './extractedOrderItems';
 export * from './healthStatus';
+export * from './orderMatchSuggestion';
+export * from './orderMatchSuggestionsInput';
+export * from './orderMatchSuggestionsResult';
 export * from './whatsAppOrderTextInput';

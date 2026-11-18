@@ -25,6 +25,8 @@ import type {
   ChargeMessageResult,
   ExtractedOrderItems,
   HealthStatus,
+  OrderMatchSuggestionsInput,
+  OrderMatchSuggestionsResult,
   WhatsAppOrderTextInput
 } from './api.schemas';
 
@@ -307,5 +309,93 @@ export const useExtractOrderItems = <TError = ErrorType<ChargeMessageError>,
         TContext
       > => {
       return useMutation(getExtractOrderItemsMutationOptions(options));
+    }
+
+export const getSuggestOrderMatchesUrl = () => {
+
+
+
+
+  return `/api/openai/suggest-order-matches`
+}
+
+/**
+ * @summary Suggest order matches for invoice item descriptions
+ */
+export const suggestOrderMatches = async (orderMatchSuggestionsInput: OrderMatchSuggestionsInput, options?: Parameters<typeof customFetch>[1]): Promise<OrderMatchSuggestionsResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<OrderMatchSuggestionsResult>(getSuggestOrderMatchesUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(orderMatchSuggestionsInput)
+  }
+);}
+
+
+
+
+
+export const getSuggestOrderMatchesMutationKey = () => ['suggestOrderMatches'] as const;
+
+export const getSuggestOrderMatchesMutationOptions = <TError = ErrorType<ChargeMessageError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suggestOrderMatches>>, TError,SuggestOrderMatchesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof suggestOrderMatches>>, TError,SuggestOrderMatchesMutationVariables, TContext> => {
+
+const mutationKey = getSuggestOrderMatchesMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof suggestOrderMatches>>, SuggestOrderMatchesMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  suggestOrderMatches(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SuggestOrderMatchesMutationResult = NonNullable<Awaited<ReturnType<typeof suggestOrderMatches>>>
+    export type SuggestOrderMatchesMutationBody = BodyType<OrderMatchSuggestionsInput>
+    export type SuggestOrderMatchesMutationError = ErrorType<ChargeMessageError>
+    export type SuggestOrderMatchesMutationVariables = {data: BodyType<OrderMatchSuggestionsInput>}
+
+    /**
+ * @summary Suggest order matches for invoice item descriptions
+ */
+export const useSuggestOrderMatches = <TError = ErrorType<ChargeMessageError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof suggestOrderMatches>>, TError,SuggestOrderMatchesMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof suggestOrderMatches>>,
+        TError,
+        SuggestOrderMatchesMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSuggestOrderMatchesMutationOptions(options));
     }
 

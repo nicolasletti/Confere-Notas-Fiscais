@@ -2,11 +2,13 @@ import { Router, type IRouter } from "express";
 import healthRouter from "./health";
 import openaiRouter from "./openai";
 import orderExtractionRouter from "./order-extraction";
+import orderMatchesRouter from "./order-matches";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(openaiRouter);
 router.use(orderExtractionRouter);
+router.use(orderMatchesRouter);
 
 export default router;

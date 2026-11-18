@@ -104,3 +104,40 @@ export interface ExtractedOrderItems {
   items: ExtractedOrderItem[];
 }
 
+export interface OrderMatchSuggestionsInput {
+  /**
+     * @minItems 1
+     * @maxItems 100
+     * @items.minLength 1
+     * @items.maxLength 500
+     */
+  invoiceDescriptions: string[];
+  /**
+     * @minItems 1
+     * @maxItems 100
+     * @items.minLength 1
+     * @items.maxLength 500
+     */
+  orderDescriptions: string[];
+}
+
+export interface OrderMatchSuggestion {
+  /** @minimum 0 */
+  invoiceIndex: number;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  orderIndex: number | null;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  confidence: number;
+}
+
+export interface OrderMatchSuggestionsResult {
+  /** @maxItems 100 */
+  suggestions: OrderMatchSuggestion[];
+}
+

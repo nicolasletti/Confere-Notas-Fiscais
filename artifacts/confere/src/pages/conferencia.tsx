@@ -1,7 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Check, Copy, FileCheck2, ShieldAlert, Sparkles } from "lucide-react";
-import { useGenerateChargeMessage } from "@workspace/api-client-react";
+import {
+  useGenerateChargeMessage,
+  useSuggestOrderMatches,
+} from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,16 +22,29 @@ import {
 import type { NfeInvoice } from "@/lib/nfe";
 
 const NOT_IN_ORDER = "__nao-estava-no-pedido__";
+const MINIMUM_SUGGESTION_CONFIDENCE = 0.82;
+
+interface OrderMatchSuggestion {
+  invoiceIndex: number;
+  orderIndex: number | null;
+  confidence: number;
+}
 
 interface ConferenceRow {
   orderItemId: string;
   receivedQuantity: string;
+  suggestedByAi: boolean;
+  orderItemTouched: boolean;
 }
+
+const orderMatchCache = new Map<string, OrderMatchSuggestion[]>();
 
 function initialRows(invoice: NfeInvoice): ConferenceRow[] {
   return invoice.items.map((item) => ({
     orderItemId: "",
     receivedQuantity: item.quantity,
+    suggestedByAi: false,
+    orderItemTouched: false,
   }));
 }
 
@@ -150,7 +166,9 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
   const [generatedMessage, setGeneratedMessage] = useState("");
   const [generationError, setGenerationError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [suggestionStatus, setSuggestionStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const messageMutation = useGenerateChargeMessage();
+  const suggestionMutation = useSuggestOrderMatches();
   const editRevision = useRef(0);
 
   function updateRow(index: number, update: Partial<ConferenceRow>) {
@@ -158,11 +176,85 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
     setGeneratedMessage("");
     setGenerationError("");
     setCopied(false);
-    setRows((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, ...update } : row));
+    setRows((current) => current.map((row, rowIndex) => {
+      if (rowIndex !== index) return row;
+      return {
+        ...row,
+        ...update,
+        ...(update.orderItemId !== undefined
+          ? { suggestedByAi: false, orderItemTouched: true }
+          : {}),
+      };
+    }));
   }
 
+  useEffect(() => {
+    if (pedido.items.length === 0 || invoice.items.length === 0) return;
+
+    const invoiceDescriptions = invoice.items.map((item) => item.description);
+    const orderDescriptions = pedido.items.map((item) => item.descricao);
+    const cacheKey = JSON.stringify([
+      invoiceDescriptions,
+      pedido.items.map((item) => [item.id, item.descricao]),
+    ]);
+    const applySuggestions = (suggestions: OrderMatchSuggestion[]) => {
+      setRows((current) => current.map((row, invoiceIndex) => {
+        if (row.orderItemTouched || row.orderItemId) return row;
+        const suggestion = suggestions.find((entry) => entry.invoiceIndex === invoiceIndex);
+        if (
+          !suggestion ||
+          suggestion.confidence < MINIMUM_SUGGESTION_CONFIDENCE ||
+          suggestion.orderIndex === null
+        ) {
+          return row;
+        }
+        const orderItem = pedido.items[suggestion.orderIndex];
+        if (!orderItem) return row;
+        return { ...row, orderItemId: orderItem.id, suggestedByAi: true };
+      }));
+    };
+
+    const cached = orderMatchCache.get(cacheKey);
+    if (cached) {
+      applySuggestions(cached);
+      setSuggestionStatus("ready");
+      return;
+    }
+
+    let cancelled = false;
+    setSuggestionStatus("loading");
+    suggestionMutation.mutateAsync({
+      data: { invoiceDescriptions, orderDescriptions },
+    }).then((result) => {
+      if (cancelled) return;
+      const suggestions = result.suggestions.map((entry) => ({
+        invoiceIndex: entry.invoiceIndex,
+        orderIndex: entry.orderIndex,
+        confidence: entry.confidence,
+      }));
+      if (orderMatchCache.size >= 8) {
+        const oldestKey = orderMatchCache.keys().next().value;
+        if (oldestKey) orderMatchCache.delete(oldestKey);
+      }
+      orderMatchCache.set(cacheKey, suggestions);
+      applySuggestions(suggestions);
+      setSuggestionStatus("ready");
+    }).catch(() => {
+      if (!cancelled) setSuggestionStatus("error");
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [invoice, pedido.items]);
+
   const resolved = invoice.items.map((item, index) => {
-    const row = rows[index] ?? { orderItemId: "", receivedQuantity: item.quantity };
+    const row = rows[index] ?? {
+      orderItemId: "",
+      receivedQuantity: item.quantity,
+      suggestedByAi: false,
+      orderItemTouched: false,
+    };
     const isNotInOrder = row.orderItemId === NOT_IN_ORDER;
     const matchedOrderItem: PedidoItem | null = pedido.items.find((orderItem) => orderItem.id === row.orderItemId) ?? null;
     const calculation = !row.orderItemId
@@ -356,6 +448,25 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
           </span>
         </div>
 
+        {pedido.items.length > 0 && (
+          <p
+            className={`mt-3 rounded-lg border px-3 py-2 text-xs ${
+              suggestionStatus === "error"
+                ? "border-amber-300 bg-amber-50 text-amber-900"
+                : "border-border bg-card text-muted-foreground"
+            }`}
+            role="status"
+            aria-live="polite"
+            data-testid="status-ai-order-suggestions"
+          >
+            {suggestionStatus === "loading"
+              ? "A IA está sugerindo correspondências. Você pode editar qualquer seleção."
+              : suggestionStatus === "error"
+                ? "Não foi possível sugerir correspondências agora. Escolha os itens manualmente."
+                : "A IA pré-seleciona apenas correspondências de alta confiança. Confira e altere as sugestões se necessário."}
+          </p>
+        )}
+
         <div className="mt-4 space-y-4">
           {resolved.map(({ item, row, isNotInOrder, matchedOrderItem, calculation }, index) => (
             <article key={`${version}-${index}`} className="rounded-2xl border bg-card p-4 sm:p-6" data-testid={`card-conference-item-${index}`}>
@@ -389,9 +500,20 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
                 </div>
 
                 <div className="space-y-3">
-                  <label htmlFor={`order-item-${index}`} className="block text-sm font-semibold">
-                    Item correspondente do pedido
-                  </label>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <label htmlFor={`order-item-${index}`} className="block text-sm font-semibold">
+                      Item correspondente do pedido
+                    </label>
+                    {row.suggestedByAi && (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/5 px-2 py-1 text-xs font-medium text-primary"
+                        data-testid={`badge-ai-suggestion-${index}`}
+                      >
+                        <Sparkles className="h-3 w-3" aria-hidden="true" />
+                        sugerido pela IA
+                      </span>
+                    )}
+                  </div>
                   <select
                     id={`order-item-${index}`}
                     value={row.orderItemId}

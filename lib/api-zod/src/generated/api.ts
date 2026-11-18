@@ -87,3 +87,41 @@ export const ExtractOrderItemsResponse = zod.object({
 })
 
 
+/**
+ * @summary Suggest order matches for invoice item descriptions
+ */
+export const suggestOrderMatchesBodyInvoiceDescriptionsItemMax = 500;
+
+export const suggestOrderMatchesBodyInvoiceDescriptionsMax = 100;
+
+export const suggestOrderMatchesBodyOrderDescriptionsItemMax = 500;
+
+export const suggestOrderMatchesBodyOrderDescriptionsMax = 100;
+
+
+
+export const SuggestOrderMatchesBody = zod.object({
+  "invoiceDescriptions": zod.array(zod.string().min(1).max(suggestOrderMatchesBodyInvoiceDescriptionsItemMax)).min(1).max(suggestOrderMatchesBodyInvoiceDescriptionsMax),
+  "orderDescriptions": zod.array(zod.string().min(1).max(suggestOrderMatchesBodyOrderDescriptionsItemMax)).min(1).max(suggestOrderMatchesBodyOrderDescriptionsMax)
+})
+
+export const suggestOrderMatchesResponseSuggestionsItemInvoiceIndexMin = 0;
+
+export const suggestOrderMatchesResponseSuggestionsItemOrderIndexMin = 0;
+
+export const suggestOrderMatchesResponseSuggestionsItemConfidenceMin = 0;
+export const suggestOrderMatchesResponseSuggestionsItemConfidenceMax = 1;
+
+export const suggestOrderMatchesResponseSuggestionsMax = 100;
+
+
+
+export const SuggestOrderMatchesResponse = zod.object({
+  "suggestions": zod.array(zod.object({
+  "invoiceIndex": zod.number().int().min(suggestOrderMatchesResponseSuggestionsItemInvoiceIndexMin),
+  "orderIndex": zod.number().int().min(suggestOrderMatchesResponseSuggestionsItemOrderIndexMin).nullable(),
+  "confidence": zod.number().min(suggestOrderMatchesResponseSuggestionsItemConfidenceMin).max(suggestOrderMatchesResponseSuggestionsItemConfidenceMax)
+})).max(suggestOrderMatchesResponseSuggestionsMax)
+})
+
+
