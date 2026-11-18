@@ -1,5 +1,5 @@
 import { useRef, useState, type DragEvent } from "react";
-import { FileUp, FileText, RefreshCw, X, AlertCircle, ShieldCheck } from "lucide-react";
+import { FileUp, FileText, RefreshCw, X, AlertCircle } from "lucide-react";
 import { readNfeFile, type NfeInvoice } from "@/lib/nfe";
 
 type State =
@@ -65,18 +65,6 @@ export default function Home() {
     <div className="min-h-[100dvh] bg-background" {...(state.kind !== "empty" ? dragProps : {})}>
       <input ref={inputRef} type="file" accept=".xml,text/xml,application/xml" className="sr-only" tabIndex={-1} aria-hidden="true"
         onChange={(e) => handleFile(e.target.files?.[0])} data-testid="input-file" />
-
-      <header className="border-b bg-card/70">
-        <div className="mx-auto max-w-5xl px-5 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <span className="grid place-items-center h-8 w-8 rounded-lg bg-primary text-primary-foreground font-display font-bold text-lg">C</span>
-            <span className="font-display font-bold text-xl tracking-tight">Confere</span>
-          </div>
-          <p className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground">
-            <ShieldCheck className="h-4 w-4 text-primary" aria-hidden /> O arquivo é lido só no seu navegador
-          </p>
-        </div>
-      </header>
 
       <main className="mx-auto max-w-5xl px-5 py-8 sm:py-12">
         {state.kind === "empty" && (
