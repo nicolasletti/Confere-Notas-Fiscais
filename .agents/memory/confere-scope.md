@@ -18,3 +18,9 @@ Não criar login nem banco de dados. Manter os dados do pedido no navegador e n�
 **Why:** o usuário pediu correspondências automáticas por IA, mas exige que escolhas incertas permaneçam sem seleção para evitar associação errada.
 
 **How to apply:** enviar apenas descrições para o pareamento, usar um limite conservador de confiança, preservar a edição manual e não enviar valores monetários para esse recurso.
+
+A identidade visual pedida é “coNFere”, com “NF” em destaque. A navegação deve deixar visíveis as três etapas na ordem: “1. Pedido”, “2. Nota fiscal” e “3. Conferência”. O total cobrado a mais precisa ter forte hierarquia visual e boa leitura no celular, sem alterar regras de cálculo.
+
+**Why:** o usuário explicitou a identidade e a prioridade de leitura do resultado como requisitos visuais permanentes do produto.
+
+**How to apply:** preservar essas convenções em futuras melhorias visuais do cabeçalho e da Conferência; alterar apresentação sem mudar comportamento, salvo novo pedido.

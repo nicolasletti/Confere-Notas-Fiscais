@@ -325,28 +325,29 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-5 py-8 sm:py-12">
+    <main className="mx-auto max-w-5xl px-4 py-6 sm:px-5 sm:py-10">
       <section className="rise">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.14em] text-primary">Revisão da entrega</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary sm:text-sm">Etapa 3 · revisão da entrega</p>
             <h1 className="mt-2 font-display text-3xl font-bold leading-tight tracking-tight sm:text-5xl">Conferência</h1>
-            <p className="mt-3 max-w-2xl text-muted-foreground">
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               Relacione cada produto da nota ao que foi pedido e informe quanto chegou.
             </p>
           </div>
-          <Link href="/" className="inline-flex min-h-9 items-center gap-2 rounded-lg border bg-card px-3 text-sm font-medium transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="link-back-invoice">
+          <Link href="/" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border bg-card px-3.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" data-testid="link-back-invoice">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Nota fiscal
           </Link>
         </div>
 
-        <div className="mt-7 rounded-2xl border border-red-200 bg-red-50 px-5 py-5 sm:px-7 sm:py-6" data-testid="summary-extra-charge">
-          <p className="text-sm font-semibold uppercase tracking-[0.1em] text-red-800">Total cobrado a mais</p>
-          <p className="mt-1 font-display text-3xl font-bold tracking-tight text-red-900 sm:text-4xl" data-testid="text-total-extra-charge">
+        <div className="relative mt-6 overflow-hidden rounded-2xl border border-red-200 bg-red-50 px-5 py-5 shadow-sm sm:mt-8 sm:px-8 sm:py-7" data-testid="summary-extra-charge">
+          <div className="absolute inset-y-0 left-0 w-1.5 bg-red-700" aria-hidden="true" />
+          <p className="text-xs font-bold uppercase tracking-[0.13em] text-red-800 sm:text-sm">Total cobrado a mais</p>
+          <p className="mt-2 break-words font-display text-[clamp(2.25rem,11vw,4.5rem)] font-bold leading-none tracking-[-0.055em] tabular-nums text-red-900" data-testid="text-total-extra-charge">
             {formatBRL(totalCents)}
           </p>
-          <p className="mt-1 text-xs text-red-800/80" data-testid="status-total-scope">
+          <p className="mt-3 max-w-2xl text-xs leading-relaxed text-red-900/80 sm:text-sm" data-testid="status-total-scope">
             {pendingCount > 0
               ? `Total parcial: ${pendingCount} ${pendingCount === 1 ? "item aguarda" : "itens aguardam"} correspondência ou quantidade válida.`
               : "Itens com diferença favorável não aumentam este total."}
@@ -354,7 +355,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
         </div>
 
         {totalCents > 0n && (
-          <section className="mt-5 rounded-2xl border bg-card p-4 sm:p-5" data-testid="section-charge-message">
+          <section className="mt-5 rounded-2xl border border-border/80 bg-card p-4 shadow-sm sm:p-5" data-testid="section-charge-message">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="font-display text-lg font-bold">Mensagem para o fornecedor</h2>
@@ -435,7 +436,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
           </div>
         )}
 
-        <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
+        <div className="mt-7 flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-3">
           <div>
             <h2 className="font-display text-xl font-bold">Itens da nota</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -469,7 +470,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
 
         <div className="mt-4 space-y-4">
           {resolved.map(({ item, row, isNotInOrder, matchedOrderItem, calculation }, index) => (
-            <article key={`${version}-${index}`} className="rounded-2xl border bg-card p-4 sm:p-6" data-testid={`card-conference-item-${index}`}>
+            <article key={`${version}-${index}`} className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm sm:p-6" data-testid={`card-conference-item-${index}`}>
               <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Descrição da nota</p>
