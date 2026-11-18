@@ -10,10 +10,13 @@ export interface NfeInvoice {
   issuer: string;
   number: string;
   issuedAt: string;
+  hasCompleteIbsCbs: boolean;
   items: NfeItem[];
 }
 
 const NFE_NAMESPACE = "http://www.portalfiscal.inf.br/nfe";
+const IBS_CBS_EXPLANATION =
+  "A partir de 2027, notas sem esses campos podem trazer problemas de crédito de imposto para quem compra.";
 
 /** Match local names, so both default and explicitly prefixed NF-e namespaces work. */
 function children(parent: Element, name: string): Element[] {
@@ -99,7 +102,18 @@ export function parseNfeXml(xml: string): NfeInvoice {
       total: decimal(product, "vProd"),
     };
   });
-  return { issuer, number, issuedAt, items };
+  const hasCompleteIbsCbs = details.every((detail) => {
+    const taxes = children(detail, "imposto");
+    return taxes.some((tax) =>
+      children(tax, "IBSCBS").some((group) => {
+        const cst = children(group, "CST").some((field) => Boolean(field.textContent?.trim()));
+        const taxClass = children(group, "cClassTrib").some((field) => Boolean(field.textContent?.trim()));
+        return cst && taxClass;
+      }),
+    );
+  });
+
+  return { issuer, number, issuedAt, hasCompleteIbsCbs, items };
 }
 
 export async function readNfeFile(file: File): Promise<NfeInvoice> {

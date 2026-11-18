@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNfe } from "@/lib/nfe-context";
 import { readPedido, type PedidoItem } from "@/lib/pedido-store";
+import IbsCbsSeal from "@/components/ibs-cbs-seal";
 import {
   calculateItem,
   formatBRL,
@@ -207,13 +208,14 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
           </div>
         )}
 
-        <div className="mt-7 flex items-center justify-between gap-3">
+        <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-display text-xl font-bold">Itens da nota</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               NF-e nº {invoice.number} · {invoice.issuer}
             </p>
           </div>
+          <IbsCbsSeal ready={invoice.hasCompleteIbsCbs} />
           <span className="shrink-0 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
             {invoice.items.length} {invoice.items.length === 1 ? "item" : "itens"}
           </span>

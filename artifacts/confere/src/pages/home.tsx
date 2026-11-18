@@ -2,6 +2,7 @@ import { useRef, useState, type DragEvent } from "react";
 import { FileUp, FileText, RefreshCw, X, AlertCircle } from "lucide-react";
 import { readNfeFile, type NfeInvoice } from "@/lib/nfe";
 import { useNfe } from "@/lib/nfe-context";
+import IbsCbsSeal from "@/components/ibs-cbs-seal";
 
 type State =
   | { kind: "empty" }
@@ -160,9 +161,11 @@ function InvoiceView({ invoice }: { invoice: NfeInvoice }) {
   return (
     <article>
       <div className="relative rounded-2xl border bg-card p-6 sm:p-8 overflow-hidden">
-        <span aria-hidden className="stamp absolute right-5 top-5 hidden sm:block rounded-md border-2 border-primary/70 px-3 py-1 font-display font-bold uppercase tracking-widest text-primary/80 text-sm">Lida</span>
-        <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground font-medium">Emitente</p>
-        <h1 className="mt-1 font-display font-bold text-2xl sm:text-4xl tracking-tight pr-0 sm:pr-24 break-words" data-testid="text-issuer">{invoice.issuer || "—"}</h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground font-medium">Emitente</p>
+          <IbsCbsSeal ready={invoice.hasCompleteIbsCbs} />
+        </div>
+        <h1 className="mt-2 font-display font-bold text-2xl sm:text-4xl tracking-tight break-words" data-testid="text-issuer">{invoice.issuer || "—"}</h1>
         <dl className="mt-6 flex flex-wrap gap-x-10 gap-y-4">
           <div><dt className="text-xs uppercase tracking-[0.14em] text-muted-foreground font-medium">Número</dt>
             <dd className="mt-0.5 font-mono text-lg" data-testid="text-number">{invoice.number || "—"}</dd></div>
