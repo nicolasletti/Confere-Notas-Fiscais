@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Confere"
+description = "Leitura local de XML de NF-e para pequenos comércios, mostrando emitente, número, data e itens da nota em português do Brasil, sem IA ou armazenamento."
+version = "1.0.0"
+id = "artifacts/confere"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19385
+
+[services.development]
+run = "pnpm --filter @workspace/confere run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/confere", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/confere/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19385"
+BASE_PATH = "/"

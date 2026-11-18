@@ -1,0 +1,1 @@
+- [Escopo inicial do Confere](confere-scope.md) — primeira etapa restrita à leitura local do XML e exibição da NF-e, sem IA, login, banco ou telas adicionais.
