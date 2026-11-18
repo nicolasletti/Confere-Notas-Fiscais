@@ -125,3 +125,507 @@ export const SuggestOrderMatchesResponse = zod.object({
 })
 
 
+/**
+ * @summary Get the signed-in user
+ */
+export const GetCurrentAuthUserResponse = zod.object({
+  "user": zod.union([zod.object({
+  "id": zod.string(),
+  "email": zod.string().nullable(),
+  "firstName": zod.string().nullable(),
+  "lastName": zod.string().nullable(),
+  "profileImageUrl": zod.string().nullable(),
+  "companyName": zod.string().nullable()
+}),zod.null()])
+})
+
+
+/**
+ * @summary Start browser authentication
+ */
+export const BeginBrowserLoginQueryParams = zod.object({
+  "returnTo": zod.coerce.string().optional()
+})
+
+export const BeginBrowserLoginResponse = zod.void()
+
+
+/**
+ * @summary Complete browser authentication
+ */
+export const CompleteBrowserLoginResponse = zod.void()
+
+
+/**
+ * @summary End the browser session
+ */
+export const LogoutBrowserSessionQueryParams = zod.object({
+  "returnTo": zod.coerce.string().optional()
+})
+
+export const LogoutBrowserSessionResponse = zod.void()
+
+
+/**
+ * @summary Get this user's supplier order
+ */
+export const getAccountOrderResponseItemsItemIdMax = 100;
+
+export const getAccountOrderResponseItemsItemDescricaoMax = 500;
+
+export const getAccountOrderResponseItemsItemQuantidadeMax = 50;
+
+export const getAccountOrderResponseItemsItemUnidadeMax = 40;
+
+export const getAccountOrderResponseItemsItemPrecoUnitarioMax = 50;
+
+
+
+export const GetAccountOrderResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().min(1).max(getAccountOrderResponseItemsItemIdMax),
+  "descricao": zod.string().max(getAccountOrderResponseItemsItemDescricaoMax),
+  "quantidade": zod.string().max(getAccountOrderResponseItemsItemQuantidadeMax),
+  "unidade": zod.string().max(getAccountOrderResponseItemsItemUnidadeMax),
+  "precoUnitario": zod.string().max(getAccountOrderResponseItemsItemPrecoUnitarioMax)
+}))
+})
+
+
+/**
+ * @summary Save this user's supplier order
+ */
+export const saveAccountOrderBodyItemsItemIdMax = 100;
+
+export const saveAccountOrderBodyItemsItemDescricaoMax = 500;
+
+export const saveAccountOrderBodyItemsItemQuantidadeMax = 50;
+
+export const saveAccountOrderBodyItemsItemUnidadeMax = 40;
+
+export const saveAccountOrderBodyItemsItemPrecoUnitarioMax = 50;
+
+export const saveAccountOrderBodyItemsMax = 500;
+
+
+
+export const SaveAccountOrderBody = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().min(1).max(saveAccountOrderBodyItemsItemIdMax),
+  "descricao": zod.string().max(saveAccountOrderBodyItemsItemDescricaoMax),
+  "quantidade": zod.string().max(saveAccountOrderBodyItemsItemQuantidadeMax),
+  "unidade": zod.string().max(saveAccountOrderBodyItemsItemUnidadeMax),
+  "precoUnitario": zod.string().max(saveAccountOrderBodyItemsItemPrecoUnitarioMax)
+})).max(saveAccountOrderBodyItemsMax)
+})
+
+export const saveAccountOrderResponseItemsItemIdMax = 100;
+
+export const saveAccountOrderResponseItemsItemDescricaoMax = 500;
+
+export const saveAccountOrderResponseItemsItemQuantidadeMax = 50;
+
+export const saveAccountOrderResponseItemsItemUnidadeMax = 40;
+
+export const saveAccountOrderResponseItemsItemPrecoUnitarioMax = 50;
+
+
+
+export const SaveAccountOrderResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().min(1).max(saveAccountOrderResponseItemsItemIdMax),
+  "descricao": zod.string().max(saveAccountOrderResponseItemsItemDescricaoMax),
+  "quantidade": zod.string().max(saveAccountOrderResponseItemsItemQuantidadeMax),
+  "unidade": zod.string().max(saveAccountOrderResponseItemsItemUnidadeMax),
+  "precoUnitario": zod.string().max(saveAccountOrderResponseItemsItemPrecoUnitarioMax)
+}))
+})
+
+
+/**
+ * @summary List this user's saved invoices
+ */
+export const listAccountInvoicesResponseInvoiceIssuerMax = 500;
+
+export const listAccountInvoicesResponseInvoiceNumberMax = 40;
+
+export const listAccountInvoicesResponseInvoiceIssuedAtMax = 50;
+
+export const listAccountInvoicesResponseInvoiceItemsItemDescriptionMax = 500;
+
+export const listAccountInvoicesResponseInvoiceItemsItemQuantityMax = 50;
+
+export const listAccountInvoicesResponseInvoiceItemsItemUnitMax = 40;
+
+export const listAccountInvoicesResponseInvoiceItemsItemUnitPriceMax = 50;
+
+export const listAccountInvoicesResponseInvoiceItemsItemTotalMax = 50;
+
+export const listAccountInvoicesResponseInvoiceItemsMax = 1000;
+
+
+
+export const ListAccountInvoicesResponseItem = zod.object({
+  "id": zod.number().int(),
+  "originalFileName": zod.string(),
+  "invoice": zod.object({
+  "issuer": zod.string().min(1).max(listAccountInvoicesResponseInvoiceIssuerMax),
+  "number": zod.string().min(1).max(listAccountInvoicesResponseInvoiceNumberMax),
+  "issuedAt": zod.string().max(listAccountInvoicesResponseInvoiceIssuedAtMax),
+  "hasCompleteIbsCbs": zod.boolean(),
+  "items": zod.array(zod.object({
+  "description": zod.string().max(listAccountInvoicesResponseInvoiceItemsItemDescriptionMax),
+  "quantity": zod.string().max(listAccountInvoicesResponseInvoiceItemsItemQuantityMax),
+  "unit": zod.string().max(listAccountInvoicesResponseInvoiceItemsItemUnitMax),
+  "unitPrice": zod.string().max(listAccountInvoicesResponseInvoiceItemsItemUnitPriceMax),
+  "total": zod.string().max(listAccountInvoicesResponseInvoiceItemsItemTotalMax)
+})).min(1).max(listAccountInvoicesResponseInvoiceItemsMax)
+}),
+  "createdAt": zod.string()
+})
+export const ListAccountInvoicesResponse = zod.array(ListAccountInvoicesResponseItem)
+
+
+/**
+ * @summary Save an invoice and its original XML
+ */
+export const saveAccountInvoiceBodyOriginalFileNameMax = 255;
+
+export const saveAccountInvoiceBodyOriginalXmlMax = 10485760;
+
+export const saveAccountInvoiceBodyInvoiceIssuerMax = 500;
+
+export const saveAccountInvoiceBodyInvoiceNumberMax = 40;
+
+export const saveAccountInvoiceBodyInvoiceIssuedAtMax = 50;
+
+export const saveAccountInvoiceBodyInvoiceItemsItemDescriptionMax = 500;
+
+export const saveAccountInvoiceBodyInvoiceItemsItemQuantityMax = 50;
+
+export const saveAccountInvoiceBodyInvoiceItemsItemUnitMax = 40;
+
+export const saveAccountInvoiceBodyInvoiceItemsItemUnitPriceMax = 50;
+
+export const saveAccountInvoiceBodyInvoiceItemsItemTotalMax = 50;
+
+export const saveAccountInvoiceBodyInvoiceItemsMax = 1000;
+
+
+
+export const SaveAccountInvoiceBody = zod.object({
+  "originalFileName": zod.string().min(1).max(saveAccountInvoiceBodyOriginalFileNameMax),
+  "originalXml": zod.string().min(1).max(saveAccountInvoiceBodyOriginalXmlMax),
+  "invoice": zod.object({
+  "issuer": zod.string().min(1).max(saveAccountInvoiceBodyInvoiceIssuerMax),
+  "number": zod.string().min(1).max(saveAccountInvoiceBodyInvoiceNumberMax),
+  "issuedAt": zod.string().max(saveAccountInvoiceBodyInvoiceIssuedAtMax),
+  "hasCompleteIbsCbs": zod.boolean(),
+  "items": zod.array(zod.object({
+  "description": zod.string().max(saveAccountInvoiceBodyInvoiceItemsItemDescriptionMax),
+  "quantity": zod.string().max(saveAccountInvoiceBodyInvoiceItemsItemQuantityMax),
+  "unit": zod.string().max(saveAccountInvoiceBodyInvoiceItemsItemUnitMax),
+  "unitPrice": zod.string().max(saveAccountInvoiceBodyInvoiceItemsItemUnitPriceMax),
+  "total": zod.string().max(saveAccountInvoiceBodyInvoiceItemsItemTotalMax)
+})).min(1).max(saveAccountInvoiceBodyInvoiceItemsMax)
+})
+})
+
+export const saveAccountInvoiceResponseInvoiceIssuerMax = 500;
+
+export const saveAccountInvoiceResponseInvoiceNumberMax = 40;
+
+export const saveAccountInvoiceResponseInvoiceIssuedAtMax = 50;
+
+export const saveAccountInvoiceResponseInvoiceItemsItemDescriptionMax = 500;
+
+export const saveAccountInvoiceResponseInvoiceItemsItemQuantityMax = 50;
+
+export const saveAccountInvoiceResponseInvoiceItemsItemUnitMax = 40;
+
+export const saveAccountInvoiceResponseInvoiceItemsItemUnitPriceMax = 50;
+
+export const saveAccountInvoiceResponseInvoiceItemsItemTotalMax = 50;
+
+export const saveAccountInvoiceResponseInvoiceItemsMax = 1000;
+
+
+
+export const SaveAccountInvoiceResponse = zod.object({
+  "id": zod.number().int(),
+  "originalFileName": zod.string(),
+  "invoice": zod.object({
+  "issuer": zod.string().min(1).max(saveAccountInvoiceResponseInvoiceIssuerMax),
+  "number": zod.string().min(1).max(saveAccountInvoiceResponseInvoiceNumberMax),
+  "issuedAt": zod.string().max(saveAccountInvoiceResponseInvoiceIssuedAtMax),
+  "hasCompleteIbsCbs": zod.boolean(),
+  "items": zod.array(zod.object({
+  "description": zod.string().max(saveAccountInvoiceResponseInvoiceItemsItemDescriptionMax),
+  "quantity": zod.string().max(saveAccountInvoiceResponseInvoiceItemsItemQuantityMax),
+  "unit": zod.string().max(saveAccountInvoiceResponseInvoiceItemsItemUnitMax),
+  "unitPrice": zod.string().max(saveAccountInvoiceResponseInvoiceItemsItemUnitPriceMax),
+  "total": zod.string().max(saveAccountInvoiceResponseInvoiceItemsItemTotalMax)
+})).min(1).max(saveAccountInvoiceResponseInvoiceItemsMax)
+}),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get this user's most recent invoice
+ */
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceIssuerMax = 500;
+
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceNumberMax = 40;
+
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceIssuedAtMax = 50;
+
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemDescriptionMax = 500;
+
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemQuantityMax = 50;
+
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemUnitMax = 40;
+
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemUnitPriceMax = 50;
+
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemTotalMax = 50;
+
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsMax = 1000;
+
+
+
+export const GetLatestAccountInvoiceResponse = zod.object({
+  "invoice": zod.union([zod.object({
+  "id": zod.number().int(),
+  "originalFileName": zod.string(),
+  "invoice": zod.object({
+  "issuer": zod.string().min(1).max(getLatestAccountInvoiceResponseInvoiceOneInvoiceIssuerMax),
+  "number": zod.string().min(1).max(getLatestAccountInvoiceResponseInvoiceOneInvoiceNumberMax),
+  "issuedAt": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceIssuedAtMax),
+  "hasCompleteIbsCbs": zod.boolean(),
+  "items": zod.array(zod.object({
+  "description": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemDescriptionMax),
+  "quantity": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemQuantityMax),
+  "unit": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemUnitMax),
+  "unitPrice": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemUnitPriceMax),
+  "total": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemTotalMax)
+})).min(1).max(getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsMax)
+}),
+  "createdAt": zod.string()
+}),zod.null()])
+})
+
+
+/**
+ * @summary Retrieve the original XML for one of this user's invoices
+ */
+
+
+
+export const GetAccountInvoiceXmlParams = zod.object({
+  "id": zod.coerce.number().int().min(1)
+})
+
+export const GetAccountInvoiceXmlResponse = zod.object({
+  "originalXml": zod.string()
+})
+
+
+/**
+ * @summary List this user's saved conferences
+ */
+
+export const listAccountConferencesResponseOneSupplierNameMax = 500;
+
+export const listAccountConferencesResponseOneInvoiceNumberMax = 40;
+
+export const listAccountConferencesResponseOneTotalExtraChargeCentsRegExp = new RegExp('^\\d+$');
+export const listAccountConferencesResponseOneResultsItemInvoiceItemIndexMin = 0;
+
+export const listAccountConferencesResponseOneResultsItemDescriptionMax = 500;
+
+export const listAccountConferencesResponseOneResultsItemOrderItemIdMax = 100;
+
+export const listAccountConferencesResponseOneResultsItemMatchedOrderDescriptionMax = 500;
+
+export const listAccountConferencesResponseOneResultsItemReceivedQuantityMax = 50;
+
+export const listAccountConferencesResponseOneResultsItemTotalCentsRegExp = new RegExp('^-?\\d+$');
+export const listAccountConferencesResponseOneResultsItemQuantityPartCentsRegExp = new RegExp('^-?\\d+$');
+export const listAccountConferencesResponseOneResultsItemPricePartCentsRegExp = new RegExp('^-?\\d+$');
+export const listAccountConferencesResponseOneResultsMax = 1000;
+
+
+
+export const ListAccountConferencesResponseItem = zod.object({
+  "invoiceId": zod.number().int().min(1).nullable(),
+  "supplierName": zod.string().min(1).max(listAccountConferencesResponseOneSupplierNameMax),
+  "invoiceNumber": zod.string().min(1).max(listAccountConferencesResponseOneInvoiceNumberMax),
+  "issuedAt": zod.string(),
+  "totalExtraChargeCents": zod.string().regex(listAccountConferencesResponseOneTotalExtraChargeCentsRegExp),
+  "hasCompleteIbsCbs": zod.boolean(),
+  "results": zod.array(zod.object({
+  "invoiceItemIndex": zod.number().int().min(listAccountConferencesResponseOneResultsItemInvoiceItemIndexMin),
+  "description": zod.string().max(listAccountConferencesResponseOneResultsItemDescriptionMax),
+  "orderItemId": zod.string().max(listAccountConferencesResponseOneResultsItemOrderItemIdMax).nullable(),
+  "matchedOrderDescription": zod.string().max(listAccountConferencesResponseOneResultsItemMatchedOrderDescriptionMax).nullable(),
+  "receivedQuantity": zod.string().max(listAccountConferencesResponseOneResultsItemReceivedQuantityMax),
+  "kind": zod.enum(['charge', 'favorable', 'ok', 'invalid', 'not-in-order']),
+  "totalCents": zod.string().regex(listAccountConferencesResponseOneResultsItemTotalCentsRegExp).nullable(),
+  "quantityPartCents": zod.string().regex(listAccountConferencesResponseOneResultsItemQuantityPartCentsRegExp).nullable(),
+  "pricePartCents": zod.string().regex(listAccountConferencesResponseOneResultsItemPricePartCentsRegExp).nullable()
+})).max(listAccountConferencesResponseOneResultsMax)
+}).and(zod.object({
+  "id": zod.number().int(),
+  "savedAt": zod.string()
+}))
+export const ListAccountConferencesResponse = zod.array(ListAccountConferencesResponseItem)
+
+
+/**
+ * @summary Save this user's conference results
+ */
+
+export const saveAccountConferenceBodySupplierNameMax = 500;
+
+export const saveAccountConferenceBodyInvoiceNumberMax = 40;
+
+export const saveAccountConferenceBodyTotalExtraChargeCentsRegExp = new RegExp('^\\d+$');
+export const saveAccountConferenceBodyResultsItemInvoiceItemIndexMin = 0;
+
+export const saveAccountConferenceBodyResultsItemDescriptionMax = 500;
+
+export const saveAccountConferenceBodyResultsItemOrderItemIdMax = 100;
+
+export const saveAccountConferenceBodyResultsItemMatchedOrderDescriptionMax = 500;
+
+export const saveAccountConferenceBodyResultsItemReceivedQuantityMax = 50;
+
+export const saveAccountConferenceBodyResultsItemTotalCentsRegExp = new RegExp('^-?\\d+$');
+export const saveAccountConferenceBodyResultsItemQuantityPartCentsRegExp = new RegExp('^-?\\d+$');
+export const saveAccountConferenceBodyResultsItemPricePartCentsRegExp = new RegExp('^-?\\d+$');
+export const saveAccountConferenceBodyResultsMax = 1000;
+
+
+
+export const SaveAccountConferenceBody = zod.object({
+  "invoiceId": zod.number().int().min(1).nullable(),
+  "supplierName": zod.string().min(1).max(saveAccountConferenceBodySupplierNameMax),
+  "invoiceNumber": zod.string().min(1).max(saveAccountConferenceBodyInvoiceNumberMax),
+  "issuedAt": zod.string(),
+  "totalExtraChargeCents": zod.string().regex(saveAccountConferenceBodyTotalExtraChargeCentsRegExp),
+  "hasCompleteIbsCbs": zod.boolean(),
+  "results": zod.array(zod.object({
+  "invoiceItemIndex": zod.number().int().min(saveAccountConferenceBodyResultsItemInvoiceItemIndexMin),
+  "description": zod.string().max(saveAccountConferenceBodyResultsItemDescriptionMax),
+  "orderItemId": zod.string().max(saveAccountConferenceBodyResultsItemOrderItemIdMax).nullable(),
+  "matchedOrderDescription": zod.string().max(saveAccountConferenceBodyResultsItemMatchedOrderDescriptionMax).nullable(),
+  "receivedQuantity": zod.string().max(saveAccountConferenceBodyResultsItemReceivedQuantityMax),
+  "kind": zod.enum(['charge', 'favorable', 'ok', 'invalid', 'not-in-order']),
+  "totalCents": zod.string().regex(saveAccountConferenceBodyResultsItemTotalCentsRegExp).nullable(),
+  "quantityPartCents": zod.string().regex(saveAccountConferenceBodyResultsItemQuantityPartCentsRegExp).nullable(),
+  "pricePartCents": zod.string().regex(saveAccountConferenceBodyResultsItemPricePartCentsRegExp).nullable()
+})).max(saveAccountConferenceBodyResultsMax)
+})
+
+
+export const saveAccountConferenceResponseOneSupplierNameMax = 500;
+
+export const saveAccountConferenceResponseOneInvoiceNumberMax = 40;
+
+export const saveAccountConferenceResponseOneTotalExtraChargeCentsRegExp = new RegExp('^\\d+$');
+export const saveAccountConferenceResponseOneResultsItemInvoiceItemIndexMin = 0;
+
+export const saveAccountConferenceResponseOneResultsItemDescriptionMax = 500;
+
+export const saveAccountConferenceResponseOneResultsItemOrderItemIdMax = 100;
+
+export const saveAccountConferenceResponseOneResultsItemMatchedOrderDescriptionMax = 500;
+
+export const saveAccountConferenceResponseOneResultsItemReceivedQuantityMax = 50;
+
+export const saveAccountConferenceResponseOneResultsItemTotalCentsRegExp = new RegExp('^-?\\d+$');
+export const saveAccountConferenceResponseOneResultsItemQuantityPartCentsRegExp = new RegExp('^-?\\d+$');
+export const saveAccountConferenceResponseOneResultsItemPricePartCentsRegExp = new RegExp('^-?\\d+$');
+export const saveAccountConferenceResponseOneResultsMax = 1000;
+
+
+
+export const SaveAccountConferenceResponse = zod.object({
+  "invoiceId": zod.number().int().min(1).nullable(),
+  "supplierName": zod.string().min(1).max(saveAccountConferenceResponseOneSupplierNameMax),
+  "invoiceNumber": zod.string().min(1).max(saveAccountConferenceResponseOneInvoiceNumberMax),
+  "issuedAt": zod.string(),
+  "totalExtraChargeCents": zod.string().regex(saveAccountConferenceResponseOneTotalExtraChargeCentsRegExp),
+  "hasCompleteIbsCbs": zod.boolean(),
+  "results": zod.array(zod.object({
+  "invoiceItemIndex": zod.number().int().min(saveAccountConferenceResponseOneResultsItemInvoiceItemIndexMin),
+  "description": zod.string().max(saveAccountConferenceResponseOneResultsItemDescriptionMax),
+  "orderItemId": zod.string().max(saveAccountConferenceResponseOneResultsItemOrderItemIdMax).nullable(),
+  "matchedOrderDescription": zod.string().max(saveAccountConferenceResponseOneResultsItemMatchedOrderDescriptionMax).nullable(),
+  "receivedQuantity": zod.string().max(saveAccountConferenceResponseOneResultsItemReceivedQuantityMax),
+  "kind": zod.enum(['charge', 'favorable', 'ok', 'invalid', 'not-in-order']),
+  "totalCents": zod.string().regex(saveAccountConferenceResponseOneResultsItemTotalCentsRegExp).nullable(),
+  "quantityPartCents": zod.string().regex(saveAccountConferenceResponseOneResultsItemQuantityPartCentsRegExp).nullable(),
+  "pricePartCents": zod.string().regex(saveAccountConferenceResponseOneResultsItemPricePartCentsRegExp).nullable()
+})).max(saveAccountConferenceResponseOneResultsMax)
+}).and(zod.object({
+  "id": zod.number().int(),
+  "savedAt": zod.string()
+}))
+
+
+/**
+ * @summary Import browser data after the user confirms ownership
+ */
+export const importLegacyAccountDataBodyOrderItemsItemIdMax = 100;
+
+export const importLegacyAccountDataBodyOrderItemsItemDescricaoMax = 500;
+
+export const importLegacyAccountDataBodyOrderItemsItemQuantidadeMax = 50;
+
+export const importLegacyAccountDataBodyOrderItemsItemUnidadeMax = 40;
+
+export const importLegacyAccountDataBodyOrderItemsItemPrecoUnitarioMax = 50;
+
+export const importLegacyAccountDataBodyOrderItemsMax = 500;
+
+export const importLegacyAccountDataBodyConferencesItemSupplierNameMax = 500;
+
+export const importLegacyAccountDataBodyConferencesItemInvoiceNumberMax = 40;
+
+export const importLegacyAccountDataBodyConferencesItemTotalExtraChargeCentsRegExp = new RegExp('^\\d+$');
+export const importLegacyAccountDataBodyConferencesMax = 5000;
+
+
+
+export const ImportLegacyAccountDataBody = zod.object({
+  "orderItems": zod.array(zod.object({
+  "id": zod.string().min(1).max(importLegacyAccountDataBodyOrderItemsItemIdMax),
+  "descricao": zod.string().max(importLegacyAccountDataBodyOrderItemsItemDescricaoMax),
+  "quantidade": zod.string().max(importLegacyAccountDataBodyOrderItemsItemQuantidadeMax),
+  "unidade": zod.string().max(importLegacyAccountDataBodyOrderItemsItemUnidadeMax),
+  "precoUnitario": zod.string().max(importLegacyAccountDataBodyOrderItemsItemPrecoUnitarioMax)
+})).max(importLegacyAccountDataBodyOrderItemsMax),
+  "conferences": zod.array(zod.object({
+  "supplierName": zod.string().min(1).max(importLegacyAccountDataBodyConferencesItemSupplierNameMax),
+  "invoiceNumber": zod.string().min(1).max(importLegacyAccountDataBodyConferencesItemInvoiceNumberMax),
+  "issuedAt": zod.string(),
+  "totalExtraChargeCents": zod.string().regex(importLegacyAccountDataBodyConferencesItemTotalExtraChargeCentsRegExp),
+  "hasCompleteIbsCbs": zod.boolean(),
+  "savedAt": zod.string()
+})).max(importLegacyAccountDataBodyConferencesMax)
+})
+
+export const importLegacyAccountDataResponseImportedOrderItemsMin = 0;
+
+export const importLegacyAccountDataResponseImportedConferencesMin = 0;
+
+
+
+export const ImportLegacyAccountDataResponse = zod.object({
+  "importedOrderItems": zod.number().int().min(importLegacyAccountDataResponseImportedOrderItemsMin),
+  "importedConferences": zod.number().int().min(importLegacyAccountDataResponseImportedConferencesMin)
+})
+
+

@@ -7,11 +7,17 @@ export interface NfeItem {
 }
 
 export interface NfeInvoice {
+  id?: number;
   issuer: string;
   number: string;
   issuedAt: string;
   hasCompleteIbsCbs: boolean;
   items: NfeItem[];
+}
+
+export interface ReadNfeFileResult {
+  invoice: NfeInvoice;
+  rawXml: string;
 }
 
 const NFE_NAMESPACE = "http://www.portalfiscal.inf.br/nfe";
@@ -116,7 +122,7 @@ export function parseNfeXml(xml: string): NfeInvoice {
   return { issuer, number, issuedAt, hasCompleteIbsCbs, items };
 }
 
-export async function readNfeFile(file: File): Promise<NfeInvoice> {
+export async function readNfeFile(file: File): Promise<ReadNfeFileResult> {
   if (!/\.xml$/i.test(file.name)) {
     throw new Error("Formato não aceito. Selecione um arquivo .xml de NF-e.");
   }
@@ -138,5 +144,5 @@ export async function readNfeFile(file: File): Promise<NfeInvoice> {
   } catch {
     throw new Error("Não foi possível ler a codificação do arquivo. Use o XML original da NF-e.");
   }
-  return parseNfeXml(xml);
+  return { invoice: parseNfeXml(xml), rawXml: xml };
 }

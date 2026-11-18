@@ -2,15 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Check, Copy, FileCheck2, Save, ShieldAlert, Sparkles } from "lucide-react";
 import {
+  getGetLatestAccountInvoiceQueryKey,
+  useGetAccountOrder,
+  useGetLatestAccountInvoice,
   useGenerateChargeMessage,
+  useSaveAccountConference,
   useSuggestOrderMatches,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useNfe } from "@/lib/nfe-context";
-import { readPedido, type PedidoItem } from "@/lib/pedido-store";
-import { saveConferenceHistoryRecord } from "@/lib/conference-history";
+import type { PedidoItem } from "@/lib/pedido-store";
 import IbsCbsSeal from "@/components/ibs-cbs-seal";
 import {
   calculateItem,
@@ -162,7 +165,11 @@ function Result({
 }
 
 function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version: number }) {
-  const [pedido] = useState(readPedido);
+  const orderQuery = useGetAccountOrder();
+  const pedido = {
+    items: orderQuery.data?.items ?? [],
+    warning: orderQuery.isError ? "Não foi possível carregar o pedido salvo na sua conta." : null,
+  };
   const [rows, setRows] = useState(() => initialRows(invoice));
   const [generatedMessage, setGeneratedMessage] = useState("");
   const [generationError, setGenerationError] = useState("");
@@ -170,6 +177,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
   const [saveStatus, setSaveStatus] = useState<{ tone: "success" | "error"; message: string } | null>(null);
   const [suggestionStatus, setSuggestionStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const messageMutation = useGenerateChargeMessage();
+  const saveConferenceMutation = useSaveAccountConference();
   const suggestionMutation = useSuggestOrderMatches();
   const editRevision = useRef(0);
 
@@ -192,7 +200,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
   }
 
   useEffect(() => {
-    if (pedido.items.length === 0 || invoice.items.length === 0) return;
+    if (orderQuery.isLoading || pedido.items.length === 0 || invoice.items.length === 0) return;
 
     const invoiceDescriptions = invoice.items.map((item) => item.description);
     const orderDescriptions = pedido.items.map((item) => item.descricao);
@@ -249,7 +257,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
     return () => {
       cancelled = true;
     };
-  }, [invoice, pedido.items]);
+  }, [invoice, orderQuery.isLoading, pedido.items]);
 
   const resolved = invoice.items.map((item, index) => {
     const row = rows[index] ?? {
@@ -327,22 +335,48 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
     }
   }
 
-  function saveConference() {
-    const result = saveConferenceHistoryRecord({
-      supplierName: invoice.issuer,
-      invoiceNumber: invoice.number,
-      issuedAt: invoice.issuedAt,
-      totalExtraChargeCents: totalCents.toString(),
-      hasCompleteIbsCbs: invoice.hasCompleteIbsCbs,
-    });
-    setSaveStatus(result.ok
-      ? {
-          tone: "success",
-          message: result.updated
-            ? "Esta nota já estava no histórico e foi atualizada."
-            : "Conferência salva no histórico de fornecedores.",
-        }
-      : { tone: "error", message: result.message });
+  async function saveConference() {
+    if (invoice.id === undefined) {
+      setSaveStatus({
+        tone: "error",
+        message: "Esta nota ainda não foi salva na sua conta. Volte à tela Nota fiscal e envie o XML novamente.",
+      });
+      return;
+    }
+    const results = resolved.map(({ item, row, matchedOrderItem, calculation }, invoiceItemIndex) => ({
+      invoiceItemIndex,
+      description: item.description,
+      orderItemId: row.orderItemId && row.orderItemId !== NOT_IN_ORDER ? row.orderItemId : null,
+      matchedOrderDescription: matchedOrderItem?.descricao ?? null,
+      receivedQuantity: row.receivedQuantity,
+      kind: calculation?.kind ?? "invalid" as const,
+      totalCents: calculation?.totalCents?.toString() ?? null,
+      quantityPartCents: calculation?.quantityPartCents?.toString() ?? null,
+      pricePartCents: calculation?.pricePartCents?.toString() ?? null,
+    }));
+
+    try {
+      await saveConferenceMutation.mutateAsync({
+        data: {
+          invoiceId: invoice.id,
+          supplierName: invoice.issuer,
+          invoiceNumber: invoice.number,
+          issuedAt: invoice.issuedAt,
+          totalExtraChargeCents: totalCents.toString(),
+          hasCompleteIbsCbs: invoice.hasCompleteIbsCbs,
+          results,
+        },
+      });
+      setSaveStatus({
+        tone: "success",
+        message: "Conferência salva no histórico da sua conta.",
+      });
+    } catch {
+      setSaveStatus({
+        tone: "error",
+        message: "Não foi possível salvar a conferência. Tente novamente.",
+      });
+    }
   }
 
   return (
@@ -593,7 +627,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
           <div className="max-w-2xl">
             <h2 className="font-display text-lg font-bold">Salvar no histórico de fornecedores</h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Guarda o fornecedor, a nota, o total cobrado a mais e o selo no armazenamento deste navegador.
+              Guarda os itens conferidos, os valores calculados, a nota e o selo na sua conta.
             </p>
             {pendingCount > 0 && (
               <p className="mt-2 text-xs font-medium text-amber-800" role="note">
@@ -614,12 +648,12 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
           <Button
             type="button"
             onClick={saveConference}
-            disabled={pendingCount > 0}
+            disabled={pendingCount > 0 || saveConferenceMutation.isPending}
             className="w-full shrink-0 sm:w-auto"
             data-testid="button-save-conference"
           >
             <Save className="mr-2 h-4 w-4" aria-hidden="true" />
-            Salvar conferência
+            {saveConferenceMutation.isPending ? "Salvando..." : "Salvar conferência"}
           </Button>
         </section>
 
@@ -637,9 +671,40 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
 }
 
 export default function Conferencia() {
-  const { invoice, version } = useNfe();
+  const { invoice, version, setInvoice } = useNfe();
+  const latestInvoiceQuery = useGetLatestAccountInvoice({
+    query: {
+      enabled: !invoice,
+      queryKey: getGetLatestAccountInvoiceQueryKey(),
+    },
+  });
+
+  useEffect(() => {
+    const latest = latestInvoiceQuery.data?.invoice;
+    if (!invoice && latest) setInvoice({ ...latest.invoice, id: latest.id });
+  }, [invoice, latestInvoiceQuery.data, setInvoice]);
 
   if (!invoice) {
+    if (latestInvoiceQuery.isLoading) {
+      return (
+        <main className="mx-auto max-w-3xl px-5 py-16" aria-busy="true">
+          <p className="text-center text-sm text-muted-foreground">Carregando sua última nota...</p>
+        </main>
+      );
+    }
+    if (latestInvoiceQuery.isError) {
+      return (
+        <main className="mx-auto max-w-3xl px-5 py-16">
+          <section className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-center" role="alert">
+            <h1 className="font-display text-2xl font-bold">Não foi possível carregar a nota</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Tente novamente ou abra a tela Nota fiscal.</p>
+            <Button type="button" className="mt-5" onClick={() => void latestInvoiceQuery.refetch()}>
+              Tentar novamente
+            </Button>
+          </section>
+        </main>
+      );
+    }
     return (
       <main className="mx-auto max-w-3xl px-5 py-16 sm:py-24">
         <section className="rounded-2xl border bg-card p-6 text-center sm:p-10">

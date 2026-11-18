@@ -20,13 +20,28 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AuthUserEnvelope,
+  BeginBrowserLoginParams,
   ChargeMessageError,
   ChargeMessageInput,
   ChargeMessageResult,
+  ConferenceInput,
+  ConferenceList,
+  ConferenceRecord,
   ExtractedOrderItems,
   HealthStatus,
+  InvoiceInput,
+  InvoiceList,
+  InvoiceRecord,
+  InvoiceXml,
+  LatestInvoiceEnvelope,
+  LegacyImportInput,
+  LegacyImportResult,
+  LogoutBrowserSessionParams,
+  OrderInput,
   OrderMatchSuggestionsInput,
   OrderMatchSuggestionsResult,
+  OrderSnapshot,
   WhatsAppOrderTextInput
 } from './api.schemas';
 
@@ -397,5 +412,1064 @@ export const useSuggestOrderMatches = <TError = ErrorType<ChargeMessageError>,
         TContext
       > => {
       return useMutation(getSuggestOrderMatchesMutationOptions(options));
+    }
+
+export const getGetCurrentAuthUserUrl = () => {
+
+
+
+
+  return `/api/auth/user`
+}
+
+/**
+ * @summary Get the signed-in user
+ */
+export const getCurrentAuthUser = async ( options?: Parameters<typeof customFetch>[1]): Promise<AuthUserEnvelope> => {
+
+  return customFetch<AuthUserEnvelope>(getGetCurrentAuthUserUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCurrentAuthUserQueryKey = () => {
+    return [
+    `/api/auth/user`
+    ] as const;
+    }
+
+
+export const getGetCurrentAuthUserQueryOptions = <TData = Awaited<ReturnType<typeof getCurrentAuthUser>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCurrentAuthUser>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCurrentAuthUserQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCurrentAuthUser>>> = ({ signal }) => getCurrentAuthUser({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCurrentAuthUser>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCurrentAuthUserQueryResult = NonNullable<Awaited<ReturnType<typeof getCurrentAuthUser>>>
+export type GetCurrentAuthUserQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the signed-in user
+ */
+
+export function useGetCurrentAuthUser<TData = Awaited<ReturnType<typeof getCurrentAuthUser>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCurrentAuthUser>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCurrentAuthUserQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getBeginBrowserLoginUrl = (params?: BeginBrowserLoginParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/login?${stringifiedParams}` : `/api/login`
+}
+
+/**
+ * @summary Start browser authentication
+ */
+export const beginBrowserLogin = async (params?: BeginBrowserLoginParams, options?: Parameters<typeof customFetch>[1]): Promise<unknown> => {
+
+  return customFetch<unknown>(getBeginBrowserLoginUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getBeginBrowserLoginQueryKey = (params?: BeginBrowserLoginParams,) => {
+    return [
+    `/api/login`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getBeginBrowserLoginQueryOptions = <TData = Awaited<ReturnType<typeof beginBrowserLogin>>, TError = ErrorType<void>>(params?: BeginBrowserLoginParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof beginBrowserLogin>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getBeginBrowserLoginQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof beginBrowserLogin>>> = ({ signal }) => beginBrowserLogin(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof beginBrowserLogin>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type BeginBrowserLoginQueryResult = NonNullable<Awaited<ReturnType<typeof beginBrowserLogin>>>
+export type BeginBrowserLoginQueryError = ErrorType<void>
+
+
+/**
+ * @summary Start browser authentication
+ */
+
+export function useBeginBrowserLogin<TData = Awaited<ReturnType<typeof beginBrowserLogin>>, TError = ErrorType<void>>(
+ params?: BeginBrowserLoginParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof beginBrowserLogin>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getBeginBrowserLoginQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCompleteBrowserLoginUrl = () => {
+
+
+
+
+  return `/api/callback`
+}
+
+/**
+ * @summary Complete browser authentication
+ */
+export const completeBrowserLogin = async ( options?: Parameters<typeof customFetch>[1]): Promise<unknown> => {
+
+  return customFetch<unknown>(getCompleteBrowserLoginUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getCompleteBrowserLoginQueryKey = () => {
+    return [
+    `/api/callback`
+    ] as const;
+    }
+
+
+export const getCompleteBrowserLoginQueryOptions = <TData = Awaited<ReturnType<typeof completeBrowserLogin>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof completeBrowserLogin>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCompleteBrowserLoginQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof completeBrowserLogin>>> = ({ signal }) => completeBrowserLogin({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof completeBrowserLogin>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type CompleteBrowserLoginQueryResult = NonNullable<Awaited<ReturnType<typeof completeBrowserLogin>>>
+export type CompleteBrowserLoginQueryError = ErrorType<void>
+
+
+/**
+ * @summary Complete browser authentication
+ */
+
+export function useCompleteBrowserLogin<TData = Awaited<ReturnType<typeof completeBrowserLogin>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof completeBrowserLogin>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getCompleteBrowserLoginQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getLogoutBrowserSessionUrl = (params?: LogoutBrowserSessionParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/logout?${stringifiedParams}` : `/api/logout`
+}
+
+/**
+ * @summary End the browser session
+ */
+export const logoutBrowserSession = async (params?: LogoutBrowserSessionParams, options?: Parameters<typeof customFetch>[1]): Promise<unknown> => {
+
+  return customFetch<unknown>(getLogoutBrowserSessionUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getLogoutBrowserSessionQueryKey = (params?: LogoutBrowserSessionParams,) => {
+    return [
+    `/api/logout`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getLogoutBrowserSessionQueryOptions = <TData = Awaited<ReturnType<typeof logoutBrowserSession>>, TError = ErrorType<void>>(params?: LogoutBrowserSessionParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof logoutBrowserSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getLogoutBrowserSessionQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof logoutBrowserSession>>> = ({ signal }) => logoutBrowserSession(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof logoutBrowserSession>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type LogoutBrowserSessionQueryResult = NonNullable<Awaited<ReturnType<typeof logoutBrowserSession>>>
+export type LogoutBrowserSessionQueryError = ErrorType<void>
+
+
+/**
+ * @summary End the browser session
+ */
+
+export function useLogoutBrowserSession<TData = Awaited<ReturnType<typeof logoutBrowserSession>>, TError = ErrorType<void>>(
+ params?: LogoutBrowserSessionParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof logoutBrowserSession>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getLogoutBrowserSessionQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAccountOrderUrl = () => {
+
+
+
+
+  return `/api/account/order`
+}
+
+/**
+ * @summary Get this user's supplier order
+ */
+export const getAccountOrder = async ( options?: Parameters<typeof customFetch>[1]): Promise<OrderSnapshot> => {
+
+  return customFetch<OrderSnapshot>(getGetAccountOrderUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAccountOrderQueryKey = () => {
+    return [
+    `/api/account/order`
+    ] as const;
+    }
+
+
+export const getGetAccountOrderQueryOptions = <TData = Awaited<ReturnType<typeof getAccountOrder>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAccountOrder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAccountOrderQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAccountOrder>>> = ({ signal }) => getAccountOrder({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAccountOrder>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAccountOrderQueryResult = NonNullable<Awaited<ReturnType<typeof getAccountOrder>>>
+export type GetAccountOrderQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get this user's supplier order
+ */
+
+export function useGetAccountOrder<TData = Awaited<ReturnType<typeof getAccountOrder>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAccountOrder>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAccountOrderQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveAccountOrderUrl = () => {
+
+
+
+
+  return `/api/account/order`
+}
+
+/**
+ * @summary Save this user's supplier order
+ */
+export const saveAccountOrder = async (orderInput: OrderInput, options?: Parameters<typeof customFetch>[1]): Promise<OrderSnapshot> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<OrderSnapshot>(getSaveAccountOrderUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(orderInput)
+  }
+);}
+
+
+
+
+
+export const getSaveAccountOrderMutationKey = () => ['saveAccountOrder'] as const;
+
+export const getSaveAccountOrderMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAccountOrder>>, TError,SaveAccountOrderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveAccountOrder>>, TError,SaveAccountOrderMutationVariables, TContext> => {
+
+const mutationKey = getSaveAccountOrderMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveAccountOrder>>, SaveAccountOrderMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveAccountOrder(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveAccountOrderMutationResult = NonNullable<Awaited<ReturnType<typeof saveAccountOrder>>>
+    export type SaveAccountOrderMutationBody = BodyType<OrderInput>
+    export type SaveAccountOrderMutationError = ErrorType<unknown>
+    export type SaveAccountOrderMutationVariables = {data: BodyType<OrderInput>}
+
+    /**
+ * @summary Save this user's supplier order
+ */
+export const useSaveAccountOrder = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAccountOrder>>, TError,SaveAccountOrderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveAccountOrder>>,
+        TError,
+        SaveAccountOrderMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveAccountOrderMutationOptions(options));
+    }
+
+export const getListAccountInvoicesUrl = () => {
+
+
+
+
+  return `/api/account/invoices`
+}
+
+/**
+ * @summary List this user's saved invoices
+ */
+export const listAccountInvoices = async ( options?: Parameters<typeof customFetch>[1]): Promise<InvoiceList> => {
+
+  return customFetch<InvoiceList>(getListAccountInvoicesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAccountInvoicesQueryKey = () => {
+    return [
+    `/api/account/invoices`
+    ] as const;
+    }
+
+
+export const getListAccountInvoicesQueryOptions = <TData = Awaited<ReturnType<typeof listAccountInvoices>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAccountInvoices>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAccountInvoicesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAccountInvoices>>> = ({ signal }) => listAccountInvoices({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAccountInvoices>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAccountInvoicesQueryResult = NonNullable<Awaited<ReturnType<typeof listAccountInvoices>>>
+export type ListAccountInvoicesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List this user's saved invoices
+ */
+
+export function useListAccountInvoices<TData = Awaited<ReturnType<typeof listAccountInvoices>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAccountInvoices>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAccountInvoicesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveAccountInvoiceUrl = () => {
+
+
+
+
+  return `/api/account/invoices`
+}
+
+/**
+ * @summary Save an invoice and its original XML
+ */
+export const saveAccountInvoice = async (invoiceInput: InvoiceInput, options?: Parameters<typeof customFetch>[1]): Promise<InvoiceRecord> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<InvoiceRecord>(getSaveAccountInvoiceUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(invoiceInput)
+  }
+);}
+
+
+
+
+
+export const getSaveAccountInvoiceMutationKey = () => ['saveAccountInvoice'] as const;
+
+export const getSaveAccountInvoiceMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAccountInvoice>>, TError,SaveAccountInvoiceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveAccountInvoice>>, TError,SaveAccountInvoiceMutationVariables, TContext> => {
+
+const mutationKey = getSaveAccountInvoiceMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveAccountInvoice>>, SaveAccountInvoiceMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveAccountInvoice(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveAccountInvoiceMutationResult = NonNullable<Awaited<ReturnType<typeof saveAccountInvoice>>>
+    export type SaveAccountInvoiceMutationBody = BodyType<InvoiceInput>
+    export type SaveAccountInvoiceMutationError = ErrorType<unknown>
+    export type SaveAccountInvoiceMutationVariables = {data: BodyType<InvoiceInput>}
+
+    /**
+ * @summary Save an invoice and its original XML
+ */
+export const useSaveAccountInvoice = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAccountInvoice>>, TError,SaveAccountInvoiceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveAccountInvoice>>,
+        TError,
+        SaveAccountInvoiceMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveAccountInvoiceMutationOptions(options));
+    }
+
+export const getGetLatestAccountInvoiceUrl = () => {
+
+
+
+
+  return `/api/account/invoices/latest`
+}
+
+/**
+ * @summary Get this user's most recent invoice
+ */
+export const getLatestAccountInvoice = async ( options?: Parameters<typeof customFetch>[1]): Promise<LatestInvoiceEnvelope> => {
+
+  return customFetch<LatestInvoiceEnvelope>(getGetLatestAccountInvoiceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLatestAccountInvoiceQueryKey = () => {
+    return [
+    `/api/account/invoices/latest`
+    ] as const;
+    }
+
+
+export const getGetLatestAccountInvoiceQueryOptions = <TData = Awaited<ReturnType<typeof getLatestAccountInvoice>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLatestAccountInvoice>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLatestAccountInvoiceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLatestAccountInvoice>>> = ({ signal }) => getLatestAccountInvoice({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLatestAccountInvoice>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLatestAccountInvoiceQueryResult = NonNullable<Awaited<ReturnType<typeof getLatestAccountInvoice>>>
+export type GetLatestAccountInvoiceQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get this user's most recent invoice
+ */
+
+export function useGetLatestAccountInvoice<TData = Awaited<ReturnType<typeof getLatestAccountInvoice>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLatestAccountInvoice>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLatestAccountInvoiceQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAccountInvoiceXmlUrl = (id: number,) => {
+
+
+
+
+  return `/api/account/invoices/${id}/xml`
+}
+
+/**
+ * @summary Retrieve the original XML for one of this user's invoices
+ */
+export const getAccountInvoiceXml = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<InvoiceXml> => {
+
+  return customFetch<InvoiceXml>(getGetAccountInvoiceXmlUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAccountInvoiceXmlQueryKey = (id: number,) => {
+    return [
+    `/api/account/invoices/${id}/xml`
+    ] as const;
+    }
+
+
+export const getGetAccountInvoiceXmlQueryOptions = <TData = Awaited<ReturnType<typeof getAccountInvoiceXml>>, TError = ErrorType<ChargeMessageError>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAccountInvoiceXml>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAccountInvoiceXmlQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAccountInvoiceXml>>> = ({ signal }) => getAccountInvoiceXml(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAccountInvoiceXml>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAccountInvoiceXmlQueryResult = NonNullable<Awaited<ReturnType<typeof getAccountInvoiceXml>>>
+export type GetAccountInvoiceXmlQueryError = ErrorType<ChargeMessageError>
+
+
+/**
+ * @summary Retrieve the original XML for one of this user's invoices
+ */
+
+export function useGetAccountInvoiceXml<TData = Awaited<ReturnType<typeof getAccountInvoiceXml>>, TError = ErrorType<ChargeMessageError>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAccountInvoiceXml>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAccountInvoiceXmlQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAccountConferencesUrl = () => {
+
+
+
+
+  return `/api/account/conferences`
+}
+
+/**
+ * @summary List this user's saved conferences
+ */
+export const listAccountConferences = async ( options?: Parameters<typeof customFetch>[1]): Promise<ConferenceList> => {
+
+  return customFetch<ConferenceList>(getListAccountConferencesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAccountConferencesQueryKey = () => {
+    return [
+    `/api/account/conferences`
+    ] as const;
+    }
+
+
+export const getListAccountConferencesQueryOptions = <TData = Awaited<ReturnType<typeof listAccountConferences>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAccountConferences>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAccountConferencesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAccountConferences>>> = ({ signal }) => listAccountConferences({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAccountConferences>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAccountConferencesQueryResult = NonNullable<Awaited<ReturnType<typeof listAccountConferences>>>
+export type ListAccountConferencesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List this user's saved conferences
+ */
+
+export function useListAccountConferences<TData = Awaited<ReturnType<typeof listAccountConferences>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAccountConferences>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAccountConferencesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveAccountConferenceUrl = () => {
+
+
+
+
+  return `/api/account/conferences`
+}
+
+/**
+ * @summary Save this user's conference results
+ */
+export const saveAccountConference = async (conferenceInput: ConferenceInput, options?: Parameters<typeof customFetch>[1]): Promise<ConferenceRecord> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<ConferenceRecord>(getSaveAccountConferenceUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(conferenceInput)
+  }
+);}
+
+
+
+
+
+export const getSaveAccountConferenceMutationKey = () => ['saveAccountConference'] as const;
+
+export const getSaveAccountConferenceMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAccountConference>>, TError,SaveAccountConferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveAccountConference>>, TError,SaveAccountConferenceMutationVariables, TContext> => {
+
+const mutationKey = getSaveAccountConferenceMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveAccountConference>>, SaveAccountConferenceMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveAccountConference(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveAccountConferenceMutationResult = NonNullable<Awaited<ReturnType<typeof saveAccountConference>>>
+    export type SaveAccountConferenceMutationBody = BodyType<ConferenceInput>
+    export type SaveAccountConferenceMutationError = ErrorType<unknown>
+    export type SaveAccountConferenceMutationVariables = {data: BodyType<ConferenceInput>}
+
+    /**
+ * @summary Save this user's conference results
+ */
+export const useSaveAccountConference = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAccountConference>>, TError,SaveAccountConferenceMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveAccountConference>>,
+        TError,
+        SaveAccountConferenceMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveAccountConferenceMutationOptions(options));
+    }
+
+export const getImportLegacyAccountDataUrl = () => {
+
+
+
+
+  return `/api/account/import-legacy`
+}
+
+/**
+ * @summary Import browser data after the user confirms ownership
+ */
+export const importLegacyAccountData = async (legacyImportInput: LegacyImportInput, options?: Parameters<typeof customFetch>[1]): Promise<LegacyImportResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LegacyImportResult>(getImportLegacyAccountDataUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(legacyImportInput)
+  }
+);}
+
+
+
+
+
+export const getImportLegacyAccountDataMutationKey = () => ['importLegacyAccountData'] as const;
+
+export const getImportLegacyAccountDataMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importLegacyAccountData>>, TError,ImportLegacyAccountDataMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof importLegacyAccountData>>, TError,ImportLegacyAccountDataMutationVariables, TContext> => {
+
+const mutationKey = getImportLegacyAccountDataMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof importLegacyAccountData>>, ImportLegacyAccountDataMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  importLegacyAccountData(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ImportLegacyAccountDataMutationResult = NonNullable<Awaited<ReturnType<typeof importLegacyAccountData>>>
+    export type ImportLegacyAccountDataMutationBody = BodyType<LegacyImportInput>
+    export type ImportLegacyAccountDataMutationError = ErrorType<unknown>
+    export type ImportLegacyAccountDataMutationVariables = {data: BodyType<LegacyImportInput>}
+
+    /**
+ * @summary Import browser data after the user confirms ownership
+ */
+export const useImportLegacyAccountData = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importLegacyAccountData>>, TError,ImportLegacyAccountDataMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof importLegacyAccountData>>,
+        TError,
+        ImportLegacyAccountDataMutationVariables,
+        TContext
+      > => {
+      return useMutation(getImportLegacyAccountDataMutationOptions(options));
     }
 

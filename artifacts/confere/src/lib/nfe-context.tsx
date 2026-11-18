@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 import type { NfeInvoice } from "@/lib/nfe";
 
 interface LoadedInvoiceState {
@@ -18,9 +18,9 @@ export function NfeProvider({ children }: { children: ReactNode }) {
     version: 0,
   });
 
-  function setInvoice(invoice: NfeInvoice | null) {
+  const setInvoice = useCallback((invoice: NfeInvoice | null) => {
     setState((current) => ({ invoice, version: current.version + 1 }));
-  }
+  }, []);
 
   return (
     <NfeContext.Provider value={{ ...state, setInvoice }}>

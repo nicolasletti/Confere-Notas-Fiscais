@@ -49,12 +49,12 @@ export default function Landing() {
           <Wordmark />
         </Link>
         <nav aria-label="Acesso" className="flex items-center gap-2 sm:gap-3">
-          <button type="button" disabled title="Acesso disponível em uma próxima etapa" className="landing-disabled inline-flex min-h-10 rounded-full px-3 text-xs font-semibold sm:px-4 sm:text-sm" data-testid="button-login-disabled">
+          <Link href="/entrar" className="inline-flex min-h-10 items-center rounded-full px-3 text-xs font-semibold transition-colors hover:text-[#4d58b3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4d58b3] sm:px-4 sm:text-sm" data-testid="link-login">
             Entrar
-          </button>
-          <button type="button" disabled title="Acesso disponível em uma próxima etapa" className="landing-disabled min-h-10 rounded-full border border-[#d8d6cf] px-4 text-xs font-semibold sm:px-5 sm:text-sm" data-testid="button-create-account-disabled">
+          </Link>
+          <Link href="/cadastro" className="inline-flex min-h-10 items-center rounded-full border border-[#d8d6cf] px-4 text-xs font-semibold transition-colors hover:border-[#4d58b3] hover:text-[#4d58b3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4d58b3] sm:px-5 sm:text-sm" data-testid="link-create-account">
             Criar conta grátis
-          </button>
+          </Link>
         </nav>
       </header>
 
@@ -78,7 +78,7 @@ export default function Landing() {
               Suba a nota do fornecedor e descubra em segundos se você foi cobrado errado.
             </p>
             <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <Link href="/nota-fiscal" className="landing-cta group inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-[#4d58b3] px-7 text-base font-bold text-white shadow-[0_12px_24px_-12px_rgba(54,62,143,.55)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4d58b3] focus-visible:ring-offset-4 sm:w-auto" data-testid="link-start-upload">
+              <Link href="/cadastro" className="landing-cta group inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-[#4d58b3] px-7 text-base font-bold text-white shadow-[0_12px_24px_-12px_rgba(54,62,143,.55)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4d58b3] focus-visible:ring-offset-4 sm:w-auto" data-testid="link-start-upload">
                 Começar agora
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </Link>
@@ -176,7 +176,7 @@ export default function Landing() {
                 <p className="mt-5 text-base leading-7 text-[#62647c]">
                   Do combinado no WhatsApp à nota que chegou na loja: confira cada etapa com clareza.
                 </p>
-                <Link href="/nota-fiscal" className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#4d58b3] transition-colors hover:text-[#343d91]">
+                <Link href="/cadastro" className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#4d58b3] transition-colors hover:text-[#343d91]">
                   Começar agora <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </div>
@@ -227,7 +227,7 @@ export default function Landing() {
                 Confira antes de guardar.
               </h2>
               <p className="mt-4 max-w-xl text-base leading-7 text-[#62647c]">Comece pela nota fiscal que chegou hoje.</p>
-              <Link href="/nota-fiscal" className="landing-cta group mt-7 inline-flex min-h-13 items-center justify-center gap-3 rounded-full bg-[#4d58b3] px-6 py-3 text-sm font-bold text-white transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4d58b3] focus-visible:ring-offset-4" data-testid="link-final-upload">
+              <Link href="/cadastro" className="landing-cta group mt-7 inline-flex min-h-13 items-center justify-center gap-3 rounded-full bg-[#4d58b3] px-6 py-3 text-sm font-bold text-white transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4d58b3] focus-visible:ring-offset-4" data-testid="link-final-upload">
                 Começar agora <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </Link>
             </div>

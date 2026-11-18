@@ -7,14 +7,18 @@ import AppHeader from '@/components/app-header';
 import NotFound from '@/pages/not-found';
 import Home from '@/pages/home';
 import Landing from '@/pages/landing';
+import Entrar from '@/pages/entrar';
+import Cadastro from '@/pages/cadastro';
 import Pedido from '@/pages/pedido';
 import Conferencia from '@/pages/conferencia';
 import Fornecedores from '@/pages/fornecedores';
 import { NfeProvider } from '@/lib/nfe-context';
+import { AuthProvider, useAppAuth } from '@/lib/auth-context';
+import LegacyDataImport, { UnsavedInvoiceNotice } from '@/components/legacy-data-import';
 import {
+  Redirect,
   Route,
   Switch,
-  useLocation,
   Router as WouterRouter,
 } from 'wouter';
 
@@ -22,24 +26,48 @@ const queryClient = new QueryClient();
 
 function Router() {
   return (
-    // Keep a shared shell (sidebar, navbar) outside the boundary so it
-    // survives a page crash.
     <RoutedErrorBoundary>
       <Switch>
         <Route path="/" component={Landing} />
-        <Route path="/nota-fiscal" component={Home} />
-        <Route path="/pedido" component={Pedido} />
-        <Route path="/conferencia" component={Conferencia} />
-        <Route path="/fornecedores" component={Fornecedores} />
-        <Route component={NotFound} />
+        <Route path="/entrar" component={Entrar} />
+        <Route path="/cadastro" component={Cadastro} />
+        <Route component={AuthenticatedRoutes} />
       </Switch>
     </RoutedErrorBoundary>
   );
 }
 
 function RoutedErrorBoundary({ children }: { children: ReactNode }) {
-  const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
+  return <ErrorBoundary>{children}</ErrorBoundary>;
+}
+
+function AuthenticatedRoutes() {
+  const { isLoading, isAuthenticated } = useAppAuth();
+
+  if (isLoading) {
+    return (
+      <main className="grid min-h-[60vh] place-items-center px-5" aria-busy="true">
+        <p className="text-sm font-medium text-muted-foreground">Verificando seu acesso...</p>
+      </main>
+    );
+  }
+
+  if (!isAuthenticated) return <Redirect to="/entrar" />;
+
+  return (
+    <>
+      <AppHeader />
+      <LegacyDataImport />
+      <UnsavedInvoiceNotice />
+      <Switch>
+        <Route path="/nota-fiscal" component={Home} />
+        <Route path="/pedido" component={Pedido} />
+        <Route path="/conferencia" component={Conferencia} />
+        <Route path="/fornecedores" component={Fornecedores} />
+        <Route component={NotFound} />
+      </Switch>
+    </>
+  );
 }
 
 function App() {
@@ -47,20 +75,16 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <NfeProvider>
-            <LandingAwareHeader />
-            <Router />
-          </NfeProvider>
+            <AuthProvider>
+              <NfeProvider>
+                <Router />
+              </NfeProvider>
+            </AuthProvider>
         </WouterRouter>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
   );
-}
-
-function LandingAwareHeader() {
-  const [location] = useLocation();
-  return location === "/" ? null : <AppHeader />;
 }
 
 export default App;

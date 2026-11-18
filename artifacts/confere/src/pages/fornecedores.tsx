@@ -1,12 +1,10 @@
-import { useState } from "react";
+import { useListAccountConferences, type ConferenceRecord } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { Building2, FileText, History, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import IbsCbsSeal from "@/components/ibs-cbs-seal";
 import {
   normalizeSupplierName,
-  readConferenceHistory,
-  type ConferenceHistoryRecord,
 } from "@/lib/conference-history";
 import { formatBRL } from "@/lib/reconciliation";
 
@@ -15,11 +13,11 @@ interface SupplierSummary {
   name: string;
   invoiceCount: number;
   totalExtraChargeCents: bigint;
-  latestInvoice: ConferenceHistoryRecord;
+  latestInvoice: ConferenceRecord;
 }
 
-function summarizeSuppliers(records: ConferenceHistoryRecord[]): SupplierSummary[] {
-  const bySupplier = new Map<string, ConferenceHistoryRecord[]>();
+function summarizeSuppliers(records: ConferenceRecord[]): SupplierSummary[] {
+  const bySupplier = new Map<string, ConferenceRecord[]>();
   for (const record of records) {
     const key = normalizeSupplierName(record.supplierName);
     const supplierRecords = bySupplier.get(key) ?? [];
@@ -53,51 +51,60 @@ function formatInvoiceDate(value: string): string {
 }
 
 export default function Fornecedores() {
-  const [history] = useState(readConferenceHistory);
-  const suppliers = summarizeSuppliers(history.records);
+  const historyQuery = useListAccountConferences();
+  const suppliers = summarizeSuppliers(historyQuery.data ?? []);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:px-5 sm:py-10">
       <section className="rise">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary sm:text-sm">
-          Histórico local
+          Histórico da conta
         </p>
         <h1 className="mt-2 font-display text-3xl font-bold leading-tight tracking-tight sm:text-5xl">
           Fornecedores
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
           Acompanhe as notas conferidas, os valores cobrados a mais e o selo da nota mais recente.
-          Os registros ficam somente neste navegador.
+          As conferências ficam salvas na sua conta.
         </p>
 
-        {history.warning && (
-          <p
-            className="mt-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
-            role="alert"
-            data-testid="warning-supplier-history"
-          >
-            {history.warning}
+        {historyQuery.isLoading && (
+          <p className="mt-6 rounded-xl border bg-card px-4 py-3 text-sm text-muted-foreground" role="status">
+            Carregando seu histórico...
           </p>
         )}
 
-        {suppliers.length === 0 ? (
-          <div className="mt-8 rounded-2xl border border-border/80 bg-card px-5 py-10 text-center shadow-sm sm:px-8">
-            <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
-              <History className="h-6 w-6" aria-hidden="true" />
-            </span>
-            <h2 className="mt-4 font-display text-xl font-bold">Nenhuma conferência salva</h2>
-            <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
-              Depois de revisar todos os itens de uma nota, salve a conferência para incluir o fornecedor neste histórico.
-            </p>
-            <Button asChild className="mt-6">
-              <Link href="/nota-fiscal" data-testid="link-start-conference">
-                <FileText className="mr-2 h-4 w-4" aria-hidden="true" />
-                Abrir nota fiscal
-              </Link>
+        {historyQuery.isError && (
+          <div
+            className="mt-6 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-4 text-sm text-destructive"
+            role="alert"
+            data-testid="warning-supplier-history"
+          >
+            <p>Não foi possível carregar o histórico.</p>
+            <Button type="button" variant="outline" className="mt-3" onClick={() => void historyQuery.refetch()}>
+              Tentar novamente
             </Button>
           </div>
-        ) : (
-          <div className="mt-8 space-y-4" data-testid="list-suppliers">
+        )}
+
+        {!historyQuery.isLoading && !historyQuery.isError && (
+          suppliers.length === 0 ? (
+            <div className="mt-8 rounded-2xl border border-border/80 bg-card px-5 py-10 text-center shadow-sm sm:px-8">
+              <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+                <History className="h-6 w-6" aria-hidden="true" />
+              </span>
+              <h2 className="mt-4 font-display text-xl font-bold">Nenhuma conferência salva</h2>
+              <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
+                Depois de revisar todos os itens de uma nota, salve a conferência para incluir o fornecedor neste histórico.
+              </p>
+              <Button asChild className="mt-6">
+                <Link href="/nota-fiscal" data-testid="link-start-conference">
+                  <FileText className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Abrir nota fiscal
+                </Link>
+              </Button>
+            </div>
+          ) : <div className="mt-8 space-y-4" data-testid="list-suppliers">
             {suppliers.map((supplier, index) => (
               <article
                 key={supplier.key}

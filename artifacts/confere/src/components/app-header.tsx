@@ -1,8 +1,11 @@
-import { FileCheck2, FileText, ListChecks, ShieldCheck, Store } from "lucide-react";
+import { FileCheck2, FileText, ListChecks, LogOut, Store } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useAppAuth } from "@/lib/auth-context";
 
 export default function AppHeader() {
   const [location] = useLocation();
+  const { user, isLoading, logout } = useAppAuth();
+  const accountLabel = user?.companyName?.trim() || user?.email || "Minha conta";
 
   const links = [
     { href: "/pedido", label: "Pedido", icon: ListChecks },
@@ -57,10 +60,25 @@ export default function AppHeader() {
           })}
         </nav>
 
-        <p className="hidden items-center gap-1.5 text-xs font-medium text-muted-foreground lg:flex">
-          <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
-          O arquivo é lido só no seu navegador
-        </p>
+        <div className="order-1 ml-auto flex min-w-0 items-center gap-2 sm:order-none sm:ml-0 sm:gap-3">
+          <div className="flex min-w-0 items-center gap-2 rounded-full border border-border/80 bg-card/80 py-1.5 pl-1.5 pr-3">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 font-display text-sm font-bold text-primary" aria-hidden="true">
+              {isLoading ? "…" : accountLabel.charAt(0).toLocaleUpperCase()}
+            </span>
+            <span className="max-w-[112px] truncate text-xs font-semibold text-foreground sm:max-w-[170px]" data-testid="text-account-name" title={accountLabel}>
+              {isLoading ? "Carregando conta" : accountLabel}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => logout()}
+            className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:px-3 sm:text-sm"
+            data-testid="button-logout"
+          >
+            <LogOut className="h-4 w-4" aria-hidden="true" />
+            Sair
+          </button>
+        </div>
       </div>
     </header>
   );

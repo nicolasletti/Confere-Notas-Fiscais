@@ -6,15 +6,37 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './authUser';
+export * from './authUserEnvelope';
+export * from './beginBrowserLoginParams';
 export * from './chargeMessageError';
 export * from './chargeMessageInput';
 export * from './chargeMessageItem';
 export * from './chargeMessageItemKind';
 export * from './chargeMessageResult';
+export * from './conferenceInput';
+export * from './conferenceItemResult';
+export * from './conferenceItemResultKind';
+export * from './conferenceList';
+export * from './conferenceRecord';
 export * from './extractedOrderItem';
 export * from './extractedOrderItems';
 export * from './healthStatus';
+export * from './invoiceInput';
+export * from './invoiceList';
+export * from './invoiceRecord';
+export * from './invoiceXml';
+export * from './latestInvoiceEnvelope';
+export * from './legacyConferenceInput';
+export * from './legacyImportInput';
+export * from './legacyImportResult';
+export * from './logoutBrowserSessionParams';
+export * from './nfeInvoice';
+export * from './nfeItem';
+export * from './orderInput';
+export * from './orderItem';
 export * from './orderMatchSuggestion';
 export * from './orderMatchSuggestionsInput';
 export * from './orderMatchSuggestionsResult';
+export * from './orderSnapshot';
 export * from './whatsAppOrderTextInput';

@@ -1,4 +1,11 @@
-import { useRef, useState, type DragEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
+import {
+  getGetLatestAccountInvoiceQueryKey,
+  getListAccountInvoicesQueryKey,
+  useGetLatestAccountInvoice,
+  useSaveAccountInvoice,
+} from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { FileUp, FileText, RefreshCw, X, AlertCircle } from "lucide-react";
 import { readNfeFile, type NfeInvoice } from "@/lib/nfe";
 import { useNfe } from "@/lib/nfe-context";
@@ -38,6 +45,20 @@ export default function Home() {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const reqId = useRef(0);
+  const initialized = useRef(false);
+  const queryClient = useQueryClient();
+  const latestInvoiceQuery = useGetLatestAccountInvoice();
+  const saveInvoiceMutation = useSaveAccountInvoice();
+
+  useEffect(() => {
+    if (latestInvoiceQuery.isLoading || initialized.current) return;
+    initialized.current = true;
+    const latest = latestInvoiceQuery.data?.invoice;
+    if (!latest) return;
+    const invoice = { ...latest.invoice, id: latest.id };
+    setState({ kind: "ready", fileName: latest.originalFileName, invoice });
+    setInvoice(invoice);
+  }, [latestInvoiceQuery.data, latestInvoiceQuery.isLoading, setInvoice]);
 
   const openPicker = () => inputRef.current?.click();
   const reset = () => { reqId.current++; setState({ kind: "empty" }); setInvoice(null); };
@@ -48,10 +69,20 @@ export default function Home() {
     setInvoice(null);
     setState({ kind: "loading", fileName: file.name });
     try {
-      const invoice = await readNfeFile(file);
+      const { invoice, rawXml } = await readNfeFile(file);
+      const saved = await saveInvoiceMutation.mutateAsync({
+        data: {
+          originalFileName: file.name,
+          originalXml: rawXml,
+          invoice,
+        },
+      });
+      const savedInvoice = { ...saved.invoice, id: saved.id };
+      queryClient.setQueryData(getGetLatestAccountInvoiceQueryKey(), { invoice: saved });
+      await queryClient.invalidateQueries({ queryKey: getListAccountInvoicesQueryKey() });
       if (id === reqId.current) {
-        setState({ kind: "ready", fileName: file.name, invoice });
-        setInvoice(invoice);
+        setState({ kind: "ready", fileName: file.name, invoice: savedInvoice });
+        setInvoice(savedInvoice);
       }
     } catch (e) {
       if (id === reqId.current)
@@ -76,6 +107,16 @@ export default function Home() {
       <main className="mx-auto max-w-5xl px-5 py-8 sm:py-12">
         {state.kind === "empty" && (
           <section className="rise">
+            {latestInvoiceQuery.isLoading && (
+              <p className="mb-5 rounded-xl border bg-card px-4 py-3 text-sm text-muted-foreground" role="status">
+                Carregando sua última nota salva...
+              </p>
+            )}
+            {latestInvoiceQuery.isError && (
+              <p className="mb-5 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive" role="alert">
+                Não foi possível carregar as notas salvas. Você ainda pode enviar um XML novamente.
+              </p>
+            )}
             <h1 className="font-display font-bold text-3xl sm:text-5xl tracking-tight max-w-2xl leading-[1.05]">
               Confira a nota do fornecedor antes de guardar a mercadoria.
             </h1>
@@ -91,7 +132,7 @@ export default function Home() {
             <ol className="mt-8 grid gap-4 sm:grid-cols-[1fr_1fr_1.3fr] text-sm">
               {[
                 ["1", "Pegue o XML", "Ele chega por e-mail do fornecedor ou fica no portal da Sefaz."],
-                ["2", "Abra aqui", "Nada é enviado: a leitura acontece no próprio computador."],
+                ["2", "Abra aqui", "A leitura começa no navegador e o XML original fica salvo na sua conta."],
                 ["3", "Confira", "Compare quantidades e preços com o que chegou na loja."],
               ].map(([n, t, d]) => (
                 <li key={n} className="flex gap-3">
@@ -116,16 +157,19 @@ export default function Home() {
                   className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   <RefreshCw className="h-4 w-4" aria-hidden /> Trocar arquivo
                 </button>
-                <button type="button" onClick={reset} data-testid="button-remove"
+                 <button type="button" onClick={reset} data-testid="button-remove"
                   className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <X className="h-4 w-4" aria-hidden /> Remover
+                   <X className="h-4 w-4" aria-hidden /> Limpar da tela
                 </button>
               </div>
             </div>
 
             {state.kind === "loading" && (
               <div aria-busy="true" className="space-y-4">
-                <span className="sr-only">Lendo o arquivo…</span>
+                <span className="sr-only">Lendo e salvando o arquivo…</span>
+                <p className="text-sm text-muted-foreground">
+                  Lendo o XML e salvando a nota na sua conta...
+                </p>
                 <div className="skel h-10 w-2/3" /><div className="skel h-5 w-1/3" />
                 <div className="skel h-64 w-full mt-6" />
               </div>

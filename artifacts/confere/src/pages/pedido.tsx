@@ -1,4 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  getGetAccountOrderQueryKey,
+  useGetAccountOrder,
+  useSaveAccountOrder,
+} from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useExtractOrderItems } from "@workspace/api-client-react";
 import { MessageSquareText, Pencil, Plus, Trash2, X } from "lucide-react";
@@ -15,7 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { readPedido, savePedido, type PedidoItem } from "@/lib/pedido-store";
+import type { PedidoItem } from "@/lib/pedido-store";
 
 const formSchema = z.object({
   descricao: z.string().trim().min(1, "Informe a descrição do item."),
@@ -82,9 +88,11 @@ function createId(): string {
 }
 
 export default function Pedido() {
-  const [initial] = useState(readPedido);
-  const [items, setItems] = useState<PedidoItem[]>(initial.items);
-  const [storageWarning, setStorageWarning] = useState(initial.warning);
+  const orderQuery = useGetAccountOrder();
+  const saveOrderMutation = useSaveAccountOrder();
+  const queryClient = useQueryClient();
+  const [items, setItems] = useState<PedidoItem[]>([]);
+  const [storageWarning, setStorageWarning] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [whatsappImportOpen, setWhatsappImportOpen] = useState(false);
   const [whatsappText, setWhatsappText] = useState("");
@@ -102,12 +110,20 @@ export default function Pedido() {
     },
   });
 
-  function commit(next: PedidoItem[]) {
-    setItems(next);
-    if (savePedido(next)) {
+  useEffect(() => {
+    if (orderQuery.data) setItems(orderQuery.data.items);
+  }, [orderQuery.data]);
+
+  async function commit(next: PedidoItem[]): Promise<boolean> {
+    try {
+      const saved = await saveOrderMutation.mutateAsync({ data: { items: next } });
+      setItems(saved.items);
+      queryClient.setQueryData(getGetAccountOrderQueryKey(), saved);
       setStorageWarning(null);
-    } else {
-      setStorageWarning("O pedido está disponível nesta sessão, mas não foi possível salvá-lo neste navegador.");
+      return true;
+    } catch {
+      setStorageWarning("Não foi possível salvar o pedido na sua conta. Tente novamente.");
+      return false;
     }
   }
 
@@ -121,7 +137,7 @@ export default function Pedido() {
     setEditingId(null);
   }
 
-  function onSubmit(values: FormValues) {
+  async function onSubmit(values: FormValues) {
     const cleaned = {
       descricao: values.descricao.trim(),
       quantidade: values.quantidade.trim().replace(",", "."),
@@ -130,9 +146,11 @@ export default function Pedido() {
     };
 
     if (editingId) {
-      commit(items.map((item) => item.id === editingId ? { ...item, ...cleaned } : item));
+      const saved = await commit(items.map((item) => item.id === editingId ? { ...item, ...cleaned } : item));
+      if (!saved) return;
     } else {
-      commit([...items, { id: createId(), ...cleaned }]);
+      const saved = await commit([...items, { id: createId(), ...cleaned }]);
+      if (!saved) return;
     }
     resetForm();
   }
@@ -148,8 +166,9 @@ export default function Pedido() {
     document.getElementById("pedido-form-title")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  function removeItem(id: string) {
-    commit(items.filter((item) => item.id !== id));
+  async function removeItem(id: string) {
+    const saved = await commit(items.filter((item) => item.id !== id));
+    if (!saved) return;
     if (editingId === id) resetForm();
   }
 
@@ -182,7 +201,7 @@ export default function Pedido() {
     setExtractError("");
   }
 
-  function saveDraftItems() {
+  async function saveDraftItems() {
     if (draftItems.length === 0) return;
     const allValid = draftItems.every((item) => formSchema.safeParse({
       descricao: item.descricao,
@@ -202,7 +221,8 @@ export default function Pedido() {
       unidade: item.unidade.trim(),
       precoUnitario: item.precoUnitario.trim().replace(",", "."),
     }));
-    commit([...items, ...additions]);
+    const saved = await commit([...items, ...additions]);
+    if (!saved) return;
     setDraftItems([]);
     setWhatsappText("");
     setExtractError("");
@@ -216,6 +236,28 @@ export default function Pedido() {
     setExtractNotice("");
   }
 
+  if (orderQuery.isLoading) {
+    return (
+      <main className="mx-auto max-w-5xl px-5 py-12" aria-busy="true">
+        <p className="text-sm text-muted-foreground">Carregando seu pedido salvo...</p>
+      </main>
+    );
+  }
+
+  if (orderQuery.isError) {
+    return (
+      <main className="mx-auto max-w-5xl px-5 py-12">
+        <section className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6" role="alert">
+          <h1 className="font-display text-2xl font-bold">Não foi possível carregar o pedido</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Confira sua conexão e tente novamente.</p>
+          <Button type="button" className="mt-4" onClick={() => void orderQuery.refetch()}>
+            Tentar novamente
+          </Button>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto max-w-5xl px-5 py-8 sm:py-12">
       <section className="rise">
@@ -226,7 +268,7 @@ export default function Pedido() {
               Pedido ao fornecedor
             </h1>
             <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-              Anote o que foi combinado. O pedido fica salvo neste navegador.
+              Anote o que foi combinado. O pedido fica salvo na sua conta.
             </p>
           </div>
           <Button
@@ -417,7 +459,7 @@ export default function Pedido() {
                       quantidade: item.quantidade,
                       unidade: item.unidade,
                       precoUnitario: item.precoUnitario,
-                    }).success)}
+                    }).success) || saveOrderMutation.isPending}
                     data-testid="button-save-whatsapp-items"
                   >
                     <Plus aria-hidden="true" />
@@ -499,9 +541,13 @@ export default function Pedido() {
                 )}
               />
               <div className="sm:col-span-2 lg:col-span-4">
-                <Button type="submit" data-testid="button-save-item">
+                <Button type="submit" disabled={saveOrderMutation.isPending} data-testid="button-save-item">
                   <Plus aria-hidden="true" />
-                  {editingId ? "Salvar alterações" : "Adicionar ao pedido"}
+                  {saveOrderMutation.isPending
+                    ? "Salvando..."
+                    : editingId
+                      ? "Salvar alterações"
+                      : "Adicionar ao pedido"}
                 </Button>
               </div>
             </form>
@@ -546,10 +592,10 @@ export default function Pedido() {
                         <td className="px-4 py-3 text-right font-mono tabular-nums whitespace-nowrap">R$ {formatPrice(item.precoUnitario)}</td>
                         <td className="px-5 py-3">
                           <div className="flex justify-end gap-1">
-                            <Button type="button" variant="ghost" size="icon" onClick={() => startEdit(item)} aria-label={`Editar ${item.descricao}`} data-testid={`button-edit-${item.id}`}>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => startEdit(item)} disabled={saveOrderMutation.isPending} aria-label={`Editar ${item.descricao}`} data-testid={`button-edit-${item.id}`}>
                               <Pencil aria-hidden="true" />
                             </Button>
-                            <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(item.id)} aria-label={`Remover ${item.descricao}`} data-testid={`button-remove-${item.id}`} className="text-muted-foreground hover:text-destructive">
+                            <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(item.id)} disabled={saveOrderMutation.isPending} aria-label={`Remover ${item.descricao}`} data-testid={`button-remove-${item.id}`} className="text-muted-foreground hover:text-destructive">
                               <Trash2 aria-hidden="true" />
                             </Button>
                           </div>

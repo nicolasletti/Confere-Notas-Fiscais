@@ -141,3 +141,228 @@ export interface OrderMatchSuggestionsResult {
   suggestions: OrderMatchSuggestion[];
 }
 
+export interface AuthUser {
+  id: string;
+  /** @nullable */
+  email: string | null;
+  /** @nullable */
+  firstName: string | null;
+  /** @nullable */
+  lastName: string | null;
+  /** @nullable */
+  profileImageUrl: string | null;
+  /** @nullable */
+  companyName: string | null;
+}
+
+export interface AuthUserEnvelope {
+  user: AuthUser | null;
+}
+
+export interface OrderItem {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  id: string;
+  /** @maxLength 500 */
+  descricao: string;
+  /** @maxLength 50 */
+  quantidade: string;
+  /** @maxLength 40 */
+  unidade: string;
+  /** @maxLength 50 */
+  precoUnitario: string;
+}
+
+export interface OrderInput {
+  /** @maxItems 500 */
+  items: OrderItem[];
+}
+
+export interface OrderSnapshot {
+  items: OrderItem[];
+}
+
+export interface NfeItem {
+  /** @maxLength 500 */
+  description: string;
+  /** @maxLength 50 */
+  quantity: string;
+  /** @maxLength 40 */
+  unit: string;
+  /** @maxLength 50 */
+  unitPrice: string;
+  /** @maxLength 50 */
+  total: string;
+}
+
+export interface NfeInvoice {
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  issuer: string;
+  /**
+     * @minLength 1
+     * @maxLength 40
+     */
+  number: string;
+  /** @maxLength 50 */
+  issuedAt: string;
+  hasCompleteIbsCbs: boolean;
+  /**
+     * @minItems 1
+     * @maxItems 1000
+     */
+  items: NfeItem[];
+}
+
+export interface InvoiceInput {
+  /**
+     * @minLength 1
+     * @maxLength 255
+     */
+  originalFileName: string;
+  /**
+     * @minLength 1
+     * @maxLength 10485760
+     */
+  originalXml: string;
+  invoice: NfeInvoice;
+}
+
+export interface InvoiceRecord {
+  id: number;
+  originalFileName: string;
+  invoice: NfeInvoice;
+  createdAt: string;
+}
+
+export type InvoiceList = InvoiceRecord[];
+
+export interface LatestInvoiceEnvelope {
+  invoice: InvoiceRecord | null;
+}
+
+export interface InvoiceXml {
+  originalXml: string;
+}
+
+export type ConferenceItemResultKind = typeof ConferenceItemResultKind[keyof typeof ConferenceItemResultKind];
+
+
+export const ConferenceItemResultKind = {
+  charge: 'charge',
+  favorable: 'favorable',
+  ok: 'ok',
+  invalid: 'invalid',
+  'not-in-order': 'not-in-order',
+} as const;
+
+export interface ConferenceItemResult {
+  /** @minimum 0 */
+  invoiceItemIndex: number;
+  /** @maxLength 500 */
+  description: string;
+  /**
+     * @maxLength 100
+     * @nullable
+     */
+  orderItemId: string | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  matchedOrderDescription: string | null;
+  /** @maxLength 50 */
+  receivedQuantity: string;
+  kind: ConferenceItemResultKind;
+  /**
+     * @nullable
+     * @pattern ^-?\d+$
+     */
+  totalCents: string | null;
+  /**
+     * @nullable
+     * @pattern ^-?\d+$
+     */
+  quantityPartCents: string | null;
+  /**
+     * @nullable
+     * @pattern ^-?\d+$
+     */
+  pricePartCents: string | null;
+}
+
+export interface ConferenceInput {
+  /**
+     * @minimum 1
+     * @nullable
+     */
+  invoiceId: number | null;
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  supplierName: string;
+  /**
+     * @minLength 1
+     * @maxLength 40
+     */
+  invoiceNumber: string;
+  issuedAt: string;
+  /** @pattern ^\d+$ */
+  totalExtraChargeCents: string;
+  hasCompleteIbsCbs: boolean;
+  /** @maxItems 1000 */
+  results: ConferenceItemResult[];
+}
+
+export interface LegacyConferenceInput {
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  supplierName: string;
+  /**
+     * @minLength 1
+     * @maxLength 40
+     */
+  invoiceNumber: string;
+  issuedAt: string;
+  /** @pattern ^\d+$ */
+  totalExtraChargeCents: string;
+  hasCompleteIbsCbs: boolean;
+  savedAt: string;
+}
+
+export interface LegacyImportInput {
+  /** @maxItems 500 */
+  orderItems: OrderItem[];
+  /** @maxItems 5000 */
+  conferences: LegacyConferenceInput[];
+}
+
+export interface LegacyImportResult {
+  /** @minimum 0 */
+  importedOrderItems: number;
+  /** @minimum 0 */
+  importedConferences: number;
+}
+
+export type ConferenceRecord = ConferenceInput & {
+  id: number;
+  savedAt: string;
+};
+
+export type ConferenceList = ConferenceRecord[];
+
+export type BeginBrowserLoginParams = {
+returnTo?: string;
+};
+
+export type LogoutBrowserSessionParams = {
+returnTo?: string;
+};
+

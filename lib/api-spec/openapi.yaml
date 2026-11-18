@@ -12,6 +12,10 @@ tags:
     description: Health operations
   - name: openai
     description: AI-assisted order and supplier-message tools
+  - name: auth
+    description: Browser authentication
+  - name: account
+    description: User-owned orders, invoices, and conferences
 paths:
   /healthz:
     get:
@@ -116,6 +120,196 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ChargeMessageError"
+  /auth/user:
+    get:
+      operationId: getCurrentAuthUser
+      tags: [auth]
+      summary: Get the signed-in user
+      responses:
+        "200":
+          description: Current authentication state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUserEnvelope"
+  /login:
+    get:
+      operationId: beginBrowserLogin
+      tags: [auth]
+      summary: Start browser authentication
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to the identity provider
+  /callback:
+    get:
+      operationId: completeBrowserLogin
+      tags: [auth]
+      summary: Complete browser authentication
+      responses:
+        "302":
+          description: Redirect to the requested app page
+  /logout:
+    get:
+      operationId: logoutBrowserSession
+      tags: [auth]
+      summary: End the browser session
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect after logout
+  /account/order:
+    get:
+      operationId: getAccountOrder
+      tags: [account]
+      summary: Get this user's supplier order
+      responses:
+        "200":
+          description: Saved order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderSnapshot"
+    put:
+      operationId: saveAccountOrder
+      tags: [account]
+      summary: Save this user's supplier order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "200":
+          description: Saved order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderSnapshot"
+  /account/invoices:
+    get:
+      operationId: listAccountInvoices
+      tags: [account]
+      summary: List this user's saved invoices
+      responses:
+        "200":
+          description: Saved invoices, newest first
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoiceList"
+    post:
+      operationId: saveAccountInvoice
+      tags: [account]
+      summary: Save an invoice and its original XML
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvoiceInput"
+      responses:
+        "201":
+          description: Saved invoice
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoiceRecord"
+  /account/invoices/latest:
+    get:
+      operationId: getLatestAccountInvoice
+      tags: [account]
+      summary: Get this user's most recent invoice
+      responses:
+        "200":
+          description: Latest saved invoice, if one exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LatestInvoiceEnvelope"
+  /account/invoices/{id}/xml:
+    get:
+      operationId: getAccountInvoiceXml
+      tags: [account]
+      summary: Retrieve the original XML for one of this user's invoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Original XML source file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoiceXml"
+        "404":
+          description: Invoice not found for this user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChargeMessageError"
+  /account/conferences:
+    get:
+      operationId: listAccountConferences
+      tags: [account]
+      summary: List this user's saved conferences
+      responses:
+        "200":
+          description: Conference history, newest first
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConferenceList"
+    post:
+      operationId: saveAccountConference
+      tags: [account]
+      summary: Save this user's conference results
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConferenceInput"
+      responses:
+        "200":
+          description: Saved or updated conference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConferenceRecord"
+  /account/import-legacy:
+    post:
+      operationId: importLegacyAccountData
+      tags: [account]
+      summary: Import browser data after the user confirms ownership
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LegacyImportInput"
+      responses:
+        "200":
+          description: Imported local data counts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegacyImportResult"
 components:
   schemas:
     HealthStatus:
@@ -286,4 +480,215 @@ components:
         - invoiceIndex
         - orderIndex
         - confidence
+    AuthUser:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        email:
+          type: ["string", "null"]
+        firstName:
+          type: ["string", "null"]
+        lastName:
+          type: ["string", "null"]
+        profileImageUrl:
+          type: ["string", "null"]
+        companyName:
+          type: ["string", "null"]
+      required: [id, email, firstName, lastName, profileImageUrl, companyName]
+    AuthUserEnvelope:
+      type: object
+      properties:
+        user:
+          oneOf:
+            - $ref: "#/components/schemas/AuthUser"
+            - type: "null"
+      required: [user]
+    OrderItem:
+      type: object
+      additionalProperties: false
+      properties:
+        id: { type: string, minLength: 1, maxLength: 100 }
+        descricao: { type: string, maxLength: 500 }
+        quantidade: { type: string, maxLength: 50 }
+        unidade: { type: string, maxLength: 40 }
+        precoUnitario: { type: string, maxLength: 50 }
+      required: [id, descricao, quantidade, unidade, precoUnitario]
+    OrderInput:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 500
+          items:
+            $ref: "#/components/schemas/OrderItem"
+      required: [items]
+    OrderSnapshot:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+      required: [items]
+    NfeItem:
+      type: object
+      additionalProperties: false
+      properties:
+        description: { type: string, maxLength: 500 }
+        quantity: { type: string, maxLength: 50 }
+        unit: { type: string, maxLength: 40 }
+        unitPrice: { type: string, maxLength: 50 }
+        total: { type: string, maxLength: 50 }
+      required: [description, quantity, unit, unitPrice, total]
+    NfeInvoice:
+      type: object
+      additionalProperties: false
+      properties:
+        issuer: { type: string, minLength: 1, maxLength: 500 }
+        number: { type: string, minLength: 1, maxLength: 40 }
+        issuedAt: { type: string, maxLength: 50 }
+        hasCompleteIbsCbs: { type: boolean }
+        items:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items:
+            $ref: "#/components/schemas/NfeItem"
+      required: [issuer, number, issuedAt, hasCompleteIbsCbs, items]
+    InvoiceInput:
+      type: object
+      additionalProperties: false
+      properties:
+        originalFileName: { type: string, minLength: 1, maxLength: 255 }
+        originalXml: { type: string, minLength: 1, maxLength: 10485760 }
+        invoice:
+          $ref: "#/components/schemas/NfeInvoice"
+      required: [originalFileName, originalXml, invoice]
+    InvoiceRecord:
+      type: object
+      properties:
+        id: { type: integer }
+        originalFileName: { type: string }
+        invoice:
+          $ref: "#/components/schemas/NfeInvoice"
+        createdAt: { type: string }
+      required: [id, originalFileName, invoice, createdAt]
+    InvoiceList:
+      type: array
+      items:
+        $ref: "#/components/schemas/InvoiceRecord"
+    LatestInvoiceEnvelope:
+      type: object
+      properties:
+        invoice:
+          oneOf:
+            - $ref: "#/components/schemas/InvoiceRecord"
+            - type: "null"
+      required: [invoice]
+    InvoiceXml:
+      type: object
+      properties:
+        originalXml: { type: string }
+      required: [originalXml]
+    ConferenceItemResult:
+      type: object
+      additionalProperties: false
+      properties:
+        invoiceItemIndex: { type: integer, minimum: 0 }
+        description: { type: string, maxLength: 500 }
+        orderItemId: { type: ["string", "null"], maxLength: 100 }
+        matchedOrderDescription: { type: ["string", "null"], maxLength: 500 }
+        receivedQuantity: { type: string, maxLength: 50 }
+        kind:
+          type: string
+          enum: [charge, favorable, ok, invalid, not-in-order]
+        totalCents: { type: ["string", "null"], pattern: "^-?\\d+$" }
+        quantityPartCents: { type: ["string", "null"], pattern: "^-?\\d+$" }
+        pricePartCents: { type: ["string", "null"], pattern: "^-?\\d+$" }
+      required:
+        - invoiceItemIndex
+        - description
+        - orderItemId
+        - matchedOrderDescription
+        - receivedQuantity
+        - kind
+        - totalCents
+        - quantityPartCents
+        - pricePartCents
+    ConferenceInput:
+      type: object
+      additionalProperties: false
+      properties:
+        invoiceId: { type: ["integer", "null"], minimum: 1 }
+        supplierName: { type: string, minLength: 1, maxLength: 500 }
+        invoiceNumber: { type: string, minLength: 1, maxLength: 40 }
+        issuedAt: { type: string }
+        totalExtraChargeCents: { type: string, pattern: "^\\d+$" }
+        hasCompleteIbsCbs: { type: boolean }
+        results:
+          type: array
+          maxItems: 1000
+          items:
+            $ref: "#/components/schemas/ConferenceItemResult"
+      required:
+        - invoiceId
+        - supplierName
+        - invoiceNumber
+        - issuedAt
+        - totalExtraChargeCents
+        - hasCompleteIbsCbs
+        - results
+    LegacyConferenceInput:
+      type: object
+      additionalProperties: false
+      properties:
+        supplierName: { type: string, minLength: 1, maxLength: 500 }
+        invoiceNumber: { type: string, minLength: 1, maxLength: 40 }
+        issuedAt: { type: string }
+        totalExtraChargeCents: { type: string, pattern: "^\\d+$" }
+        hasCompleteIbsCbs: { type: boolean }
+        savedAt: { type: string }
+      required:
+        - supplierName
+        - invoiceNumber
+        - issuedAt
+        - totalExtraChargeCents
+        - hasCompleteIbsCbs
+        - savedAt
+    LegacyImportInput:
+      type: object
+      additionalProperties: false
+      properties:
+        orderItems:
+          type: array
+          maxItems: 500
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        conferences:
+          type: array
+          maxItems: 5000
+          items:
+            $ref: "#/components/schemas/LegacyConferenceInput"
+      required: [orderItems, conferences]
+    LegacyImportResult:
+      type: object
+      properties:
+        importedOrderItems: { type: integer, minimum: 0 }
+        importedConferences: { type: integer, minimum: 0 }
+      required: [importedOrderItems, importedConferences]
+    ConferenceRecord:
+      allOf:
+        - $ref: "#/components/schemas/ConferenceInput"
+        - type: object
+          properties:
+            id: { type: integer }
+            savedAt: { type: string }
+          required: [id, savedAt]
+    ConferenceList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ConferenceRecord"
 
