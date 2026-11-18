@@ -54,3 +54,36 @@ export const GenerateChargeMessageResponse = zod.object({
 })
 
 
+/**
+ * @summary Extract draft order items from pasted WhatsApp text
+ */
+export const extractOrderItemsBodyTextMax = 12000;
+
+
+
+export const ExtractOrderItemsBody = zod.object({
+  "text": zod.string().min(1).max(extractOrderItemsBodyTextMax)
+})
+
+export const extractOrderItemsResponseItemsItemDescricaoMax = 500;
+
+export const extractOrderItemsResponseItemsItemQuantidadeMax = 50;
+
+export const extractOrderItemsResponseItemsItemUnidadeMax = 40;
+
+export const extractOrderItemsResponseItemsItemPrecoUnitarioMax = 50;
+
+export const extractOrderItemsResponseItemsMax = 100;
+
+
+
+export const ExtractOrderItemsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "descricao": zod.string().min(1).max(extractOrderItemsResponseItemsItemDescricaoMax),
+  "quantidade": zod.string().max(extractOrderItemsResponseItemsItemQuantidadeMax).nullable(),
+  "unidade": zod.string().max(extractOrderItemsResponseItemsItemUnidadeMax).nullable(),
+  "precoUnitario": zod.string().max(extractOrderItemsResponseItemsItemPrecoUnitarioMax).nullable()
+})).max(extractOrderItemsResponseItemsMax)
+})
+
+

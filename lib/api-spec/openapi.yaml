@@ -11,7 +11,7 @@ tags:
   - name: health
     description: Health operations
   - name: openai
-    description: AI-assisted supplier communication
+    description: AI-assisted order and supplier-message tools
 paths:
   /healthz:
     get:
@@ -52,6 +52,36 @@ paths:
                 $ref: "#/components/schemas/ChargeMessageError"
         "502":
           description: AI text generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChargeMessageError"
+  /openai/extract-order-items:
+    post:
+      operationId: extractOrderItems
+      tags: [openai]
+      summary: Extract draft order items from pasted WhatsApp text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WhatsAppOrderTextInput"
+      responses:
+        "200":
+          description: Draft items extracted for user review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtractedOrderItems"
+        "400":
+          description: Invalid pasted text
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChargeMessageError"
+        "502":
+          description: AI extraction failed
           content:
             application/json:
               schema:
@@ -131,4 +161,47 @@ components:
           type: string
       required:
         - error
+    WhatsAppOrderTextInput:
+      type: object
+      additionalProperties: false
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 12000
+      required:
+        - text
+    ExtractedOrderItems:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/ExtractedOrderItem"
+      required:
+        - items
+    ExtractedOrderItem:
+      type: object
+      additionalProperties: false
+      properties:
+        descricao:
+          type: string
+          minLength: 1
+          maxLength: 500
+        quantidade:
+          type: ["string", "null"]
+          maxLength: 50
+        unidade:
+          type: ["string", "null"]
+          maxLength: 40
+        precoUnitario:
+          type: ["string", "null"]
+          maxLength: 50
+      required:
+        - descricao
+        - quantidade
+        - unidade
+        - precoUnitario
 

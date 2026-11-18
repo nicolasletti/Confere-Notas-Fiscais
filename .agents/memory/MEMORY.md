@@ -1,1 +1,1 @@
-- [Escopo atual do Confere](confere-scope.md) — telas, conferência, selo IBS/CBS e uso limitado de IA com valores já calculados.
+- [Escopo atual do Confere](confere-scope.md) — telas, conferência, selo IBS/CBS e IA para extração e mensagens sem cálculo de valores.

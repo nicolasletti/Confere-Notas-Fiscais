@@ -1,7 +1,7 @@
 kind = "web"
 previewPath = "/"
 title = "Confere"
-description = "Aplicativo em português para pequenos comércios lerem XML de NF-e, registrarem pedidos e conferirem divergências. A IA prepara mensagens de cobrança usando valores já calculados pelo app; pedido e nota não ficam armazenados no servidor."
+description = "Aplicativo em português para pequenos comércios registrarem pedidos, extrair itens de mensagens do WhatsApp com IA para revisão, ler XML de NF-e e conferir divergências. A IA não calcula valores e os itens só são salvos no pedido após confirmação."
 version = "1.0.0"
 id = "artifacts/confere"
 router = "path"

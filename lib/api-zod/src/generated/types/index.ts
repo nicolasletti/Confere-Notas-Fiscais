@@ -11,4 +11,7 @@ export * from './chargeMessageInput';
 export * from './chargeMessageItem';
 export * from './chargeMessageItemKind';
 export * from './chargeMessageResult';
+export * from './extractedOrderItem';
+export * from './extractedOrderItems';
 export * from './healthStatus';
+export * from './whatsAppOrderTextInput';

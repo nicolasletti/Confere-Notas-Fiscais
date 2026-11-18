@@ -23,7 +23,9 @@ import type {
   ChargeMessageError,
   ChargeMessageInput,
   ChargeMessageResult,
-  HealthStatus
+  ExtractedOrderItems,
+  HealthStatus,
+  WhatsAppOrderTextInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -217,5 +219,93 @@ export const useGenerateChargeMessage = <TError = ErrorType<ChargeMessageError>,
         TContext
       > => {
       return useMutation(getGenerateChargeMessageMutationOptions(options));
+    }
+
+export const getExtractOrderItemsUrl = () => {
+
+
+
+
+  return `/api/openai/extract-order-items`
+}
+
+/**
+ * @summary Extract draft order items from pasted WhatsApp text
+ */
+export const extractOrderItems = async (whatsAppOrderTextInput: WhatsAppOrderTextInput, options?: Parameters<typeof customFetch>[1]): Promise<ExtractedOrderItems> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<ExtractedOrderItems>(getExtractOrderItemsUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(whatsAppOrderTextInput)
+  }
+);}
+
+
+
+
+
+export const getExtractOrderItemsMutationKey = () => ['extractOrderItems'] as const;
+
+export const getExtractOrderItemsMutationOptions = <TError = ErrorType<ChargeMessageError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof extractOrderItems>>, TError,ExtractOrderItemsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof extractOrderItems>>, TError,ExtractOrderItemsMutationVariables, TContext> => {
+
+const mutationKey = getExtractOrderItemsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof extractOrderItems>>, ExtractOrderItemsMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  extractOrderItems(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExtractOrderItemsMutationResult = NonNullable<Awaited<ReturnType<typeof extractOrderItems>>>
+    export type ExtractOrderItemsMutationBody = BodyType<WhatsAppOrderTextInput>
+    export type ExtractOrderItemsMutationError = ErrorType<ChargeMessageError>
+    export type ExtractOrderItemsMutationVariables = {data: BodyType<WhatsAppOrderTextInput>}
+
+    /**
+ * @summary Extract draft order items from pasted WhatsApp text
+ */
+export const useExtractOrderItems = <TError = ErrorType<ChargeMessageError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof extractOrderItems>>, TError,ExtractOrderItemsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof extractOrderItems>>,
+        TError,
+        ExtractOrderItemsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getExtractOrderItemsMutationOptions(options));
     }
 

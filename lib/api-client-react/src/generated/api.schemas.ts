@@ -68,3 +68,39 @@ export interface ChargeMessageError {
   error: string;
 }
 
+export interface WhatsAppOrderTextInput {
+  /**
+     * @minLength 1
+     * @maxLength 12000
+     */
+  text: string;
+}
+
+export interface ExtractedOrderItem {
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  descricao: string;
+  /**
+     * @maxLength 50
+     * @nullable
+     */
+  quantidade: string | null;
+  /**
+     * @maxLength 40
+     * @nullable
+     */
+  unidade: string | null;
+  /**
+     * @maxLength 50
+     * @nullable
+     */
+  precoUnitario: string | null;
+}
+
+export interface ExtractedOrderItems {
+  /** @maxItems 100 */
+  items: ExtractedOrderItem[];
+}
+
