@@ -1,4 +1,4 @@
-import { FileCheck2, FileText, ListChecks, ShieldCheck } from "lucide-react";
+import { FileCheck2, FileText, ListChecks, ShieldCheck, Store } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 export default function AppHeader() {
@@ -18,6 +18,20 @@ export default function AppHeader() {
           <span className="font-display text-[1.35rem] font-bold tracking-[-0.055em] text-foreground">
             co<span className="text-primary">NF</span>ere
           </span>
+        </Link>
+
+        <Link
+          href="/fornecedores"
+          aria-current={location === "/fornecedores" ? "page" : undefined}
+          data-testid="link-fornecedores"
+          className={`order-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:order-none ${
+            location === "/fornecedores"
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          }`}
+        >
+          <Store className="h-4 w-4" aria-hidden="true" />
+          Fornecedores
         </Link>
 
         <nav aria-label="Etapas do Confere" className="order-3 grid w-full grid-cols-3 gap-1 rounded-xl border border-border/80 bg-muted/60 p-1 sm:order-none sm:w-auto sm:min-w-[390px]">

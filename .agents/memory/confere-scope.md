@@ -9,15 +9,17 @@ O pedido permite cadastrar, editar e remover itens (descrição, quantidade, uni
 
 A nota fiscal lê XML de NF-e localmente, sem IA, e exibe os campos básicos e os produtos. Na Conferência, a IA pode sugerir itens correspondentes do pedido com base somente nas descrições. Aplicar apenas sugestões com confiança de pelo menos 0.82; deixar as demais sem seleção e manter o dropdown editável. Evitar chamadas repetidas para a mesma combinação de nota e pedido durante a sessão.
 
-A conferência relaciona itens da nota ao pedido, permite informar quantidade recebida e calcula diferenças de quantidade e preço; os resultados não são persistidos. As telas da nota e da conferência exibem um selo verde quando todos os itens têm IBSCBS com CST e cClassTrib preenchidos, e amarelo nos demais casos, com uma explicação sobre o possível impacto em créditos a partir de 2027. O selo verifica apenas presença de campos, sem calcular tributos.
+Na Conferência, o usuário relaciona itens da nota ao pedido, informa a quantidade recebida e vê as diferenças de quantidade e preço. Os resultados não são salvos automaticamente. Após concluir todos os itens, o usuário pode salvar um resumo da conferência em localStorage: fornecedor, número/data da nota, total cobrado a mais e estado do selo IBS/CBS. A tela Fornecedores agrupa esses resumos por fornecedor, conta notas únicas, soma os totais e mostra o selo da nota de emissão mais recente. Regravar a mesma NF-e atualiza o registro existente. Não salvar os detalhes dos itens da conferência.
+
+As telas da nota e da conferência exibem um selo verde quando todos os itens têm IBSCBS com CST e cClassTrib preenchidos, e amarelo nos demais casos, com uma explicação sobre o possível impacto em créditos a partir de 2027. O selo verifica apenas presença de campos, sem calcular tributos.
 
 Quando há cobrança a mais positiva, o usuário pode solicitar uma mensagem em estilo WhatsApp. A IA recebe o número da nota, descrições e valores já calculados pelo app, mas redige apenas a saudação curta. O app insere as divergências, partes e total sem deixar a IA calcular ou alterar valores. A mensagem pode ser editada e copiada, mas não é salva.
 
-Não criar login nem banco de dados. Manter os dados do pedido no navegador e não persistir mensagens, texto do WhatsApp ou resultados da conferência.
+Não criar login nem banco de dados. Manter pedido e resumo de histórico no navegador; não persistir mensagens, texto do WhatsApp ou detalhes por item.
 
-**Why:** o usuário pediu correspondências automáticas por IA, mas exige que escolhas incertas permaneçam sem seleção para evitar associação errada.
+**Why:** o usuário pediu correspondências automáticas por IA, mas exige que escolhas incertas permaneçam sem seleção para evitar associação errada. Também pediu histórico de conferências local por fornecedor.
 
-**How to apply:** enviar apenas descrições para o pareamento, usar um limite conservador de confiança, preservar a edição manual e não enviar valores monetários para esse recurso.
+**How to apply:** enviar apenas descrições para o pareamento, usar um limite conservador de confiança, preservar a edição manual e não enviar valores monetários para esse recurso. Persistir o resumo do histórico somente após ação explícita, deduplicar por fornecedor/nota/data e escolher o selo pela data de emissão da nota mais recente.
 
 A identidade visual pedida é “coNFere”, com “NF” em destaque. A navegação deve deixar visíveis as três etapas na ordem: “1. Pedido”, “2. Nota fiscal” e “3. Conferência”. O total cobrado a mais precisa ter forte hierarquia visual e boa leitura no celular, sem alterar regras de cálculo.
 

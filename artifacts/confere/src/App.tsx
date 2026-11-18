@@ -8,6 +8,7 @@ import NotFound from '@/pages/not-found';
 import Home from '@/pages/home';
 import Pedido from '@/pages/pedido';
 import Conferencia from '@/pages/conferencia';
+import Fornecedores from '@/pages/fornecedores';
 import { NfeProvider } from '@/lib/nfe-context';
 import {
   Route,
@@ -27,6 +28,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/pedido" component={Pedido} />
         <Route path="/conferencia" component={Conferencia} />
+        <Route path="/fornecedores" component={Fornecedores} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>

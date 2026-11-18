@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Check, Copy, FileCheck2, ShieldAlert, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, Copy, FileCheck2, Save, ShieldAlert, Sparkles } from "lucide-react";
 import {
   useGenerateChargeMessage,
   useSuggestOrderMatches,
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useNfe } from "@/lib/nfe-context";
 import { readPedido, type PedidoItem } from "@/lib/pedido-store";
+import { saveConferenceHistoryRecord } from "@/lib/conference-history";
 import IbsCbsSeal from "@/components/ibs-cbs-seal";
 import {
   calculateItem,
@@ -166,6 +167,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
   const [generatedMessage, setGeneratedMessage] = useState("");
   const [generationError, setGenerationError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<{ tone: "success" | "error"; message: string } | null>(null);
   const [suggestionStatus, setSuggestionStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const messageMutation = useGenerateChargeMessage();
   const suggestionMutation = useSuggestOrderMatches();
@@ -176,6 +178,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
     setGeneratedMessage("");
     setGenerationError("");
     setCopied(false);
+    setSaveStatus(null);
     setRows((current) => current.map((row, rowIndex) => {
       if (rowIndex !== index) return row;
       return {
@@ -322,6 +325,24 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
       setCopied(false);
       setGenerationError("Não foi possível copiar. Selecione e copie o texto manualmente.");
     }
+  }
+
+  function saveConference() {
+    const result = saveConferenceHistoryRecord({
+      supplierName: invoice.issuer,
+      invoiceNumber: invoice.number,
+      issuedAt: invoice.issuedAt,
+      totalExtraChargeCents: totalCents.toString(),
+      hasCompleteIbsCbs: invoice.hasCompleteIbsCbs,
+    });
+    setSaveStatus(result.ok
+      ? {
+          tone: "success",
+          message: result.updated
+            ? "Esta nota já estava no histórico e foi atualizada."
+            : "Conferência salva no histórico de fornecedores.",
+        }
+      : { tone: "error", message: result.message });
   }
 
   return (
@@ -567,6 +588,40 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
             </article>
           ))}
         </div>
+
+        <section className="mt-6 flex flex-col gap-4 rounded-2xl border border-border/80 bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-5" data-testid="section-save-conference">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-lg font-bold">Salvar no histórico de fornecedores</h2>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              Guarda o fornecedor, a nota, o total cobrado a mais e o selo no armazenamento deste navegador.
+            </p>
+            {pendingCount > 0 && (
+              <p className="mt-2 text-xs font-medium text-amber-800" role="note">
+                Conclua a correspondência e confira a quantidade de todos os itens para salvar.
+              </p>
+            )}
+            {saveStatus && (
+              <p
+                className={`mt-2 text-sm font-medium ${saveStatus.tone === "success" ? "text-emerald-800" : "text-destructive"}`}
+                role={saveStatus.tone === "success" ? "status" : "alert"}
+                aria-live="polite"
+                data-testid="status-save-conference"
+              >
+                {saveStatus.message}
+              </p>
+            )}
+          </div>
+          <Button
+            type="button"
+            onClick={saveConference}
+            disabled={pendingCount > 0}
+            className="w-full shrink-0 sm:w-auto"
+            data-testid="button-save-conference"
+          >
+            <Save className="mr-2 h-4 w-4" aria-hidden="true" />
+            Salvar conferência
+          </Button>
+        </section>
 
         <div className="mt-6 flex items-start gap-2 rounded-xl border bg-card px-4 py-3 text-xs text-muted-foreground">
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
