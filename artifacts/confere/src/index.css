@@ -79,71 +79,43 @@
   --elevate-1: rgba(0, 0, 0, 0.03);
   --elevate-2: rgba(0, 0, 0, 0.08);
 
-  --background: 0 0% 50%; /*replace with H S L */
-
-  --foreground: 0 0% 50%; /*replace with H S L */
-
-  --border: 0 0% 50%; /*replace with H S L */
-
-  --card: 0 0% 50%; /*replace with H S L */
-
-  --card-foreground: 0 0% 50%; /*replace with H S L */
-
-  --card-border: 0 0% 50%; /*replace with H S L */
-
-  --sidebar: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-foreground: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-border: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-primary: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-primary-foreground: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-accent: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-accent-foreground: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-ring: 0 0% 50%; /*replace with H S L */
-
-  --popover: 0 0% 50%; /*replace with H S L */
-
-  --popover-foreground: 0 0% 50%; /*replace with H S L */
-
-  --popover-border: 0 0% 50%; /*replace with H S L */
-
-  --primary: 0 0% 50%; /*replace with H S L */
-
-  --primary-foreground: 0 0% 50%; /*replace with H S L */
-
-  --secondary: 0 0% 50%; /*replace with H S L */
-
-  --secondary-foreground: 0 0% 50%; /*replace with H S L */
-
-  --muted: 0 0% 50%; /*replace with H S L */
-
-  --muted-foreground: 0 0% 50%; /*replace with H S L */
-
-  --accent: 0 0% 50%; /*replace with H S L */
-
-  --accent-foreground: 0 0% 50%; /*replace with H S L */
-
-  --destructive: 0 0% 50%; /*replace with H S L */
-
-  --destructive-foreground: 0 0% 50%; /*replace with H S L */
-
-  --input: 0 0% 50%; /*replace with H S L */
-  --ring: 0 0% 50%; /*replace with H S L */
-  --chart-1: 0 0% 50%; /*replace with H S L */
-  --chart-2: 0 0% 50%; /*replace with H S L */
-  --chart-3: 0 0% 50%; /*replace with H S L */
-  --chart-4: 0 0% 50%; /*replace with H S L */
-  --chart-5: 0 0% 50%; /*replace with H S L */
-
-  --app-font-sans: 'Inter', sans-serif;
-  --app-font-serif: Georgia, serif;
-  --app-font-mono: Menlo, monospace;
+  --background: 42 36% 97%;
+  --foreground: 226 30% 14%;
+  --border: 36 18% 86%;
+  --card: 42 40% 99%;
+  --card-foreground: 226 30% 14%;
+  --card-border: 36 18% 86%;
+  --sidebar: 42 36% 97%;
+  --sidebar-foreground: 226 30% 14%;
+  --sidebar-border: 36 18% 86%;
+  --sidebar-primary: 230 62% 42%;
+  --sidebar-primary-foreground: 42 40% 98%;
+  --sidebar-accent: 230 60% 95%;
+  --sidebar-accent-foreground: 230 62% 32%;
+  --sidebar-ring: 230 62% 45%;
+  --popover: 42 40% 99%;
+  --popover-foreground: 226 30% 14%;
+  --popover-border: 36 18% 86%;
+  --primary: 230 62% 42%;
+  --primary-foreground: 42 40% 98%;
+  --secondary: 38 30% 92%;
+  --secondary-foreground: 226 30% 18%;
+  --muted: 38 25% 93%;
+  --muted-foreground: 226 10% 42%;
+  --accent: 230 60% 95%;
+  --accent-foreground: 230 62% 32%;
+  --destructive: 4 66% 46%;
+  --destructive-foreground: 42 40% 98%;
+  --input: 36 18% 80%;
+  --ring: 230 62% 45%;
+  --chart-1: 230 62% 42%;
+  --chart-2: 4 66% 46%;
+  --chart-3: 38 70% 50%;
+  --chart-4: 170 40% 38%;
+  --chart-5: 226 10% 42%;
+  --app-font-sans: 'DM Sans', system-ui, sans-serif;
+  --app-font-serif: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+  --app-font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --radius: 0.5rem; /* 8px */
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0); /*replace with H S L */
   --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0); /*replace with H S L */
@@ -228,68 +200,40 @@
   --elevate-1: rgba(255, 255, 255, 0.04);
   --elevate-2: rgba(255, 255, 255, 0.09);
 
-  --background: 0 0% 50%; /*replace with H S L */
-
-  --foreground: 0 0% 50%; /*replace with H S L */
-
-  --border: 0 0% 50%; /*replace with H S L */
-
-  --card: 0 0% 50%; /*replace with H S L */
-
-  --card-foreground: 0 0% 50%; /*replace with H S L */
-
-  --card-border: 0 0% 50%; /*replace with H S L */
-
-  --sidebar: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-foreground: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-border: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-primary: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-primary-foreground: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-accent: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-accent-foreground: 0 0% 50%; /*replace with H S L */
-
-  --sidebar-ring: 0 0% 50%; /*replace with H S L */
-
-  --popover: 0 0% 50%; /*replace with H S L */
-
-  --popover-foreground: 0 0% 50%; /*replace with H S L */
-
-  --popover-border: 0 0% 50%; /*replace with H S L */
-
-  --primary: 0 0% 50%; /*replace with H S L */
-
-  --primary-foreground: 0 0% 50%; /*replace with H S L */
-
-  --secondary: 0 0% 50%; /*replace with H S L */
-
-  --secondary-foreground: 0 0% 50%; /*replace with H S L */
-
-  --muted: 0 0% 50%; /*replace with H S L */
-
-  --muted-foreground: 0 0% 50%; /*replace with H S L */
-
-  --accent: 0 0% 50%; /*replace with H S L */
-
-  --accent-foreground: 0 0% 50%; /*replace with H S L */
-
-  --destructive: 0 0% 50%; /*replace with H S L */
-
-  --destructive-foreground: 0 0% 50%; /*replace with H S L */
-
-  /* Used as the border around inputs. Dark mode: Should be a border that is light enough to have high contrast when rendered on a --card background. More contrast than standard --border */
-  --input: 0 0% 50%; /*replace with H S L */
-  --ring: 0 0% 50%; /*replace with H S L */
-  --chart-1: 0 0% 50%; /*replace with H S L */
-  --chart-2: 0 0% 50%; /*replace with H S L */
-  --chart-3: 0 0% 50%; /*replace with H S L */
-  --chart-4: 0 0% 50%; /*replace with H S L */
-  --chart-5: 0 0% 50%; /*replace with H S L */
+  --background: 226 27% 10%;
+  --foreground: 42 30% 94%;
+  --border: 226 16% 25%;
+  --card: 226 24% 13%;
+  --card-foreground: 42 30% 94%;
+  --card-border: 226 16% 25%;
+  --sidebar: 226 27% 10%;
+  --sidebar-foreground: 42 30% 94%;
+  --sidebar-border: 226 16% 25%;
+  --sidebar-primary: 230 70% 68%;
+  --sidebar-primary-foreground: 226 27% 10%;
+  --sidebar-accent: 226 18% 20%;
+  --sidebar-accent-foreground: 42 30% 94%;
+  --sidebar-ring: 230 70% 68%;
+  --popover: 226 24% 13%;
+  --popover-foreground: 42 30% 94%;
+  --popover-border: 226 16% 25%;
+  --primary: 230 70% 68%;
+  --primary-foreground: 226 27% 10%;
+  --secondary: 226 18% 20%;
+  --secondary-foreground: 42 30% 94%;
+  --muted: 226 18% 20%;
+  --muted-foreground: 220 12% 68%;
+  --accent: 226 18% 20%;
+  --accent-foreground: 42 30% 94%;
+  --destructive: 4 66% 58%;
+  --destructive-foreground: 42 30% 94%;
+  --input: 226 16% 30%;
+  --ring: 230 70% 68%;
+  --chart-1: 230 70% 68%;
+  --chart-2: 4 66% 58%;
+  --chart-3: 38 70% 60%;
+  --chart-4: 170 42% 55%;
+  --chart-5: 220 12% 68%;
 
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
   --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
@@ -460,3 +404,63 @@
 .stamp { animation: stamp .35s cubic-bezier(.3,1.4,.5,1) .15s both; }
 @keyframes shimmer { 0%,100% { opacity: .5 } 50% { opacity: 1 } }
 .skel { animation: shimmer 1.2s ease-in-out infinite; background: hsl(var(--muted)); border-radius: 6px; }
+
+.landing {
+  --land-ink: #242744;
+  --land-indigo: #4d58b3;
+  --land-muted: #62647c;
+  font-family: var(--app-font-sans);
+}
+.landing-header { min-height: 76px; }
+.landing-disabled {
+  cursor: not-allowed;
+  color: #77798b;
+  opacity: .62;
+  background: rgba(255, 254, 250, .48);
+}
+.landing-disabled:first-child { border: 1px solid transparent; background: transparent; }
+.landing-hero { min-height: 690px; }
+.landing-reveal { animation: rise .65s cubic-bezier(.2,.7,.2,1) both; }
+.landing-art { min-height: 500px; display: flex; align-items: center; justify-content: center; }
+.landing-orbit { position: absolute; border-radius: 50%; border: 1px solid rgba(77,88,179,.12); }
+.landing-orbit-one { width: 94%; aspect-ratio: 1; transform: rotate(-19deg) scaleY(.75); }
+.landing-orbit-two { width: 76%; aspect-ratio: 1; transform: rotate(22deg) scaleY(.76); border-style: dashed; }
+.landing-art-sticker { position: absolute; z-index: 1; top: 7%; left: 10%; transform: rotate(-9deg); color: #4d58b3; font: 700 1.2rem var(--app-font-serif); letter-spacing: -.08em; }
+.landing-art-sticker b { display: inline-grid; place-items: center; width: 31px; height: 31px; margin: 0 2px; border-radius: 9px; background: #4d58b3; color: #fffefa; }
+.invoice-paper { animation: rise .7s .1s cubic-bezier(.2,.7,.2,1) both; }
+.invoice-line { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 1rem; border-bottom: 1px solid #eeece5; padding-bottom: 12px; }
+.invoice-check { border-radius: 999px; background: #edf4e9; padding: 5px 8px; color: #537247; font-family: var(--app-font-mono); font-size: .65rem; }
+.invoice-flag { border-radius: 999px; background: #fbf1df; padding: 5px 8px; color: #8c6332; font-size: .65rem; font-weight: 700; }
+.floating-note { animation: rise .65s .28s cubic-bezier(.2,.7,.2,1) both; }
+.landing-stamp { box-shadow: 0 8px 24px rgba(58,54,45,.08); }
+.landing-underline { height: 16px; }
+.landing-kicker { color: #8d6941; font-size: .7rem; font-weight: 800; letter-spacing: .15em; line-height: 1.4; text-transform: uppercase; }
+.step-list { border-top: 1px solid #dedbd2; }
+.step-row { display: grid; grid-template-columns: 2.5rem 3rem 1fr auto; align-items: center; gap: 1rem; border-bottom: 1px solid #dedbd2; padding: 1.4rem 0; }
+.step-number { color: #a6a4ad; font: 500 .72rem var(--app-font-mono); }
+.step-icon { display: grid; width: 2.8rem; height: 2.8rem; place-items: center; border: 1px solid #ddd9ce; border-radius: 1rem; background: #fffefa; color: #4d58b3; }
+.step-arrow { color: #b5b2a9; }
+.benefit-graphic { position: absolute; top: -210px; right: -120px; width: 540px; height: 540px; border: 1px solid rgba(255,255,255,.09); border-radius: 50%; }
+.benefit-graphic::before,.benefit-graphic::after { position: absolute; content: ""; border: 1px solid rgba(255,255,255,.08); border-radius: 50%; inset: 42px; }
+.benefit-graphic::after { inset: 90px; }
+.benefit-list { position: relative; border-top: 1px solid rgba(255,255,255,.2); }
+.benefit-item { display: flex; min-height: 68px; align-items: center; gap: 1rem; border-bottom: 1px solid rgba(255,255,255,.2); padding: .9rem 0; font-size: .92rem; font-weight: 600; line-height: 1.45; }
+.benefit-icon { display: grid; width: 2.3rem; height: 2.3rem; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255,255,255,.25); border-radius: .8rem; color: #e0d4b7; }
+.closing-ornament { position: absolute; right: 2%; bottom: -6rem; color: rgba(77,88,179,.08); font: 700 clamp(12rem, 29vw, 26rem)/.8 var(--app-font-serif); letter-spacing: -.12em; transform: rotate(-12deg); pointer-events: none; }
+.landing-footer .font-display { font-size: 1.2rem; }
+
+@media (max-width: 767px) {
+  .landing-hero { min-height: auto; }
+  .landing-art { min-height: 410px; margin-top: -1.5rem; }
+  .invoice-paper { width: 88%; padding: 1.15rem; }
+  .invoice-line { gap: .6rem; }
+  .invoice-line > :first-child { font-size: .76rem; }
+  .landing-stamp { top: 2%; right: 0; }
+  .floating-note { bottom: -1rem; }
+  .step-row { grid-template-columns: 2rem 2.7rem 1fr; gap: .65rem; padding: 1.15rem 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal,.invoice-paper,.floating-note { animation: none; }
+  .landing-cta,.problem-tile,.landing-disabled { transition: none; }
+}

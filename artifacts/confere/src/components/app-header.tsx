@@ -6,14 +6,14 @@ export default function AppHeader() {
 
   const links = [
     { href: "/pedido", label: "Pedido", icon: ListChecks },
-    { href: "/", label: "Nota fiscal", icon: FileText },
+    { href: "/nota-fiscal", label: "Nota fiscal", icon: FileText },
     { href: "/conferencia", label: "Conferência", icon: FileCheck2 },
   ];
 
   return (
     <header className="sticky top-0 z-20 border-b border-border/80 bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-5 sm:py-4">
-        <Link href="/" aria-label="coNFere — início" className="group flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" data-testid="link-home">
+        <Link href="/nota-fiscal" aria-label="coNFere — nota fiscal" className="group flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" data-testid="link-home">
           <span className="grid h-9 w-9 place-items-center rounded-xl border border-primary/15 bg-primary/10 font-display text-lg font-bold text-primary transition-transform group-hover:-rotate-3" aria-hidden="true">c</span>
           <span className="font-display text-[1.35rem] font-bold tracking-[-0.055em] text-foreground">
             co<span className="text-primary">NF</span>ere
@@ -42,7 +42,7 @@ export default function AppHeader() {
                 key={href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                data-testid={`link-${href === "/" ? "nota-fiscal" : href.slice(1)}`}
+                data-testid={`link-${href === "/nota-fiscal" ? "nota-fiscal" : href.slice(1)}`}
                 className={`inline-flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-lg px-1.5 text-center text-[0.7rem] font-semibold leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 sm:justify-start sm:gap-2 sm:px-3 sm:text-sm ${
                   active
                     ? "bg-card text-primary shadow-sm ring-1 ring-border/70"

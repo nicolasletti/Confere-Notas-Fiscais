@@ -356,7 +356,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
               Relacione cada produto da nota ao que foi pedido e informe quanto chegou.
             </p>
           </div>
-          <Link href="/" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border bg-card px-3.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" data-testid="link-back-invoice">
+          <Link href="/nota-fiscal" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border bg-card px-3.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" data-testid="link-back-invoice">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Nota fiscal
           </Link>
@@ -649,7 +649,7 @@ export default function Conferencia() {
             A conferência usa os itens da NF-e aberta. Volte à tela Nota fiscal e selecione um XML.
           </p>
           <Button asChild className="mt-6">
-            <Link href="/" data-testid="link-load-invoice">Ir para Nota fiscal</Link>
+            <Link href="/nota-fiscal" data-testid="link-load-invoice">Ir para Nota fiscal</Link>
           </Button>
         </section>
       </main>

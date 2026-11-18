@@ -90,7 +90,7 @@ export default function Fornecedores() {
               Depois de revisar todos os itens de uma nota, salve a conferência para incluir o fornecedor neste histórico.
             </p>
             <Button asChild className="mt-6">
-              <Link href="/" data-testid="link-start-conference">
+              <Link href="/nota-fiscal" data-testid="link-start-conference">
                 <FileText className="mr-2 h-4 w-4" aria-hidden="true" />
                 Abrir nota fiscal
               </Link>

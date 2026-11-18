@@ -6,6 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import AppHeader from '@/components/app-header';
 import NotFound from '@/pages/not-found';
 import Home from '@/pages/home';
+import Landing from '@/pages/landing';
 import Pedido from '@/pages/pedido';
 import Conferencia from '@/pages/conferencia';
 import Fornecedores from '@/pages/fornecedores';
@@ -25,7 +26,8 @@ function Router() {
     // survives a page crash.
     <RoutedErrorBoundary>
       <Switch>
-        <Route path="/" component={Home} />
+        <Route path="/" component={Landing} />
+        <Route path="/nota-fiscal" component={Home} />
         <Route path="/pedido" component={Pedido} />
         <Route path="/conferencia" component={Conferencia} />
         <Route path="/fornecedores" component={Fornecedores} />
@@ -46,7 +48,7 @@ function App() {
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
           <NfeProvider>
-            <AppHeader />
+            <LandingAwareHeader />
             <Router />
           </NfeProvider>
         </WouterRouter>
@@ -54,6 +56,11 @@ function App() {
       </TooltipProvider>
     </QueryClientProvider>
   );
+}
+
+function LandingAwareHeader() {
+  const [location] = useLocation();
+  return location === "/" ? null : <AppHeader />;
 }
 
 export default App;
