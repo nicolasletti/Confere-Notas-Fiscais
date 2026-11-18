@@ -1,1 +1,1 @@
-- [Escopo atual do Confere](confere-scope.md) — telas, histórico local por fornecedor, conferência, selo IBS/CBS e uso seguro de IA.
+- [Escopo atual do Confere](confere-scope.md) — roadmap, etapas e limites de IA/cálculo do coNFere.

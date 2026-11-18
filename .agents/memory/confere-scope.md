@@ -3,7 +3,7 @@ name: Escopo atual do Confere
 description: Telas, regras de conferência e limites de uso de IA no app
 ---
 
-Confere é uma aplicação em português do Brasil para pequenos comércios conferirem notas fiscais de fornecedores. O escopo atual tem as telas “Pedido”, “Nota fiscal” e “Conferência”.
+coNFere é uma aplicação em português do Brasil para pequenos comércios. O produto já inclui Pedido, Nota fiscal, Conferência e Fornecedores. O roadmap explicitamente aprovado também inclui landing page; cadastro/login por e-mail/senha e Google; perfil da empresa; banco de dados por usuário; dashboard com relatórios mensais e semanais; resumo de IBS/CBS das compras; pacote mensal para o contador; previsão de recompra por item; e geração de pedido para o fornecedor via WhatsApp.
 
 O pedido permite cadastrar, editar e remover itens (descrição, quantidade, unidade e preço unitário combinado) e salvar esses dados em localStorage. A opção de importar do WhatsApp envia o texto colado à OpenAI pela integração gerenciada do Replit para extrair itens. Campos que a IA não identificar ficam vazios; o usuário revisa e edita antes de confirmar o salvamento no navegador. Não guardar o texto original.
 
@@ -15,11 +15,13 @@ As telas da nota e da conferência exibem um selo verde quando todos os itens t�
 
 Quando há cobrança a mais positiva, o usuário pode solicitar uma mensagem em estilo WhatsApp. A IA recebe o número da nota, descrições e valores já calculados pelo app, mas redige apenas a saudação curta. O app insere as divergências, partes e total sem deixar a IA calcular ou alterar valores. A mensagem pode ser editada e copiada, mas não é salva.
 
-Não criar login nem banco de dados. Manter pedido e resumo de histórico no navegador; não persistir mensagens, texto do WhatsApp ou detalhes por item.
+Trabalhar em etapas e implementar somente o que a etapa atual pedir, preservando o que já funciona. A existência de uma funcionalidade no roadmap não autoriza antecipar sua implementação. Até a etapa de banco de dados por usuário, manter o pedido e o histórico atual no navegador; não persistir mensagens, texto do WhatsApp ou detalhes por item.
 
-**Why:** o usuário pediu correspondências automáticas por IA, mas exige que escolhas incertas permaneçam sem seleção para evitar associação errada. Também pediu histórico de conferências local por fornecedor.
+**Why:** o usuário definiu um roadmap amplo, mas quer entregas incrementais e preservação do comportamento existente.
 
-**How to apply:** enviar apenas descrições para o pareamento, usar um limite conservador de confiança, preservar a edição manual e não enviar valores monetários para esse recurso. Persistir o resumo do histórico somente após ação explícita, deduplicar por fornecedor/nota/data e escolher o selo pela data de emissão da nota mais recente.
+**Regras permanentes:** ler XML de NF-e no código, sem IA. Cálculos de divergência e previsões/recompras são feitos no código, nunca pela IA. A IA fica restrita à geração e transformação de textos e ao casamento/sugestão de itens.
+
+**How to apply:** confirmar a etapa pedida e implementar somente aquele escopo. Para casamento de itens, enviar apenas descrições, usar limite conservador de confiança e manter edição manual. Salvar histórico local apenas após ação explícita, deduplicar por fornecedor/nota/data e usar a emissão mais recente para o selo.
 
 A identidade visual pedida é “coNFere”, com “NF” em destaque. A navegação deve deixar visíveis as três etapas na ordem: “1. Pedido”, “2. Nota fiscal” e “3. Conferência”. O total cobrado a mais precisa ter forte hierarquia visual e boa leitura no celular, sem alterar regras de cálculo.
 
