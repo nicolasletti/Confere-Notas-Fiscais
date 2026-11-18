@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, FileCheck2, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Check, Copy, FileCheck2, ShieldAlert, Sparkles } from "lucide-react";
+import { useGenerateChargeMessage } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useNfe } from "@/lib/nfe-context";
 import { readPedido, type PedidoItem } from "@/lib/pedido-store";
 import IbsCbsSeal from "@/components/ibs-cbs-seal";
@@ -47,6 +49,12 @@ function partDisplay(cents: bigint) {
     return <span className="font-mono font-medium text-red-800">{formatBRL(cents)} a mais</span>;
   }
   return <span className="font-mono font-medium text-foreground">{formatBRL(0n)}</span>;
+}
+
+function messagePart(cents: bigint): string {
+  if (cents < 0n) return `${formatBRL(-cents)} a seu favor`;
+  if (cents > 0n) return `${formatBRL(cents)} a mais`;
+  return formatBRL(0n);
 }
 
 function Result({
@@ -139,8 +147,17 @@ function Result({
 function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version: number }) {
   const [pedido] = useState(readPedido);
   const [rows, setRows] = useState(() => initialRows(invoice));
+  const [generatedMessage, setGeneratedMessage] = useState("");
+  const [generationError, setGenerationError] = useState("");
+  const [copied, setCopied] = useState(false);
+  const messageMutation = useGenerateChargeMessage();
+  const editRevision = useRef(0);
 
   function updateRow(index: number, update: Partial<ConferenceRow>) {
+    editRevision.current += 1;
+    setGeneratedMessage("");
+    setGenerationError("");
+    setCopied(false);
     setRows((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, ...update } : row));
   }
 
@@ -163,6 +180,57 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
   const pendingCount = resolved.filter(
     ({ calculation }) => !calculation || calculation.kind === "invalid",
   ).length;
+  const chargeItems = resolved.flatMap(({ item, isNotInOrder, calculation }) => {
+    if (!calculation || calculation.totalCents === null || calculation.totalCents <= 0n) {
+      return [];
+    }
+    return [{
+      description: item.description,
+      kind: isNotInOrder ? "notInOrder" as const : "matched" as const,
+      itemAmount: formatBRL(calculation.totalCents),
+      quantityDifference: isNotInOrder
+        ? null
+        : messagePart(calculation.quantityPartCents ?? 0n),
+      priceDifference: isNotInOrder
+        ? null
+        : messagePart(calculation.pricePartCents ?? 0n),
+    }];
+  });
+
+  async function generateChargeMessage() {
+    const requestRevision = editRevision.current;
+    setGeneratedMessage("");
+    setGenerationError("");
+    setCopied(false);
+    try {
+      const result = await messageMutation.mutateAsync({
+        data: {
+          invoiceNumber: invoice.number,
+          totalAmount: formatBRL(totalCents),
+          partial: pendingCount > 0,
+          items: chargeItems,
+        },
+      });
+      if (requestRevision === editRevision.current) {
+        setGeneratedMessage(result.message);
+      }
+    } catch {
+      if (requestRevision === editRevision.current) {
+        setGenerationError("Não foi possível gerar a mensagem agora. Tente novamente.");
+      }
+    }
+  }
+
+  async function copyChargeMessage() {
+    try {
+      await navigator.clipboard.writeText(generatedMessage);
+      setCopied(true);
+      setGenerationError("");
+    } catch {
+      setCopied(false);
+      setGenerationError("Não foi possível copiar. Selecione e copie o texto manualmente.");
+    }
+  }
 
   return (
     <main className="mx-auto max-w-5xl px-5 py-8 sm:py-12">
@@ -192,6 +260,73 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
               : "Itens com diferença favorável não aumentam este total."}
           </p>
         </div>
+
+        {totalCents > 0n && (
+          <section className="mt-5 rounded-2xl border bg-card p-4 sm:p-5" data-testid="section-charge-message">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="font-display text-lg font-bold">Mensagem para o fornecedor</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  A IA escreve a introdução; descrições e valores calculados são inseridos pelo Confere.
+                </p>
+              </div>
+              <Button
+                type="button"
+                onClick={generateChargeMessage}
+                disabled={messageMutation.isPending}
+                data-testid="button-generate-charge-message"
+              >
+                <Sparkles className="mr-2 h-4 w-4" aria-hidden="true" />
+                {messageMutation.isPending ? "Gerando mensagem..." : "Gerar mensagem de cobrança"}
+              </Button>
+            </div>
+
+            {pendingCount > 0 && (
+              <p className="mt-3 text-xs text-amber-800" role="note">
+                A mensagem indicará que o total é parcial e incluirá apenas as divergências já calculadas.
+              </p>
+            )}
+
+            {generationError && (
+              <p className="mt-3 text-sm text-destructive" role="alert" data-testid="error-charge-message">
+                {generationError}
+              </p>
+            )}
+
+            {generatedMessage && (
+              <div className="mt-4 space-y-3">
+                <label htmlFor="charge-message-draft" className="block text-sm font-semibold">
+                  Revise e edite a mensagem antes de enviar
+                </label>
+                <Textarea
+                  id="charge-message-draft"
+                  value={generatedMessage}
+                  onChange={(event) => {
+                    setGeneratedMessage(event.target.value);
+                    setCopied(false);
+                  }}
+                  rows={8}
+                  className="min-h-40 resize-y"
+                  data-testid="textarea-charge-message"
+                />
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={copyChargeMessage}
+                    disabled={!generatedMessage.trim()}
+                    data-testid="button-copy-charge-message"
+                  >
+                    {copied
+                      ? <Check className="mr-2 h-4 w-4" aria-hidden="true" />
+                      : <Copy className="mr-2 h-4 w-4" aria-hidden="true" />}
+                    {copied ? "Copiado" : "Copiar"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
 
         {pedido.warning && (
           <p role="status" className="mt-5 rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-950" data-testid="status-pedido-warning">

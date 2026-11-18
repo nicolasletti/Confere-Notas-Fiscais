@@ -1,7 +1,7 @@
 kind = "web"
 previewPath = "/"
 title = "Confere"
-description = "Leitura local de XML de NF-e para pequenos comércios, mostrando emitente, número, data e itens da nota em português do Brasil, sem IA ou armazenamento."
+description = "Aplicativo em português para pequenos comércios lerem XML de NF-e, registrarem pedidos e conferirem divergências. A IA prepara mensagens de cobrança usando valores já calculados pelo app; pedido e nota não ficam armazenados no servidor."
 version = "1.0.0"
 id = "artifacts/confere"
 router = "path"

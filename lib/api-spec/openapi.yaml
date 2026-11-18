@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: openai
+    description: AI-assisted supplier communication
 paths:
   /healthz:
     get:
@@ -24,6 +26,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /openai/generate-charge-message:
+    post:
+      operationId: generateChargeMessage
+      tags: [openai]
+      summary: Draft a supplier message from pre-calculated invoice differences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChargeMessageInput"
+      responses:
+        "200":
+          description: Generated WhatsApp-style supplier message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChargeMessageResult"
+        "400":
+          description: Invalid message facts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChargeMessageError"
+        "502":
+          description: AI text generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChargeMessageError"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +65,70 @@ components:
           type: string
       required:
         - status
+    ChargeMessageInput:
+      type: object
+      additionalProperties: false
+      properties:
+        invoiceNumber:
+          type: string
+          minLength: 1
+          maxLength: 40
+        totalAmount:
+          type: string
+          minLength: 1
+          maxLength: 40
+        partial:
+          type: boolean
+        items:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/ChargeMessageItem"
+      required:
+        - invoiceNumber
+        - totalAmount
+        - partial
+        - items
+    ChargeMessageItem:
+      type: object
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        kind:
+          type: string
+          enum: [matched, notInOrder]
+        itemAmount:
+          type: string
+          minLength: 1
+          maxLength: 40
+        quantityDifference:
+          type: ["string", "null"]
+          maxLength: 60
+        priceDifference:
+          type: ["string", "null"]
+          maxLength: 60
+      required:
+        - description
+        - kind
+        - itemAmount
+        - quantityDifference
+        - priceDifference
+    ChargeMessageResult:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    ChargeMessageError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
 
