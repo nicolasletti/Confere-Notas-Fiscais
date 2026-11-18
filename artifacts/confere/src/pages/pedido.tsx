@@ -13,24 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-const STORAGE_KEY = "confere-pedido-v1";
-
-interface PedidoItem {
-  id: string;
-  descricao: string;
-  quantidade: string;
-  unidade: string;
-  precoUnitario: string;
-}
-
-const savedItemSchema = z.object({
-  id: z.string().min(1),
-  descricao: z.string(),
-  quantidade: z.string(),
-  unidade: z.string(),
-  precoUnitario: z.string(),
-});
+import { readPedido, savePedido, type PedidoItem } from "@/lib/pedido-store";
 
 const formSchema = z.object({
   descricao: z.string().trim().min(1, "Informe a descrição do item."),
@@ -48,27 +31,6 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-function readPedido(): { items: PedidoItem[]; warning: string | null } {
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (!stored) return { items: [], warning: null };
-    const parsed: unknown = JSON.parse(stored);
-    const result = z.array(savedItemSchema).safeParse(parsed);
-    if (!result.success) {
-      return {
-        items: [],
-        warning: "Os dados salvos não puderam ser reconhecidos. Você pode criar um novo pedido.",
-      };
-    }
-    return { items: result.data, warning: null };
-  } catch {
-    return {
-      items: [],
-      warning: "Não foi possível acessar o armazenamento local neste navegador.",
-    };
-  }
-}
 
 function formatDecimal(value: string): string {
   const normalized = value.trim().replace(",", ".");
@@ -111,10 +73,9 @@ export default function Pedido() {
 
   function commit(next: PedidoItem[]) {
     setItems(next);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    if (savePedido(next)) {
       setStorageWarning(null);
-    } catch {
+    } else {
       setStorageWarning("O pedido está disponível nesta sessão, mas não foi possível salvá-lo neste navegador.");
     }
   }

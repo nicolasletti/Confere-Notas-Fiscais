@@ -5,8 +5,8 @@ description: Objetivo do produto e limites explícitos da primeira etapa
 
 Confere é uma aplicação em português do Brasil para pequenos comércios conferirem notas fiscais de fornecedores.
 
-O escopo atual tem as telas “Pedido” e “Nota fiscal”. O pedido permite cadastrar, editar e remover itens (descrição, quantidade, unidade e preço unitário combinado) e salvar esses dados em localStorage. A nota fiscal continua lendo XML de NF-e localmente, sem IA, e exibindo os campos básicos e os produtos. Ainda não implementar conferência entre pedido e nota fiscal. Não criar login ou banco de dados. O usuário pediu visual simples e moderno com fundo claro.
+O escopo atual tem as telas “Pedido”, “Nota fiscal” e “Conferência”. O pedido permite cadastrar, editar e remover itens (descrição, quantidade, unidade e preço unitário combinado) e salvar esses dados em localStorage. A nota fiscal lê XML de NF-e localmente, sem IA, e exibe os campos básicos e os produtos. A conferência relaciona itens da nota ao pedido, permite informar quantidade recebida e calcula diferenças de quantidade e preço; ainda não persistir os resultados da conferência. Não criar login ou banco de dados. O usuário pediu visual simples e moderno com fundo claro.
 
-**Why:** o usuário definiu os limites atuais do produto e adiou explicitamente a conferência entre o pedido e a nota.
+**Why:** o usuário definiu o escopo em etapas e agora solicitou a tela de conferência com regras explícitas de cálculo e apresentação.
 
-**How to apply:** preservar a navegação simples entre as duas telas; manter os dados do pedido somente no navegador; aguardar pedido explícito antes de implementar conferência, autenticação, banco de dados ou IA.
+**How to apply:** preservar a navegação simples entre as três telas; manter os dados do pedido somente no navegador; não acrescentar autenticação, banco de dados ou IA por iniciativa própria.

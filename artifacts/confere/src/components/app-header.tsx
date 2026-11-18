@@ -1,4 +1,4 @@
-import { FileText, ListChecks, ShieldCheck } from "lucide-react";
+import { FileCheck2, FileText, ListChecks, ShieldCheck } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 export default function AppHeader() {
@@ -7,6 +7,7 @@ export default function AppHeader() {
   const links = [
     { href: "/pedido", label: "Pedido", icon: ListChecks },
     { href: "/", label: "Nota fiscal", icon: FileText },
+    { href: "/conferencia", label: "Conferência", icon: FileCheck2 },
   ];
 
   return (
@@ -25,7 +26,7 @@ export default function AppHeader() {
                 key={href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                data-testid={`link-${label === "Pedido" ? "pedido" : "nota-fiscal"}`}
+                data-testid={`link-${href === "/" ? "nota-fiscal" : href.slice(1)}`}
                 className={`inline-flex min-h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   active
                     ? "bg-primary/10 text-primary"

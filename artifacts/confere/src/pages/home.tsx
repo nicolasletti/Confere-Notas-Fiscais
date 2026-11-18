@@ -1,6 +1,7 @@
 import { useRef, useState, type DragEvent } from "react";
 import { FileUp, FileText, RefreshCw, X, AlertCircle } from "lucide-react";
 import { readNfeFile, type NfeInvoice } from "@/lib/nfe";
+import { useNfe } from "@/lib/nfe-context";
 
 type State =
   | { kind: "empty" }
@@ -31,21 +32,26 @@ function fmtDate(raw: string): string {
 }
 
 export default function Home() {
+  const { setInvoice } = useNfe();
   const [state, setState] = useState<State>({ kind: "empty" });
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const reqId = useRef(0);
 
   const openPicker = () => inputRef.current?.click();
-  const reset = () => { reqId.current++; setState({ kind: "empty" }); };
+  const reset = () => { reqId.current++; setState({ kind: "empty" }); setInvoice(null); };
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
     const id = ++reqId.current;
+    setInvoice(null);
     setState({ kind: "loading", fileName: file.name });
     try {
       const invoice = await readNfeFile(file);
-      if (id === reqId.current) setState({ kind: "ready", fileName: file.name, invoice });
+      if (id === reqId.current) {
+        setState({ kind: "ready", fileName: file.name, invoice });
+        setInvoice(invoice);
+      }
     } catch (e) {
       if (id === reqId.current)
         setState({ kind: "error", fileName: file.name, message: e instanceof Error ? e.message : "Não foi possível ler este arquivo." });

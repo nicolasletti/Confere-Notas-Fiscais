@@ -7,6 +7,8 @@ import AppHeader from '@/components/app-header';
 import NotFound from '@/pages/not-found';
 import Home from '@/pages/home';
 import Pedido from '@/pages/pedido';
+import Conferencia from '@/pages/conferencia';
+import { NfeProvider } from '@/lib/nfe-context';
 import {
   Route,
   Switch,
@@ -24,6 +26,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/pedido" component={Pedido} />
+        <Route path="/conferencia" component={Conferencia} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>
@@ -40,10 +43,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <>
+          <NfeProvider>
             <AppHeader />
             <Router />
-          </>
+          </NfeProvider>
         </WouterRouter>
         <Toaster />
       </TooltipProvider>
