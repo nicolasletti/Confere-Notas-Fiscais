@@ -72,13 +72,18 @@ function normalizeCharge(value: string): bigint {
   return parsed > 0n ? parsed : 0n;
 }
 
-function buildPeriod(
-  month: string,
+export function summarizeDateRange(
+  start: string,
+  endExclusive: string,
   invoices: DashboardInvoice[],
   conferences: DashboardConference[],
 ) {
-  // Selection uses the issue-month exactly as supplied by the fiscal XML.
-  const periodInvoices = invoices.filter((row) => row.issuedAt.slice(0, 7) === month);
+  // Compare the calendar date as written in the XML, without converting its offset to UTC.
+  const inPeriod = (issuedAt: string) => {
+    const date = issuedAt.slice(0, 10);
+    return date >= start && date < endExclusive;
+  };
+  const periodInvoices = invoices.filter((row) => inPeriod(row.issuedAt));
   const byId = new Map(invoices.map((row) => [row.id, row]));
   const byIdentity = new Map(invoices.map((row) => [row.identity, row]));
   const conferenceByInvoice = new Map<number, DashboardConference>();
@@ -87,7 +92,7 @@ function buildPeriod(
     const invoice = (conference.invoiceId === null ? undefined : byId.get(conference.invoiceId))
       ?? byIdentity.get(conference.identity);
     if (!invoice) {
-      if (conference.issuedAt.slice(0, 7) === month) excludedLegacyConferenceCount += 1;
+      if (inPeriod(conference.issuedAt)) excludedLegacyConferenceCount += 1;
       continue;
     }
     const previous = conferenceByInvoice.get(invoice.id);
@@ -182,10 +187,12 @@ export function monthlyDashboard(
 ): MonthlyDashboard {
   if (!validMonth(month)) throw new Error("Mês inválido.");
   const previous = previousMonth(month);
-  const current = buildPeriod(month, invoices, conferences);
+  const [year, number] = month.split("-").map(Number);
+  const next = `${String(number === 12 ? year + 1 : year).padStart(4, "0")}-${String(number === 12 ? 1 : number + 1).padStart(2, "0")}`;
+  const current = summarizeDateRange(`${month}-01`, `${next}-01`, invoices, conferences);
   return {
     month, previousMonth: previous, current: current.metrics,
-    previous: buildPeriod(previous, invoices, conferences).metrics,
+    previous: summarizeDateRange(`${previous}-01`, `${month}-01`, invoices, conferences).metrics,
     suppliers: current.suppliers, items: current.items,
     unverifiedInvoiceCount: current.unverifiedInvoiceCount,
     excludedLegacyConferenceCount: current.excludedLegacyConferenceCount,
@@ -204,12 +211,20 @@ function csvCell(value: string | number): string {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-export function monthlyCsv(data: MonthlyDashboard): string {
+interface ReportPeriod {
+  title: string;
+  label: string;
+  previousLabel: string;
+  criterion: string;
+  sealLabel: string;
+}
+
+export function monthlyCsv(data: MonthlyDashboard, period?: ReportPeriod): string {
   const rows: (string | number)[][] = [
-    ["coNFere — Relatório do mês", data.month],
-    ["Critério", "Mês de emissão da nota; compras = soma dos valores dos produtos (vProd), sem frete e outros acréscimos."],
+    [period?.title ?? "coNFere — Relatório do mês", period?.label ?? data.month],
+    ["Critério", period?.criterion ?? "Mês de emissão da nota; compras = soma dos valores dos produtos (vProd), sem frete e outros acréscimos."],
     ["Divergências", "Somente conferências salvas vinculadas a notas importadas; valores favoráveis não reduzem cobranças a mais."],
-    ["Indicador", data.month, data.previousMonth],
+    ["Indicador", period?.label ?? data.month, period?.previousLabel ?? data.previousMonth],
     ["Total comprado (R$)", money(data.current.purchasedCents), money(data.previous.purchasedCents)],
     ["Número de notas", data.current.invoiceCount, data.previous.invoiceCount],
     ["Total cobrado a mais (R$)", money(data.current.extraChargeCents), money(data.previous.extraChargeCents)],
@@ -218,7 +233,7 @@ export function monthlyCsv(data: MonthlyDashboard): string {
     ["Resumos antigos sem XML excluídos", data.excludedLegacyConferenceCount],
     [],
     ["Compras por fornecedor / Fornecedores"],
-    ["Fornecedor", "Total comprado (R$)", "Total cobrado a mais (R$)", "Número de notas", "Reforma da última nota no mês", "Emissão da última nota"],
+    ["Fornecedor", "Total comprado (R$)", "Total cobrado a mais (R$)", "Número de notas", period?.sealLabel ?? "Reforma da última nota no mês", "Emissão da última nota"],
     ...data.suppliers.map((row) => [
       row.name, money(row.purchasedCents), money(row.extraChargeCents), row.invoiceCount,
       row.hasCompleteIbsCbs ? "Pronto para a reforma tributária" : "Atenção: nota sem os campos de IBS/CBS",

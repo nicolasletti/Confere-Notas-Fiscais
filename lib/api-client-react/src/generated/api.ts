@@ -31,6 +31,8 @@ import type {
   ExtractedOrderItems,
   GetMonthlyDashboardParams,
   GetMonthlyReportParams,
+  GetWeeklyDashboardParams,
+  GetWeeklyReportParams,
   HealthStatus,
   InvoiceInput,
   InvoiceList,
@@ -46,6 +48,7 @@ import type {
   OrderMatchSuggestionsInput,
   OrderMatchSuggestionsResult,
   OrderSnapshot,
+  WeeklyDashboard,
   WhatsAppOrderTextInput
 } from './api.schemas';
 
@@ -75,6 +78,174 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetWeeklyDashboardUrl = (params: GetWeeklyDashboardParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/account/dashboard/weekly?${stringifiedParams}` : `/api/account/dashboard/weekly`
+}
+
+/**
+ * @summary Weekly purchases from Monday through Sunday for the signed-in user
+ */
+export const getWeeklyDashboard = async (params: GetWeeklyDashboardParams, options?: Parameters<typeof customFetch>[1]): Promise<WeeklyDashboard> => {
+
+  return customFetch<WeeklyDashboard>(getGetWeeklyDashboardUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetWeeklyDashboardQueryKey = (params?: GetWeeklyDashboardParams,) => {
+    return [
+    `/api/account/dashboard/weekly`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetWeeklyDashboardQueryOptions = <TData = Awaited<ReturnType<typeof getWeeklyDashboard>>, TError = ErrorType<void>>(params: GetWeeklyDashboardParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWeeklyDashboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWeeklyDashboardQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWeeklyDashboard>>> = ({ signal }) => getWeeklyDashboard(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWeeklyDashboard>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWeeklyDashboardQueryResult = NonNullable<Awaited<ReturnType<typeof getWeeklyDashboard>>>
+export type GetWeeklyDashboardQueryError = ErrorType<void>
+
+
+/**
+ * @summary Weekly purchases from Monday through Sunday for the signed-in user
+ */
+
+export function useGetWeeklyDashboard<TData = Awaited<ReturnType<typeof getWeeklyDashboard>>, TError = ErrorType<void>>(
+ params: GetWeeklyDashboardParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWeeklyDashboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWeeklyDashboardQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetWeeklyReportUrl = (params: GetWeeklyReportParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/account/dashboard/weekly/report?${stringifiedParams}` : `/api/account/dashboard/weekly/report`
+}
+
+/**
+ * @summary Weekly CSV using the same format as the monthly report
+ */
+export const getWeeklyReport = async (params: GetWeeklyReportParams, options?: Parameters<typeof customFetch>[1]): Promise<MonthlyReport> => {
+
+  return customFetch<MonthlyReport>(getGetWeeklyReportUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetWeeklyReportQueryKey = (params?: GetWeeklyReportParams,) => {
+    return [
+    `/api/account/dashboard/weekly/report`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetWeeklyReportQueryOptions = <TData = Awaited<ReturnType<typeof getWeeklyReport>>, TError = ErrorType<void>>(params: GetWeeklyReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWeeklyReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWeeklyReportQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWeeklyReport>>> = ({ signal }) => getWeeklyReport(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWeeklyReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWeeklyReportQueryResult = NonNullable<Awaited<ReturnType<typeof getWeeklyReport>>>
+export type GetWeeklyReportQueryError = ErrorType<void>
+
+
+/**
+ * @summary Weekly CSV using the same format as the monthly report
+ */
+
+export function useGetWeeklyReport<TData = Awaited<ReturnType<typeof getWeeklyReport>>, TError = ErrorType<void>>(
+ params: GetWeeklyReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWeeklyReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWeeklyReportQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGetMonthlyDashboardUrl = (params: GetMonthlyDashboardParams,) => {
   const normalizedParams = new URLSearchParams();

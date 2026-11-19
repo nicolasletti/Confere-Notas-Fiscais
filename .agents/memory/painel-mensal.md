@@ -16,3 +16,9 @@ Notas sem conferência salva entram nas compras, mas não representam divergênc
 **Why:** compras conhecidas e cobranças efetivamente encontradas são indicadores diferentes; histórico incompleto não deve parecer completo.
 
 **How to apply:** preservar as mesmas definições no Painel e em sua exportação. Se o usuário pedir um conceito mais amplo de compra ou divergência, mudar a definição explicitamente e de forma consistente.
+
+A visão Semanal usa segunda-feira a domingo, inclusive, também pela data de emissão escrita na nota. “Notas recebidas” significa notas importadas com emissão na semana, não arquivos enviados nessa semana. A comparação usa os sete dias imediatamente anteriores e o relatório segue o mesmo formato do mensal.
+
+**Why:** o usuário definiu semanas de segunda a domingo e pediu consistência entre relatórios. Manter o critério de emissão evita que o mesmo XML altere de período dependendo da data do upload.
+
+**How to apply:** preservar semanas completas mesmo quando atravessam mês ou ano; não filtrar a semana pelo mês do Painel mensal.

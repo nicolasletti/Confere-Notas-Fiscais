@@ -34,6 +34,19 @@ export interface MonthlyItem {
   averagePriceCents: string | null;
 }
 
+export interface WeeklyDashboard {
+  weekStart: string;
+  weekEnd: string;
+  previousWeekStart: string;
+  previousWeekEnd: string;
+  current: MonthlyMetrics;
+  previous: MonthlyMetrics;
+  suppliers: MonthlySupplier[];
+  items: MonthlyItem[];
+  unverifiedInvoiceCount: number;
+  excludedLegacyConferenceCount: number;
+}
+
 export interface MonthlyDashboard {
   month: string;
   previousMonth: string;
@@ -402,6 +415,20 @@ export type ConferenceRecord = ConferenceInput & {
 };
 
 export type ConferenceList = ConferenceRecord[];
+
+export type GetWeeklyDashboardParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+weekStart: string;
+};
+
+export type GetWeeklyReportParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+weekStart: string;
+};
 
 export type GetMonthlyDashboardParams = {
 /**

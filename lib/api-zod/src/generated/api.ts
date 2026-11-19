@@ -9,6 +9,83 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Weekly purchases from Monday through Sunday for the signed-in user
+ */
+export const getWeeklyDashboardQueryWeekStartRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetWeeklyDashboardQueryParams = zod.object({
+  "weekStart": zod.coerce.string().regex(getWeeklyDashboardQueryWeekStartRegExp)
+})
+
+export const getWeeklyDashboardResponseCurrentPurchasedCentsRegExp = new RegExp('^\\d+$');
+export const getWeeklyDashboardResponseCurrentInvoiceCountMin = 0;
+
+export const getWeeklyDashboardResponseCurrentExtraChargeCentsRegExp = new RegExp('^\\d+$');
+export const getWeeklyDashboardResponseCurrentDivergentInvoiceCountMin = 0;
+
+export const getWeeklyDashboardResponsePreviousPurchasedCentsRegExp = new RegExp('^\\d+$');
+export const getWeeklyDashboardResponsePreviousInvoiceCountMin = 0;
+
+export const getWeeklyDashboardResponsePreviousExtraChargeCentsRegExp = new RegExp('^\\d+$');
+export const getWeeklyDashboardResponsePreviousDivergentInvoiceCountMin = 0;
+
+
+
+export const GetWeeklyDashboardResponse = zod.object({
+  "weekStart": zod.string(),
+  "weekEnd": zod.string(),
+  "previousWeekStart": zod.string(),
+  "previousWeekEnd": zod.string(),
+  "current": zod.object({
+  "purchasedCents": zod.string().regex(getWeeklyDashboardResponseCurrentPurchasedCentsRegExp),
+  "invoiceCount": zod.number().int().min(getWeeklyDashboardResponseCurrentInvoiceCountMin),
+  "extraChargeCents": zod.string().regex(getWeeklyDashboardResponseCurrentExtraChargeCentsRegExp),
+  "divergentInvoiceCount": zod.number().int().min(getWeeklyDashboardResponseCurrentDivergentInvoiceCountMin)
+}),
+  "previous": zod.object({
+  "purchasedCents": zod.string().regex(getWeeklyDashboardResponsePreviousPurchasedCentsRegExp),
+  "invoiceCount": zod.number().int().min(getWeeklyDashboardResponsePreviousInvoiceCountMin),
+  "extraChargeCents": zod.string().regex(getWeeklyDashboardResponsePreviousExtraChargeCentsRegExp),
+  "divergentInvoiceCount": zod.number().int().min(getWeeklyDashboardResponsePreviousDivergentInvoiceCountMin)
+}),
+  "suppliers": zod.array(zod.object({
+  "name": zod.string(),
+  "purchasedCents": zod.string(),
+  "extraChargeCents": zod.string(),
+  "invoiceCount": zod.number().int(),
+  "hasCompleteIbsCbs": zod.boolean(),
+  "latestIssuedAt": zod.string()
+})),
+  "items": zod.array(zod.object({
+  "description": zod.string(),
+  "unit": zod.string(),
+  "quantity": zod.string(),
+  "totalCents": zod.string(),
+  "averagePriceCents": zod.string().nullable()
+})),
+  "unverifiedInvoiceCount": zod.number().int(),
+  "excludedLegacyConferenceCount": zod.number().int()
+})
+
+
+/**
+ * @summary Weekly CSV using the same format as the monthly report
+ */
+export const getWeeklyReportQueryWeekStartRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetWeeklyReportQueryParams = zod.object({
+  "weekStart": zod.coerce.string().regex(getWeeklyReportQueryWeekStartRegExp)
+})
+
+export const GetWeeklyReportResponse = zod.object({
+  "filename": zod.string(),
+  "content": zod.string()
+})
+
+
+/**
  * @summary Monthly purchases and saved reconciliation totals for the signed-in user
  */
 export const getMonthlyDashboardQueryMonthRegExp = new RegExp('^\\d{4}-(0[1-9]|1[0-2])$');

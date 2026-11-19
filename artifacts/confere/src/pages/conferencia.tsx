@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Copy, FileCheck2, Save, ShieldAlert, Sparkles } from 
 import {
   getGetLatestAccountInvoiceQueryKey,
   getGetMonthlyDashboardQueryKey,
+  getGetWeeklyDashboardQueryKey,
   getListAccountConferencesQueryKey,
   useGetAccountOrder,
   useGetLatestAccountInvoice,
@@ -372,6 +373,7 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
         },
       });
       void queryClient.invalidateQueries({ queryKey: getGetMonthlyDashboardQueryKey() });
+      void queryClient.invalidateQueries({ queryKey: getGetWeeklyDashboardQueryKey() });
       void queryClient.invalidateQueries({ queryKey: getListAccountConferencesQueryKey() });
       setSaveStatus({
         tone: "success",

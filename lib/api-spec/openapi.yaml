@@ -17,6 +17,46 @@ tags:
   - name: account
     description: User-owned orders, invoices, and conferences
 paths:
+  /account/dashboard/weekly:
+    get:
+      operationId: getWeeklyDashboard
+      tags: [account]
+      summary: Weekly purchases from Monday through Sunday for the signed-in user
+      parameters:
+        - in: query
+          name: weekStart
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
+      responses:
+        "200":
+          description: Weekly dashboard with previous-week comparison
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WeeklyDashboard" }
+        "400":
+          description: Invalid date or date is not a Monday
+        "401":
+          description: Authentication required
+  /account/dashboard/weekly/report:
+    get:
+      operationId: getWeeklyReport
+      tags: [account]
+      summary: Weekly CSV using the same format as the monthly report
+      parameters:
+        - in: query
+          name: weekStart
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
+      responses:
+        "200":
+          description: CSV filename and content
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MonthlyReport" }
+        "400":
+          description: Invalid date or date is not a Monday
+        "401":
+          description: Authentication required
   /account/dashboard:
     get:
       operationId: getMonthlyDashboard
@@ -354,6 +394,24 @@ paths:
                 $ref: "#/components/schemas/LegacyImportResult"
 components:
   schemas:
+    WeeklyDashboard:
+      type: object
+      required: [weekStart, weekEnd, previousWeekStart, previousWeekEnd, current, previous, suppliers, items, unverifiedInvoiceCount, excludedLegacyConferenceCount]
+      properties:
+        weekStart: { type: string }
+        weekEnd: { type: string }
+        previousWeekStart: { type: string }
+        previousWeekEnd: { type: string }
+        current: { $ref: "#/components/schemas/MonthlyMetrics" }
+        previous: { $ref: "#/components/schemas/MonthlyMetrics" }
+        suppliers:
+          type: array
+          items: { $ref: "#/components/schemas/MonthlySupplier" }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/MonthlyItem" }
+        unverifiedInvoiceCount: { type: integer }
+        excludedLegacyConferenceCount: { type: integer }
     MonthlyMetrics:
       type: object
       required: [purchasedCents, invoiceCount, extraChargeCents, divergentInvoiceCount]
