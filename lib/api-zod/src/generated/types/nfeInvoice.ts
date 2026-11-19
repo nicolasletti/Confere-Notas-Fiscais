@@ -8,6 +8,8 @@
 import type { NfeItem } from './nfeItem';
 
 export interface NfeInvoice {
+  /** @pattern ^\d{14}$ */
+  issuerCnpj?: string;
   /**
      * @minLength 1
      * @maxLength 500

@@ -48,6 +48,7 @@ import type {
   OrderMatchSuggestionsInput,
   OrderMatchSuggestionsResult,
   OrderSnapshot,
+  ReplenishmentSummary,
   WeeklyDashboard,
   WhatsAppOrderTextInput
 } from './api.schemas';
@@ -78,6 +79,83 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetReplenishmentUrl = () => {
+
+
+
+
+  return `/api/account/replenishment`
+}
+
+/**
+ * @summary Deterministic replenishment estimates from the signed-in user's invoice history
+ */
+export const getReplenishment = async ( options?: Parameters<typeof customFetch>[1]): Promise<ReplenishmentSummary> => {
+
+  return customFetch<ReplenishmentSummary>(getGetReplenishmentUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetReplenishmentQueryKey = () => {
+    return [
+    `/api/account/replenishment`
+    ] as const;
+    }
+
+
+export const getGetReplenishmentQueryOptions = <TData = Awaited<ReturnType<typeof getReplenishment>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReplenishment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetReplenishmentQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getReplenishment>>> = ({ signal }) => getReplenishment({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getReplenishment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetReplenishmentQueryResult = NonNullable<Awaited<ReturnType<typeof getReplenishment>>>
+export type GetReplenishmentQueryError = ErrorType<void>
+
+
+/**
+ * @summary Deterministic replenishment estimates from the signed-in user's invoice history
+ */
+
+export function useGetReplenishment<TData = Awaited<ReturnType<typeof getReplenishment>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getReplenishment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetReplenishmentQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGetWeeklyDashboardUrl = (params: GetWeeklyDashboardParams,) => {
   const normalizedParams = new URLSearchParams();

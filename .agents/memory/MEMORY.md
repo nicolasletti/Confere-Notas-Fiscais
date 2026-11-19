@@ -1,2 +1,3 @@
 - [Escopo atual do Confere](confere-scope.md) — roadmap, etapas e limites de IA/cálculo do coNFere.
 - [Critérios do Painel mensal](painel-mensal.md) — emissão define o mês; compras somam produtos; divergências dependem de conferência salva.
+- [Critérios de reposição](reposicao.md) — previsão sem IA, identidade por cProd/CNPJ e limites das estimativas baseadas em compras.

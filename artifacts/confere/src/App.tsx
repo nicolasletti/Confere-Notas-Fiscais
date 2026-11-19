@@ -13,6 +13,7 @@ import Pedido from '@/pages/pedido';
 import Conferencia from '@/pages/conferencia';
 import Fornecedores from '@/pages/fornecedores';
 import Painel from '@/pages/painel';
+import Reposicao from '@/pages/reposicao';
 import { NfeProvider } from '@/lib/nfe-context';
 import { AuthProvider, useAppAuth } from '@/lib/auth-context';
 import LegacyDataImport, { UnsavedInvoiceNotice } from '@/components/legacy-data-import';
@@ -62,6 +63,7 @@ function AuthenticatedRoutes() {
       <UnsavedInvoiceNotice />
       <Switch>
         <Route path="/painel" component={Painel} />
+        <Route path="/reposicao" component={Reposicao} />
         <Route path="/nota-fiscal" component={Home} />
         <Route path="/pedido" component={Pedido} />
         <Route path="/conferencia" component={Conferencia} />

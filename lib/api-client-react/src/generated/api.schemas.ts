@@ -5,6 +5,55 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type ReplenishmentItemIdentification = typeof ReplenishmentItemIdentification[keyof typeof ReplenishmentItemIdentification];
+
+
+export const ReplenishmentItemIdentification = {
+  'code-supplier': 'code-supplier',
+  description: 'description',
+} as const;
+
+export type ReplenishmentItemStatus = typeof ReplenishmentItemStatus[keyof typeof ReplenishmentItemStatus];
+
+
+export const ReplenishmentItemStatus = {
+  'buy-now': 'buy-now',
+  soon: 'soon',
+  ok: 'ok',
+} as const;
+
+export interface ReplenishmentItem {
+  id: string;
+  description: string;
+  unit: string;
+  supplierNames: string[];
+  /** @nullable */
+  productCode: string | null;
+  identification: ReplenishmentItemIdentification;
+  purchaseCount: number;
+  averageIntervalDays: string;
+  averageQuantity: string;
+  dailyConsumption: string;
+  estimatedStock: string;
+  lastPurchaseDate: string;
+  lastPurchaseQuantity: string;
+  daysSinceLastPurchase: number;
+  nextPurchaseDate: string;
+  purchasedThisMonth: string;
+  consumedThisMonth: string;
+  status: ReplenishmentItemStatus;
+}
+
+export interface ReplenishmentSummary {
+  asOf: string;
+  monthStart: string;
+  items: ReplenishmentItem[];
+  insufficientHistoryItems: number;
+  sameDayOnlyItems: number;
+  unreadableIdentityInvoices: number;
+  futureInvoices: number;
+}
+
 export interface MonthlyMetrics {
   /** @pattern ^\d+$ */
   purchasedCents: string;
@@ -243,6 +292,8 @@ export interface OrderSnapshot {
 }
 
 export interface NfeItem {
+  /** @maxLength 100 */
+  productCode?: string;
   /** @maxLength 500 */
   description: string;
   /** @maxLength 50 */
@@ -256,6 +307,8 @@ export interface NfeItem {
 }
 
 export interface NfeInvoice {
+  /** @pattern ^\d{14}$ */
+  issuerCnpj?: string;
   /**
      * @minLength 1
      * @maxLength 500

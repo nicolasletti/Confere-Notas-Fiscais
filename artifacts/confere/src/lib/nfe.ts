@@ -1,4 +1,5 @@
 export interface NfeItem {
+  productCode?: string;
   description: string;
   quantity: string;
   unit: string;
@@ -7,6 +8,7 @@ export interface NfeItem {
 }
 
 export interface NfeInvoice {
+  issuerCnpj?: string;
   id?: number;
   issuer: string;
   number: string;
@@ -101,6 +103,8 @@ export function parseNfeXml(xml: string): NfeInvoice {
   const items = details.map((detail): NfeItem => {
     const product = requiredChild(detail, "prod");
     return {
+      ...(children(product, "cProd")[0]?.textContent?.trim()
+        ? { productCode: children(product, "cProd")[0]!.textContent!.trim() } : {}),
       description: text(product, "xProd"),
       quantity: decimal(product, "qCom"),
       unit: text(product, "uCom"),
@@ -119,7 +123,9 @@ export function parseNfeXml(xml: string): NfeInvoice {
     );
   });
 
-  return { issuer, number, issuedAt, hasCompleteIbsCbs, items };
+  const rawCnpj = children(requiredChild(info, "emit"), "CNPJ")[0]?.textContent?.trim();
+  const issuerCnpj = rawCnpj && /^\d{14}$/.test(rawCnpj) ? rawCnpj : undefined;
+  return { issuer, number, issuedAt, hasCompleteIbsCbs, items, ...(issuerCnpj ? { issuerCnpj } : {}) };
 }
 
 export async function readNfeFile(file: File): Promise<ReadNfeFileResult> {

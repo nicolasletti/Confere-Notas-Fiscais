@@ -17,6 +17,19 @@ tags:
   - name: account
     description: User-owned orders, invoices, and conferences
 paths:
+  /account/replenishment:
+    get:
+      operationId: getReplenishment
+      tags: [account]
+      summary: Deterministic replenishment estimates from the signed-in user's invoice history
+      responses:
+        "200":
+          description: Estimates calculated for today in America/Sao_Paulo
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReplenishmentSummary" }
+        "401":
+          description: Authentication required
   /account/dashboard/weekly:
     get:
       operationId: getWeeklyDashboard
@@ -394,6 +407,43 @@ paths:
                 $ref: "#/components/schemas/LegacyImportResult"
 components:
   schemas:
+    ReplenishmentItem:
+      type: object
+      required: [id, description, unit, supplierNames, productCode, identification, purchaseCount, averageIntervalDays, averageQuantity, dailyConsumption, estimatedStock, lastPurchaseDate, lastPurchaseQuantity, daysSinceLastPurchase, nextPurchaseDate, purchasedThisMonth, consumedThisMonth, status]
+      properties:
+        id: { type: string }
+        description: { type: string }
+        unit: { type: string }
+        supplierNames:
+          type: array
+          items: { type: string }
+        productCode: { type: ["string", "null"] }
+        identification: { type: string, enum: [code-supplier, description] }
+        purchaseCount: { type: integer }
+        averageIntervalDays: { type: string }
+        averageQuantity: { type: string }
+        dailyConsumption: { type: string }
+        estimatedStock: { type: string }
+        lastPurchaseDate: { type: string }
+        lastPurchaseQuantity: { type: string }
+        daysSinceLastPurchase: { type: integer }
+        nextPurchaseDate: { type: string }
+        purchasedThisMonth: { type: string }
+        consumedThisMonth: { type: string }
+        status: { type: string, enum: [buy-now, soon, ok] }
+    ReplenishmentSummary:
+      type: object
+      required: [asOf, monthStart, items, insufficientHistoryItems, sameDayOnlyItems, unreadableIdentityInvoices, futureInvoices]
+      properties:
+        asOf: { type: string }
+        monthStart: { type: string }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/ReplenishmentItem" }
+        insufficientHistoryItems: { type: integer }
+        sameDayOnlyItems: { type: integer }
+        unreadableIdentityInvoices: { type: integer }
+        futureInvoices: { type: integer }
     WeeklyDashboard:
       type: object
       required: [weekStart, weekEnd, previousWeekStart, previousWeekEnd, current, previous, suppliers, items, unverifiedInvoiceCount, excludedLegacyConferenceCount]
@@ -686,6 +736,7 @@ components:
       type: object
       additionalProperties: false
       properties:
+        productCode: { type: string, maxLength: 100 }
         description: { type: string, maxLength: 500 }
         quantity: { type: string, maxLength: 50 }
         unit: { type: string, maxLength: 40 }
@@ -696,6 +747,7 @@ components:
       type: object
       additionalProperties: false
       properties:
+        issuerCnpj: { type: string, pattern: '^\d{14}$' }
         issuer: { type: string, minLength: 1, maxLength: 500 }
         number: { type: string, minLength: 1, maxLength: 40 }
         issuedAt: { type: string, maxLength: 50 }

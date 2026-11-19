@@ -3,6 +3,7 @@ import {
   getGetLatestAccountInvoiceQueryKey,
   getGetMonthlyDashboardQueryKey,
   getGetWeeklyDashboardQueryKey,
+  getGetReplenishmentQueryKey,
   getListAccountInvoicesQueryKey,
   useGetLatestAccountInvoice,
   useSaveAccountInvoice,
@@ -84,6 +85,7 @@ export default function Home() {
       await queryClient.invalidateQueries({ queryKey: getListAccountInvoicesQueryKey() });
       void queryClient.invalidateQueries({ queryKey: getGetMonthlyDashboardQueryKey() });
       void queryClient.invalidateQueries({ queryKey: getGetWeeklyDashboardQueryKey() });
+      void queryClient.invalidateQueries({ queryKey: getGetReplenishmentQueryKey() });
       if (id === reqId.current) {
         setState({ kind: "ready", fileName: file.name, invoice: savedInvoice });
         setInvoice(savedInvoice);

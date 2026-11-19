@@ -22,6 +22,7 @@ export interface StoredOrderItem {
 }
 
 export interface StoredNfeItem {
+  productCode?: string;
   description: string;
   quantity: string;
   unit: string;
@@ -30,6 +31,7 @@ export interface StoredNfeItem {
 }
 
 export interface StoredInvoice {
+  issuerCnpj?: string;
   issuer: string;
   number: string;
   issuedAt: string;

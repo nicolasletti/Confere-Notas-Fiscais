@@ -7,6 +7,8 @@
  */
 
 export interface NfeItem {
+  /** @maxLength 100 */
+  productCode?: string;
   /** @maxLength 500 */
   description: string;
   /** @maxLength 50 */

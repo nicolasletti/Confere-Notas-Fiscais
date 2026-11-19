@@ -1,4 +1,4 @@
-import { FileCheck2, FileText, LayoutDashboard, ListChecks, LogOut, Store } from "lucide-react";
+import { FileCheck2, FileText, LayoutDashboard, ListChecks, LogOut, PackageSearch, Store } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAppAuth } from "@/lib/auth-context";
 
@@ -33,6 +33,18 @@ export default function AppHeader() {
         >
           <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
           Painel
+        </Link>
+
+        <Link
+          href="/reposicao"
+          aria-current={location === "/reposicao" ? "page" : undefined}
+          data-testid="link-reposicao"
+          className={`order-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:order-none ${
+            location === "/reposicao" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          }`}
+        >
+          <PackageSearch className="h-4 w-4" aria-hidden="true" />
+          Reposição
         </Link>
 
         <Link

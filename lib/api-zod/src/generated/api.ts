@@ -9,6 +9,39 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Deterministic replenishment estimates from the signed-in user's invoice history
+ */
+export const GetReplenishmentResponse = zod.object({
+  "asOf": zod.string(),
+  "monthStart": zod.string(),
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "description": zod.string(),
+  "unit": zod.string(),
+  "supplierNames": zod.array(zod.string()),
+  "productCode": zod.string().nullable(),
+  "identification": zod.enum(['code-supplier', 'description']),
+  "purchaseCount": zod.number().int(),
+  "averageIntervalDays": zod.string(),
+  "averageQuantity": zod.string(),
+  "dailyConsumption": zod.string(),
+  "estimatedStock": zod.string(),
+  "lastPurchaseDate": zod.string(),
+  "lastPurchaseQuantity": zod.string(),
+  "daysSinceLastPurchase": zod.number().int(),
+  "nextPurchaseDate": zod.string(),
+  "purchasedThisMonth": zod.string(),
+  "consumedThisMonth": zod.string(),
+  "status": zod.enum(['buy-now', 'soon', 'ok'])
+})),
+  "insufficientHistoryItems": zod.number().int(),
+  "sameDayOnlyItems": zod.number().int(),
+  "unreadableIdentityInvoices": zod.number().int(),
+  "futureInvoices": zod.number().int()
+})
+
+
+/**
  * @summary Weekly purchases from Monday through Sunday for the signed-in user
  */
 export const getWeeklyDashboardQueryWeekStartRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
@@ -397,11 +430,14 @@ export const SaveAccountOrderResponse = zod.object({
 /**
  * @summary List this user's saved invoices
  */
+export const listAccountInvoicesResponseInvoiceIssuerCnpjRegExp = new RegExp('^\\d{14}$');
 export const listAccountInvoicesResponseInvoiceIssuerMax = 500;
 
 export const listAccountInvoicesResponseInvoiceNumberMax = 40;
 
 export const listAccountInvoicesResponseInvoiceIssuedAtMax = 50;
+
+export const listAccountInvoicesResponseInvoiceItemsItemProductCodeMax = 100;
 
 export const listAccountInvoicesResponseInvoiceItemsItemDescriptionMax = 500;
 
@@ -421,11 +457,13 @@ export const ListAccountInvoicesResponseItem = zod.object({
   "id": zod.number().int(),
   "originalFileName": zod.string(),
   "invoice": zod.object({
+  "issuerCnpj": zod.string().regex(listAccountInvoicesResponseInvoiceIssuerCnpjRegExp).optional(),
   "issuer": zod.string().min(1).max(listAccountInvoicesResponseInvoiceIssuerMax),
   "number": zod.string().min(1).max(listAccountInvoicesResponseInvoiceNumberMax),
   "issuedAt": zod.string().max(listAccountInvoicesResponseInvoiceIssuedAtMax),
   "hasCompleteIbsCbs": zod.boolean(),
   "items": zod.array(zod.object({
+  "productCode": zod.string().max(listAccountInvoicesResponseInvoiceItemsItemProductCodeMax).optional(),
   "description": zod.string().max(listAccountInvoicesResponseInvoiceItemsItemDescriptionMax),
   "quantity": zod.string().max(listAccountInvoicesResponseInvoiceItemsItemQuantityMax),
   "unit": zod.string().max(listAccountInvoicesResponseInvoiceItemsItemUnitMax),
@@ -445,11 +483,14 @@ export const saveAccountInvoiceBodyOriginalFileNameMax = 255;
 
 export const saveAccountInvoiceBodyOriginalXmlMax = 10485760;
 
+export const saveAccountInvoiceBodyInvoiceIssuerCnpjRegExp = new RegExp('^\\d{14}$');
 export const saveAccountInvoiceBodyInvoiceIssuerMax = 500;
 
 export const saveAccountInvoiceBodyInvoiceNumberMax = 40;
 
 export const saveAccountInvoiceBodyInvoiceIssuedAtMax = 50;
+
+export const saveAccountInvoiceBodyInvoiceItemsItemProductCodeMax = 100;
 
 export const saveAccountInvoiceBodyInvoiceItemsItemDescriptionMax = 500;
 
@@ -469,11 +510,13 @@ export const SaveAccountInvoiceBody = zod.object({
   "originalFileName": zod.string().min(1).max(saveAccountInvoiceBodyOriginalFileNameMax),
   "originalXml": zod.string().min(1).max(saveAccountInvoiceBodyOriginalXmlMax),
   "invoice": zod.object({
+  "issuerCnpj": zod.string().regex(saveAccountInvoiceBodyInvoiceIssuerCnpjRegExp).optional(),
   "issuer": zod.string().min(1).max(saveAccountInvoiceBodyInvoiceIssuerMax),
   "number": zod.string().min(1).max(saveAccountInvoiceBodyInvoiceNumberMax),
   "issuedAt": zod.string().max(saveAccountInvoiceBodyInvoiceIssuedAtMax),
   "hasCompleteIbsCbs": zod.boolean(),
   "items": zod.array(zod.object({
+  "productCode": zod.string().max(saveAccountInvoiceBodyInvoiceItemsItemProductCodeMax).optional(),
   "description": zod.string().max(saveAccountInvoiceBodyInvoiceItemsItemDescriptionMax),
   "quantity": zod.string().max(saveAccountInvoiceBodyInvoiceItemsItemQuantityMax),
   "unit": zod.string().max(saveAccountInvoiceBodyInvoiceItemsItemUnitMax),
@@ -483,11 +526,14 @@ export const SaveAccountInvoiceBody = zod.object({
 })
 })
 
+export const saveAccountInvoiceResponseInvoiceIssuerCnpjRegExp = new RegExp('^\\d{14}$');
 export const saveAccountInvoiceResponseInvoiceIssuerMax = 500;
 
 export const saveAccountInvoiceResponseInvoiceNumberMax = 40;
 
 export const saveAccountInvoiceResponseInvoiceIssuedAtMax = 50;
+
+export const saveAccountInvoiceResponseInvoiceItemsItemProductCodeMax = 100;
 
 export const saveAccountInvoiceResponseInvoiceItemsItemDescriptionMax = 500;
 
@@ -507,11 +553,13 @@ export const SaveAccountInvoiceResponse = zod.object({
   "id": zod.number().int(),
   "originalFileName": zod.string(),
   "invoice": zod.object({
+  "issuerCnpj": zod.string().regex(saveAccountInvoiceResponseInvoiceIssuerCnpjRegExp).optional(),
   "issuer": zod.string().min(1).max(saveAccountInvoiceResponseInvoiceIssuerMax),
   "number": zod.string().min(1).max(saveAccountInvoiceResponseInvoiceNumberMax),
   "issuedAt": zod.string().max(saveAccountInvoiceResponseInvoiceIssuedAtMax),
   "hasCompleteIbsCbs": zod.boolean(),
   "items": zod.array(zod.object({
+  "productCode": zod.string().max(saveAccountInvoiceResponseInvoiceItemsItemProductCodeMax).optional(),
   "description": zod.string().max(saveAccountInvoiceResponseInvoiceItemsItemDescriptionMax),
   "quantity": zod.string().max(saveAccountInvoiceResponseInvoiceItemsItemQuantityMax),
   "unit": zod.string().max(saveAccountInvoiceResponseInvoiceItemsItemUnitMax),
@@ -526,11 +574,14 @@ export const SaveAccountInvoiceResponse = zod.object({
 /**
  * @summary Get this user's most recent invoice
  */
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceIssuerCnpjRegExp = new RegExp('^\\d{14}$');
 export const getLatestAccountInvoiceResponseInvoiceOneInvoiceIssuerMax = 500;
 
 export const getLatestAccountInvoiceResponseInvoiceOneInvoiceNumberMax = 40;
 
 export const getLatestAccountInvoiceResponseInvoiceOneInvoiceIssuedAtMax = 50;
+
+export const getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemProductCodeMax = 100;
 
 export const getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemDescriptionMax = 500;
 
@@ -551,11 +602,13 @@ export const GetLatestAccountInvoiceResponse = zod.object({
   "id": zod.number().int(),
   "originalFileName": zod.string(),
   "invoice": zod.object({
+  "issuerCnpj": zod.string().regex(getLatestAccountInvoiceResponseInvoiceOneInvoiceIssuerCnpjRegExp).optional(),
   "issuer": zod.string().min(1).max(getLatestAccountInvoiceResponseInvoiceOneInvoiceIssuerMax),
   "number": zod.string().min(1).max(getLatestAccountInvoiceResponseInvoiceOneInvoiceNumberMax),
   "issuedAt": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceIssuedAtMax),
   "hasCompleteIbsCbs": zod.boolean(),
   "items": zod.array(zod.object({
+  "productCode": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemProductCodeMax).optional(),
   "description": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemDescriptionMax),
   "quantity": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemQuantityMax),
   "unit": zod.string().max(getLatestAccountInvoiceResponseInvoiceOneInvoiceItemsItemUnitMax),
