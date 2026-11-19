@@ -9,6 +9,7 @@ import {
 import { AlertTriangle, CalendarClock, FileUp, Info, PackageSearch, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDecimal } from "@/lib/reconciliation";
+import ReplenishmentOrderBuilder from "@/components/replenishment-order-builder";
 
 function brDate(s: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
@@ -160,6 +161,7 @@ export default function Reposicao() {
               </div>
             ) : (
               <>
+                <ReplenishmentOrderBuilder items={data.items} />
                 <ul className="space-y-3">{data.items.map((item, i) => <ItemCard key={item.id} item={item} i={i} />)}</ul>
                 <p className="text-center text-sm text-muted-foreground">
                   Quanto mais notas, melhor a estimativa. <Link href="/nota-fiscal" data-testid="link-replenishment-more" className="font-semibold text-primary underline underline-offset-2">Enviar mais XMLs</Link>

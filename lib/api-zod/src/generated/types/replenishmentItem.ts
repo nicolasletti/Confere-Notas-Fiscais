@@ -9,6 +9,9 @@ import type { ReplenishmentItemIdentification } from './replenishmentItemIdentif
 import type { ReplenishmentItemStatus } from './replenishmentItemStatus';
 
 export interface ReplenishmentItem {
+  supplierKey: string;
+  supplierName: string;
+  lastUnitPrice: string;
   id: string;
   description: string;
   unit: string;

@@ -17,6 +17,81 @@ tags:
   - name: account
     description: User-owned orders, invoices, and conferences
 paths:
+  /account/supplier-contacts:
+    get:
+      operationId: listSupplierContacts
+      tags: [account]
+      responses:
+        "200":
+          description: Suppliers known to this account and their saved WhatsApp
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SupplierContactList" }
+    put:
+      operationId: saveSupplierContact
+      tags: [account]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SupplierContactInput" }
+      responses:
+        "200":
+          description: Saved phone in international digits
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SupplierContact" }
+        "400": { description: Invalid phone or unknown supplier }
+  /account/generated-orders:
+    get:
+      operationId: listGeneratedOrders
+      tags: [account]
+      responses:
+        "200":
+          description: Saved replenishment orders and active-order backups
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GeneratedOrderList" }
+  /account/generated-orders/{id}/activate:
+    post:
+      operationId: activateGeneratedOrder
+      tags: [account]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OrderActivationInput" }
+      responses:
+        "200":
+          description: New active order; previous nonempty order backed up atomically
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OrderSnapshot" }
+        "409": { description: Active order changed since confirmation }
+        "404": { description: Order not found in this account }
+  /account/replenishment/orders:
+    post:
+      operationId: generateReplenishmentOrders
+      tags: [account]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReplenishmentOrderInput" }
+      responses:
+        "200":
+          description: Orders saved by supplier without replacing the active order
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GeneratedOrderList" }
+        "400": { description: Invalid selection or quantity }
+        "409": { description: Retry identifier used with different quantities }
+        "502": { description: AI unavailable; no orders saved }
   /account/replenishment:
     get:
       operationId: getReplenishment
@@ -407,10 +482,69 @@ paths:
                 $ref: "#/components/schemas/LegacyImportResult"
 components:
   schemas:
+    SupplierContact:
+      type: object
+      required: [key, name, whatsapp]
+      properties:
+        key: { type: string }
+        name: { type: string }
+        whatsapp: { type: string }
+    SupplierContactList:
+      type: array
+      items: { $ref: "#/components/schemas/SupplierContact" }
+    SupplierContactInput:
+      type: object
+      required: [key, whatsapp]
+      properties:
+        key: { type: string, minLength: 1, maxLength: 650 }
+        whatsapp: { type: string, maxLength: 40 }
+    GeneratedOrder:
+      type: object
+      required: [id, supplierKey, supplierName, kind, items, message, createdAt]
+      properties:
+        id: { type: integer }
+        supplierKey: { type: string }
+        supplierName: { type: string }
+        kind: { type: string, enum: [replenishment, backup] }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/OrderItem" }
+        message: { type: string }
+        createdAt: { type: string }
+    GeneratedOrderList:
+      type: array
+      items: { $ref: "#/components/schemas/GeneratedOrder" }
+    ReplenishmentOrderSelection:
+      type: object
+      required: [id, quantity]
+      properties:
+        id: { type: string, minLength: 1, maxLength: 1500 }
+        quantity: { type: string, pattern: '^\d+([.,]\d+)?$', maxLength: 50 }
+    ReplenishmentOrderInput:
+      type: object
+      required: [requestId, items]
+      properties:
+        requestId: { type: string, format: uuid }
+        items:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items: { $ref: "#/components/schemas/ReplenishmentOrderSelection" }
+    OrderActivationInput:
+      type: object
+      required: [expectedItems]
+      properties:
+        expectedItems:
+          type: array
+          maxItems: 500
+          items: { $ref: "#/components/schemas/OrderItem" }
     ReplenishmentItem:
       type: object
-      required: [id, description, unit, supplierNames, productCode, identification, purchaseCount, averageIntervalDays, averageQuantity, dailyConsumption, estimatedStock, lastPurchaseDate, lastPurchaseQuantity, daysSinceLastPurchase, nextPurchaseDate, purchasedThisMonth, consumedThisMonth, status]
+      required: [id, description, unit, supplierNames, supplierKey, supplierName, lastUnitPrice, productCode, identification, purchaseCount, averageIntervalDays, averageQuantity, dailyConsumption, estimatedStock, lastPurchaseDate, lastPurchaseQuantity, daysSinceLastPurchase, nextPurchaseDate, purchasedThisMonth, consumedThisMonth, status]
       properties:
+        supplierKey: { type: string }
+        supplierName: { type: string }
+        lastUnitPrice: { type: string }
         id: { type: string }
         description: { type: string }
         unit: { type: string }

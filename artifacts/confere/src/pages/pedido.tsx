@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { PedidoItem } from "@/lib/pedido-store";
+import GeneratedOrdersSection from "@/components/generated-orders-section";
 
 const formSchema = z.object({
   descricao: z.string().trim().min(1, "Informe a descrição do item."),
@@ -268,7 +269,7 @@ export default function Pedido() {
               Pedido ao fornecedor
             </h1>
             <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-              Anote o que foi combinado. O pedido fica salvo na sua conta.
+              Anote o que foi combinado. O pedido fica salvo na sua conta. Ao carregar um pedido de reposição, confirme ou edite os preços: eles vêm da última compra, ainda não de um novo acordo.
             </p>
           </div>
           <Button
@@ -608,6 +609,8 @@ export default function Pedido() {
             )}
           </div>
         </section>
+
+        <GeneratedOrdersSection onActivated={() => { resetForm(); setDraftItems([]); setExtractNotice(""); }} />
       </section>
     </main>
   );

@@ -1,6 +1,7 @@
 import type { ReplenishmentItem, ReplenishmentSummary } from "@workspace/api-zod";
 import type { StoredInvoice } from "@workspace/db";
 import { extractReplenishmentIdentity } from "./replenishment-identity";
+import { supplierIdentity } from "./supplier-order-utils";
 import {
   addRatio, decimalRatio, divideRatio, integerRatio, multiplyRatio,
   ratioString, subtractRatio, type Ratio,
@@ -40,7 +41,10 @@ export function todaySaoPaulo(now = new Date()): string {
   const get = (type: string) => parts.find((p) => p.type === type)!.value;
   return `${get("year")}-${get("month")}-${get("day")}`;
 }
-interface Purchase { day: number; quantity: Ratio; description: string }
+interface Purchase {
+  day: number; quantity: Ratio; description: string;
+  supplierKey: string; supplierName: string; unitPrice: string;
+}
 interface Product {
   id: string; unit: string; code: string | null; suppliers: Set<string>;
   identification: "code-supplier" | "description"; purchases: Map<number, Purchase>;
@@ -86,6 +90,8 @@ export function replenishment(
       product.purchases.set(row.id, {
         day, description: item.description,
         quantity: existing ? addRatio(existing.quantity, quantity) : quantity,
+        supplierKey: supplierIdentity(cnpj, invoice.issuer),
+        supplierName: invoice.issuer, unitPrice: item.unitPrice,
       });
     });
   }
@@ -115,6 +121,7 @@ export function replenishment(
     const consumedThisMonth = multiplyRatio(daily, integerRatio(today - Math.max(monthDay, first.day)));
     items.push({
       id: product.id, description: last.description, unit: product.unit,
+      supplierKey: last.supplierKey, supplierName: last.supplierName, lastUnitPrice: last.unitPrice,
       supplierNames: [...product.suppliers].sort(), productCode: product.code,
       identification: product.identification, purchaseCount: count,
       averageIntervalDays: ratioString(interval), averageQuantity: ratioString(averageQuantity),

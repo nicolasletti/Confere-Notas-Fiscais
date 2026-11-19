@@ -2,6 +2,7 @@ import { useListAccountConferences, type ConferenceRecord } from "@workspace/api
 import { Link } from "wouter";
 import { Building2, FileText, History, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SupplierContactsSection from "@/components/supplier-contacts-section";
 import IbsCbsSeal from "@/components/ibs-cbs-seal";
 import {
   normalizeSupplierName,
@@ -153,6 +154,7 @@ export default function Fornecedores() {
             ))}
           </div>
         )}
+        <SupplierContactsSection />
       </section>
     </main>
   );

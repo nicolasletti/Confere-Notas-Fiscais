@@ -8,6 +8,164 @@
 import * as zod from 'zod';
 
 
+export const ListSupplierContactsResponseItem = zod.object({
+  "key": zod.string(),
+  "name": zod.string(),
+  "whatsapp": zod.string()
+})
+export const ListSupplierContactsResponse = zod.array(ListSupplierContactsResponseItem)
+
+
+export const saveSupplierContactBodyKeyMax = 650;
+
+export const saveSupplierContactBodyWhatsappMax = 40;
+
+
+
+export const SaveSupplierContactBody = zod.object({
+  "key": zod.string().min(1).max(saveSupplierContactBodyKeyMax),
+  "whatsapp": zod.string().max(saveSupplierContactBodyWhatsappMax)
+})
+
+export const SaveSupplierContactResponse = zod.object({
+  "key": zod.string(),
+  "name": zod.string(),
+  "whatsapp": zod.string()
+})
+
+
+export const listGeneratedOrdersResponseItemsItemIdMax = 100;
+
+export const listGeneratedOrdersResponseItemsItemDescricaoMax = 500;
+
+export const listGeneratedOrdersResponseItemsItemQuantidadeMax = 50;
+
+export const listGeneratedOrdersResponseItemsItemUnidadeMax = 40;
+
+export const listGeneratedOrdersResponseItemsItemPrecoUnitarioMax = 50;
+
+
+
+export const ListGeneratedOrdersResponseItem = zod.object({
+  "id": zod.number().int(),
+  "supplierKey": zod.string(),
+  "supplierName": zod.string(),
+  "kind": zod.enum(['replenishment', 'backup']),
+  "items": zod.array(zod.object({
+  "id": zod.string().min(1).max(listGeneratedOrdersResponseItemsItemIdMax),
+  "descricao": zod.string().max(listGeneratedOrdersResponseItemsItemDescricaoMax),
+  "quantidade": zod.string().max(listGeneratedOrdersResponseItemsItemQuantidadeMax),
+  "unidade": zod.string().max(listGeneratedOrdersResponseItemsItemUnidadeMax),
+  "precoUnitario": zod.string().max(listGeneratedOrdersResponseItemsItemPrecoUnitarioMax)
+})),
+  "message": zod.string(),
+  "createdAt": zod.string()
+})
+export const ListGeneratedOrdersResponse = zod.array(ListGeneratedOrdersResponseItem)
+
+
+
+
+
+export const ActivateGeneratedOrderParams = zod.object({
+  "id": zod.coerce.number().int().min(1)
+})
+
+export const activateGeneratedOrderBodyExpectedItemsItemIdMax = 100;
+
+export const activateGeneratedOrderBodyExpectedItemsItemDescricaoMax = 500;
+
+export const activateGeneratedOrderBodyExpectedItemsItemQuantidadeMax = 50;
+
+export const activateGeneratedOrderBodyExpectedItemsItemUnidadeMax = 40;
+
+export const activateGeneratedOrderBodyExpectedItemsItemPrecoUnitarioMax = 50;
+
+export const activateGeneratedOrderBodyExpectedItemsMax = 500;
+
+
+
+export const ActivateGeneratedOrderBody = zod.object({
+  "expectedItems": zod.array(zod.object({
+  "id": zod.string().min(1).max(activateGeneratedOrderBodyExpectedItemsItemIdMax),
+  "descricao": zod.string().max(activateGeneratedOrderBodyExpectedItemsItemDescricaoMax),
+  "quantidade": zod.string().max(activateGeneratedOrderBodyExpectedItemsItemQuantidadeMax),
+  "unidade": zod.string().max(activateGeneratedOrderBodyExpectedItemsItemUnidadeMax),
+  "precoUnitario": zod.string().max(activateGeneratedOrderBodyExpectedItemsItemPrecoUnitarioMax)
+})).max(activateGeneratedOrderBodyExpectedItemsMax)
+})
+
+export const activateGeneratedOrderResponseItemsItemIdMax = 100;
+
+export const activateGeneratedOrderResponseItemsItemDescricaoMax = 500;
+
+export const activateGeneratedOrderResponseItemsItemQuantidadeMax = 50;
+
+export const activateGeneratedOrderResponseItemsItemUnidadeMax = 40;
+
+export const activateGeneratedOrderResponseItemsItemPrecoUnitarioMax = 50;
+
+
+
+export const ActivateGeneratedOrderResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string().min(1).max(activateGeneratedOrderResponseItemsItemIdMax),
+  "descricao": zod.string().max(activateGeneratedOrderResponseItemsItemDescricaoMax),
+  "quantidade": zod.string().max(activateGeneratedOrderResponseItemsItemQuantidadeMax),
+  "unidade": zod.string().max(activateGeneratedOrderResponseItemsItemUnidadeMax),
+  "precoUnitario": zod.string().max(activateGeneratedOrderResponseItemsItemPrecoUnitarioMax)
+}))
+})
+
+
+export const generateReplenishmentOrdersBodyItemsItemIdMax = 1500;
+
+export const generateReplenishmentOrdersBodyItemsItemQuantityMax = 50;
+
+
+export const generateReplenishmentOrdersBodyItemsItemQuantityRegExp = new RegExp('^\\d+([.,]\\d+)?$');
+export const generateReplenishmentOrdersBodyItemsMax = 100;
+
+
+
+export const GenerateReplenishmentOrdersBody = zod.object({
+  "requestId": zod.string().uuid(),
+  "items": zod.array(zod.object({
+  "id": zod.string().min(1).max(generateReplenishmentOrdersBodyItemsItemIdMax),
+  "quantity": zod.string().max(generateReplenishmentOrdersBodyItemsItemQuantityMax).regex(generateReplenishmentOrdersBodyItemsItemQuantityRegExp)
+})).min(1).max(generateReplenishmentOrdersBodyItemsMax)
+})
+
+export const generateReplenishmentOrdersResponseItemsItemIdMax = 100;
+
+export const generateReplenishmentOrdersResponseItemsItemDescricaoMax = 500;
+
+export const generateReplenishmentOrdersResponseItemsItemQuantidadeMax = 50;
+
+export const generateReplenishmentOrdersResponseItemsItemUnidadeMax = 40;
+
+export const generateReplenishmentOrdersResponseItemsItemPrecoUnitarioMax = 50;
+
+
+
+export const GenerateReplenishmentOrdersResponseItem = zod.object({
+  "id": zod.number().int(),
+  "supplierKey": zod.string(),
+  "supplierName": zod.string(),
+  "kind": zod.enum(['replenishment', 'backup']),
+  "items": zod.array(zod.object({
+  "id": zod.string().min(1).max(generateReplenishmentOrdersResponseItemsItemIdMax),
+  "descricao": zod.string().max(generateReplenishmentOrdersResponseItemsItemDescricaoMax),
+  "quantidade": zod.string().max(generateReplenishmentOrdersResponseItemsItemQuantidadeMax),
+  "unidade": zod.string().max(generateReplenishmentOrdersResponseItemsItemUnidadeMax),
+  "precoUnitario": zod.string().max(generateReplenishmentOrdersResponseItemsItemPrecoUnitarioMax)
+})),
+  "message": zod.string(),
+  "createdAt": zod.string()
+})
+export const GenerateReplenishmentOrdersResponse = zod.array(GenerateReplenishmentOrdersResponseItem)
+
+
 /**
  * @summary Deterministic replenishment estimates from the signed-in user's invoice history
  */
@@ -15,6 +173,9 @@ export const GetReplenishmentResponse = zod.object({
   "asOf": zod.string(),
   "monthStart": zod.string(),
   "items": zod.array(zod.object({
+  "supplierKey": zod.string(),
+  "supplierName": zod.string(),
+  "lastUnitPrice": zod.string(),
   "id": zod.string(),
   "description": zod.string(),
   "unit": zod.string(),

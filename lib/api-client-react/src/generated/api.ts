@@ -29,6 +29,7 @@ import type {
   ConferenceList,
   ConferenceRecord,
   ExtractedOrderItems,
+  GeneratedOrderList,
   GetMonthlyDashboardParams,
   GetMonthlyReportParams,
   GetWeeklyDashboardParams,
@@ -44,11 +45,16 @@ import type {
   LogoutBrowserSessionParams,
   MonthlyDashboard,
   MonthlyReport,
+  OrderActivationInput,
   OrderInput,
   OrderMatchSuggestionsInput,
   OrderMatchSuggestionsResult,
   OrderSnapshot,
+  ReplenishmentOrderInput,
   ReplenishmentSummary,
+  SupplierContact,
+  SupplierContactInput,
+  SupplierContactList,
   WeeklyDashboard,
   WhatsAppOrderTextInput
 } from './api.schemas';
@@ -79,6 +85,395 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getListSupplierContactsUrl = () => {
+
+
+
+
+  return `/api/account/supplier-contacts`
+}
+
+export const listSupplierContacts = async ( options?: Parameters<typeof customFetch>[1]): Promise<SupplierContactList> => {
+
+  return customFetch<SupplierContactList>(getListSupplierContactsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSupplierContactsQueryKey = () => {
+    return [
+    `/api/account/supplier-contacts`
+    ] as const;
+    }
+
+
+export const getListSupplierContactsQueryOptions = <TData = Awaited<ReturnType<typeof listSupplierContacts>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSupplierContacts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSupplierContactsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSupplierContacts>>> = ({ signal }) => listSupplierContacts({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSupplierContacts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListSupplierContactsQueryResult = NonNullable<Awaited<ReturnType<typeof listSupplierContacts>>>
+export type ListSupplierContactsQueryError = ErrorType<unknown>
+
+
+
+export function useListSupplierContacts<TData = Awaited<ReturnType<typeof listSupplierContacts>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSupplierContacts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListSupplierContactsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveSupplierContactUrl = () => {
+
+
+
+
+  return `/api/account/supplier-contacts`
+}
+
+export const saveSupplierContact = async (supplierContactInput: SupplierContactInput, options?: Parameters<typeof customFetch>[1]): Promise<SupplierContact> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<SupplierContact>(getSaveSupplierContactUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(supplierContactInput)
+  }
+);}
+
+
+
+
+
+export const getSaveSupplierContactMutationKey = () => ['saveSupplierContact'] as const;
+
+export const getSaveSupplierContactMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveSupplierContact>>, TError,SaveSupplierContactMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveSupplierContact>>, TError,SaveSupplierContactMutationVariables, TContext> => {
+
+const mutationKey = getSaveSupplierContactMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveSupplierContact>>, SaveSupplierContactMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveSupplierContact(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveSupplierContactMutationResult = NonNullable<Awaited<ReturnType<typeof saveSupplierContact>>>
+    export type SaveSupplierContactMutationBody = BodyType<SupplierContactInput>
+    export type SaveSupplierContactMutationError = ErrorType<void>
+    export type SaveSupplierContactMutationVariables = {data: BodyType<SupplierContactInput>}
+
+    export const useSaveSupplierContact = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveSupplierContact>>, TError,SaveSupplierContactMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveSupplierContact>>,
+        TError,
+        SaveSupplierContactMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveSupplierContactMutationOptions(options));
+    }
+
+export const getListGeneratedOrdersUrl = () => {
+
+
+
+
+  return `/api/account/generated-orders`
+}
+
+export const listGeneratedOrders = async ( options?: Parameters<typeof customFetch>[1]): Promise<GeneratedOrderList> => {
+
+  return customFetch<GeneratedOrderList>(getListGeneratedOrdersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListGeneratedOrdersQueryKey = () => {
+    return [
+    `/api/account/generated-orders`
+    ] as const;
+    }
+
+
+export const getListGeneratedOrdersQueryOptions = <TData = Awaited<ReturnType<typeof listGeneratedOrders>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listGeneratedOrders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListGeneratedOrdersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listGeneratedOrders>>> = ({ signal }) => listGeneratedOrders({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listGeneratedOrders>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListGeneratedOrdersQueryResult = NonNullable<Awaited<ReturnType<typeof listGeneratedOrders>>>
+export type ListGeneratedOrdersQueryError = ErrorType<unknown>
+
+
+
+export function useListGeneratedOrders<TData = Awaited<ReturnType<typeof listGeneratedOrders>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listGeneratedOrders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListGeneratedOrdersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getActivateGeneratedOrderUrl = (id: number,) => {
+
+
+
+
+  return `/api/account/generated-orders/${id}/activate`
+}
+
+export const activateGeneratedOrder = async (id: number,
+    orderActivationInput: OrderActivationInput, options?: Parameters<typeof customFetch>[1]): Promise<OrderSnapshot> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<OrderSnapshot>(getActivateGeneratedOrderUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(orderActivationInput)
+  }
+);}
+
+
+
+
+
+export const getActivateGeneratedOrderMutationKey = () => ['activateGeneratedOrder'] as const;
+
+export const getActivateGeneratedOrderMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activateGeneratedOrder>>, TError,ActivateGeneratedOrderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof activateGeneratedOrder>>, TError,ActivateGeneratedOrderMutationVariables, TContext> => {
+
+const mutationKey = getActivateGeneratedOrderMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof activateGeneratedOrder>>, ActivateGeneratedOrderMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  activateGeneratedOrder(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ActivateGeneratedOrderMutationResult = NonNullable<Awaited<ReturnType<typeof activateGeneratedOrder>>>
+    export type ActivateGeneratedOrderMutationBody = BodyType<OrderActivationInput>
+    export type ActivateGeneratedOrderMutationError = ErrorType<void>
+    export type ActivateGeneratedOrderMutationVariables = {id: number;data: BodyType<OrderActivationInput>}
+
+    export const useActivateGeneratedOrder = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activateGeneratedOrder>>, TError,ActivateGeneratedOrderMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof activateGeneratedOrder>>,
+        TError,
+        ActivateGeneratedOrderMutationVariables,
+        TContext
+      > => {
+      return useMutation(getActivateGeneratedOrderMutationOptions(options));
+    }
+
+export const getGenerateReplenishmentOrdersUrl = () => {
+
+
+
+
+  return `/api/account/replenishment/orders`
+}
+
+export const generateReplenishmentOrders = async (replenishmentOrderInput: ReplenishmentOrderInput, options?: Parameters<typeof customFetch>[1]): Promise<GeneratedOrderList> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<GeneratedOrderList>(getGenerateReplenishmentOrdersUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(replenishmentOrderInput)
+  }
+);}
+
+
+
+
+
+export const getGenerateReplenishmentOrdersMutationKey = () => ['generateReplenishmentOrders'] as const;
+
+export const getGenerateReplenishmentOrdersMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateReplenishmentOrders>>, TError,GenerateReplenishmentOrdersMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateReplenishmentOrders>>, TError,GenerateReplenishmentOrdersMutationVariables, TContext> => {
+
+const mutationKey = getGenerateReplenishmentOrdersMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateReplenishmentOrders>>, GenerateReplenishmentOrdersMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  generateReplenishmentOrders(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateReplenishmentOrdersMutationResult = NonNullable<Awaited<ReturnType<typeof generateReplenishmentOrders>>>
+    export type GenerateReplenishmentOrdersMutationBody = BodyType<ReplenishmentOrderInput>
+    export type GenerateReplenishmentOrdersMutationError = ErrorType<void>
+    export type GenerateReplenishmentOrdersMutationVariables = {data: BodyType<ReplenishmentOrderInput>}
+
+    export const useGenerateReplenishmentOrders = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateReplenishmentOrders>>, TError,GenerateReplenishmentOrdersMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateReplenishmentOrders>>,
+        TError,
+        GenerateReplenishmentOrdersMutationVariables,
+        TContext
+      > => {
+      return useMutation(getGenerateReplenishmentOrdersMutationOptions(options));
+    }
 
 export const getGetReplenishmentUrl = () => {
 

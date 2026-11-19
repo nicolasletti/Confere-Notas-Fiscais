@@ -5,6 +5,87 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface SupplierContact {
+  key: string;
+  name: string;
+  whatsapp: string;
+}
+
+export type SupplierContactList = SupplierContact[];
+
+export interface SupplierContactInput {
+  /**
+     * @minLength 1
+     * @maxLength 650
+     */
+  key: string;
+  /** @maxLength 40 */
+  whatsapp: string;
+}
+
+export type GeneratedOrderKind = typeof GeneratedOrderKind[keyof typeof GeneratedOrderKind];
+
+
+export const GeneratedOrderKind = {
+  replenishment: 'replenishment',
+  backup: 'backup',
+} as const;
+
+export interface OrderItem {
+  /**
+     * @minLength 1
+     * @maxLength 100
+     */
+  id: string;
+  /** @maxLength 500 */
+  descricao: string;
+  /** @maxLength 50 */
+  quantidade: string;
+  /** @maxLength 40 */
+  unidade: string;
+  /** @maxLength 50 */
+  precoUnitario: string;
+}
+
+export interface GeneratedOrder {
+  id: number;
+  supplierKey: string;
+  supplierName: string;
+  kind: GeneratedOrderKind;
+  items: OrderItem[];
+  message: string;
+  createdAt: string;
+}
+
+export type GeneratedOrderList = GeneratedOrder[];
+
+export interface ReplenishmentOrderSelection {
+  /**
+     * @minLength 1
+     * @maxLength 1500
+     */
+  id: string;
+  /**
+     * @maxLength 50
+     * @pattern ^\d+([.,]\d+)?$
+     */
+  quantity: string;
+}
+
+export interface ReplenishmentOrderInput {
+  requestId: string;
+  /**
+     * @minItems 1
+     * @maxItems 100
+     */
+  items: ReplenishmentOrderSelection[];
+}
+
+export interface OrderActivationInput {
+  /** @maxItems 500 */
+  expectedItems: OrderItem[];
+}
+
 export type ReplenishmentItemIdentification = typeof ReplenishmentItemIdentification[keyof typeof ReplenishmentItemIdentification];
 
 
@@ -23,6 +104,9 @@ export const ReplenishmentItemStatus = {
 } as const;
 
 export interface ReplenishmentItem {
+  supplierKey: string;
+  supplierName: string;
+  lastUnitPrice: string;
   id: string;
   description: string;
   unit: string;
@@ -264,22 +348,6 @@ export interface AuthUser {
 
 export interface AuthUserEnvelope {
   user: AuthUser | null;
-}
-
-export interface OrderItem {
-  /**
-     * @minLength 1
-     * @maxLength 100
-     */
-  id: string;
-  /** @maxLength 500 */
-  descricao: string;
-  /** @maxLength 50 */
-  quantidade: string;
-  /** @maxLength 40 */
-  unidade: string;
-  /** @maxLength 50 */
-  precoUnitario: string;
 }
 
 export interface OrderInput {
