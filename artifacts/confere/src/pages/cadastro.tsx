@@ -20,7 +20,7 @@ export default function Cadastro() {
     setError("");
     setIsRedirecting(true);
     try {
-      await signup("/nota-fiscal");
+      await signup("/painel");
     } catch {
       setError("Não foi possível iniciar seu cadastro. Tente novamente.");
       setIsRedirecting(false);
@@ -101,7 +101,7 @@ export default function Cadastro() {
             {isLoading ? (
               <div className="mt-7 h-14 w-full animate-pulse rounded-full bg-[#eeece4]" aria-label="Verificando seu acesso" />
             ) : isAuthenticated ? (
-              <Link href="/nota-fiscal" className="mt-7 inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-[#4d58b3] px-6 text-sm font-bold text-white transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4d58b3] focus-visible:ring-offset-4" data-testid="link-continue-app">
+              <Link href="/painel" className="mt-7 inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-[#4d58b3] px-6 text-sm font-bold text-white transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4d58b3] focus-visible:ring-offset-4" data-testid="link-continue-app">
                 Ir para minha conta <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             ) : (

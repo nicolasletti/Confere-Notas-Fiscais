@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type DragEvent } from "react";
 import {
   getGetLatestAccountInvoiceQueryKey,
+  getGetMonthlyDashboardQueryKey,
   getListAccountInvoicesQueryKey,
   useGetLatestAccountInvoice,
   useSaveAccountInvoice,
@@ -80,6 +81,7 @@ export default function Home() {
       const savedInvoice = { ...saved.invoice, id: saved.id };
       queryClient.setQueryData(getGetLatestAccountInvoiceQueryKey(), { invoice: saved });
       await queryClient.invalidateQueries({ queryKey: getListAccountInvoicesQueryKey() });
+      void queryClient.invalidateQueries({ queryKey: getGetMonthlyDashboardQueryKey() });
       if (id === reqId.current) {
         setState({ kind: "ready", fileName: file.name, invoice: savedInvoice });
         setInvoice(savedInvoice);

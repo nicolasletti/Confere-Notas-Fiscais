@@ -29,6 +29,8 @@ import type {
   ConferenceList,
   ConferenceRecord,
   ExtractedOrderItems,
+  GetMonthlyDashboardParams,
+  GetMonthlyReportParams,
   HealthStatus,
   InvoiceInput,
   InvoiceList,
@@ -38,6 +40,8 @@ import type {
   LegacyImportInput,
   LegacyImportResult,
   LogoutBrowserSessionParams,
+  MonthlyDashboard,
+  MonthlyReport,
   OrderInput,
   OrderMatchSuggestionsInput,
   OrderMatchSuggestionsResult,
@@ -71,6 +75,174 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetMonthlyDashboardUrl = (params: GetMonthlyDashboardParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/account/dashboard?${stringifiedParams}` : `/api/account/dashboard`
+}
+
+/**
+ * @summary Monthly purchases and saved reconciliation totals for the signed-in user
+ */
+export const getMonthlyDashboard = async (params: GetMonthlyDashboardParams, options?: Parameters<typeof customFetch>[1]): Promise<MonthlyDashboard> => {
+
+  return customFetch<MonthlyDashboard>(getGetMonthlyDashboardUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMonthlyDashboardQueryKey = (params?: GetMonthlyDashboardParams,) => {
+    return [
+    `/api/account/dashboard`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetMonthlyDashboardQueryOptions = <TData = Awaited<ReturnType<typeof getMonthlyDashboard>>, TError = ErrorType<void>>(params: GetMonthlyDashboardParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMonthlyDashboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMonthlyDashboardQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMonthlyDashboard>>> = ({ signal }) => getMonthlyDashboard(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMonthlyDashboard>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMonthlyDashboardQueryResult = NonNullable<Awaited<ReturnType<typeof getMonthlyDashboard>>>
+export type GetMonthlyDashboardQueryError = ErrorType<void>
+
+
+/**
+ * @summary Monthly purchases and saved reconciliation totals for the signed-in user
+ */
+
+export function useGetMonthlyDashboard<TData = Awaited<ReturnType<typeof getMonthlyDashboard>>, TError = ErrorType<void>>(
+ params: GetMonthlyDashboardParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMonthlyDashboard>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMonthlyDashboardQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMonthlyReportUrl = (params: GetMonthlyReportParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/account/dashboard/report?${stringifiedParams}` : `/api/account/dashboard/report`
+}
+
+/**
+ * @summary Downloadable UTF-8 semicolon-separated monthly report
+ */
+export const getMonthlyReport = async (params: GetMonthlyReportParams, options?: Parameters<typeof customFetch>[1]): Promise<MonthlyReport> => {
+
+  return customFetch<MonthlyReport>(getGetMonthlyReportUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMonthlyReportQueryKey = (params?: GetMonthlyReportParams,) => {
+    return [
+    `/api/account/dashboard/report`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetMonthlyReportQueryOptions = <TData = Awaited<ReturnType<typeof getMonthlyReport>>, TError = ErrorType<void>>(params: GetMonthlyReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMonthlyReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMonthlyReportQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMonthlyReport>>> = ({ signal }) => getMonthlyReport(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMonthlyReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMonthlyReportQueryResult = NonNullable<Awaited<ReturnType<typeof getMonthlyReport>>>
+export type GetMonthlyReportQueryError = ErrorType<void>
+
+
+/**
+ * @summary Downloadable UTF-8 semicolon-separated monthly report
+ */
+
+export function useGetMonthlyReport<TData = Awaited<ReturnType<typeof getMonthlyReport>>, TError = ErrorType<void>>(
+ params: GetMonthlyReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMonthlyReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMonthlyReportQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getHealthCheckUrl = () => {
 

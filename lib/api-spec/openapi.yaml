@@ -17,6 +17,48 @@ tags:
   - name: account
     description: User-owned orders, invoices, and conferences
 paths:
+  /account/dashboard:
+    get:
+      operationId: getMonthlyDashboard
+      tags: [account]
+      summary: Monthly purchases and saved reconciliation totals for the signed-in user
+      parameters:
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, pattern: '^\d{4}-(0[1-9]|1[0-2])$' }
+      responses:
+        "200":
+          description: Monthly dashboard calculated from owned database records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MonthlyDashboard"
+        "400":
+          description: Invalid month
+        "401":
+          description: Authentication required
+  /account/dashboard/report:
+    get:
+      operationId: getMonthlyReport
+      tags: [account]
+      summary: Downloadable UTF-8 semicolon-separated monthly report
+      parameters:
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, pattern: '^\d{4}-(0[1-9]|1[0-2])$' }
+      responses:
+        "200":
+          description: CSV filename and content, using the same dashboard calculations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MonthlyReport"
+        "400":
+          description: Invalid month
+        "401":
+          description: Authentication required
   /healthz:
     get:
       operationId: healthCheck
@@ -312,6 +354,55 @@ paths:
                 $ref: "#/components/schemas/LegacyImportResult"
 components:
   schemas:
+    MonthlyMetrics:
+      type: object
+      required: [purchasedCents, invoiceCount, extraChargeCents, divergentInvoiceCount]
+      properties:
+        purchasedCents: { type: string, pattern: '^\d+$' }
+        invoiceCount: { type: integer, minimum: 0 }
+        extraChargeCents: { type: string, pattern: '^\d+$' }
+        divergentInvoiceCount: { type: integer, minimum: 0 }
+    MonthlySupplier:
+      type: object
+      required: [name, purchasedCents, extraChargeCents, invoiceCount, hasCompleteIbsCbs, latestIssuedAt]
+      properties:
+        name: { type: string }
+        purchasedCents: { type: string }
+        extraChargeCents: { type: string }
+        invoiceCount: { type: integer }
+        hasCompleteIbsCbs: { type: boolean }
+        latestIssuedAt: { type: string }
+    MonthlyItem:
+      type: object
+      required: [description, unit, quantity, totalCents, averagePriceCents]
+      properties:
+        description: { type: string }
+        unit: { type: string }
+        quantity: { type: string }
+        totalCents: { type: string }
+        averagePriceCents: { type: ["string", "null"] }
+    MonthlyDashboard:
+      type: object
+      required: [month, previousMonth, current, previous, suppliers, items, unverifiedInvoiceCount, excludedLegacyConferenceCount]
+      properties:
+        month: { type: string }
+        previousMonth: { type: string }
+        current: { $ref: "#/components/schemas/MonthlyMetrics" }
+        previous: { $ref: "#/components/schemas/MonthlyMetrics" }
+        suppliers:
+          type: array
+          items: { $ref: "#/components/schemas/MonthlySupplier" }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/MonthlyItem" }
+        unverifiedInvoiceCount: { type: integer }
+        excludedLegacyConferenceCount: { type: integer }
+    MonthlyReport:
+      type: object
+      required: [filename, content]
+      properties:
+        filename: { type: string }
+        content: { type: string }
     HealthStatus:
       type: object
       properties:

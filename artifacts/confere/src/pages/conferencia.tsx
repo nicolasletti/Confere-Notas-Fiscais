@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Check, Copy, FileCheck2, Save, ShieldAlert, Sparkles } from "lucide-react";
 import {
   getGetLatestAccountInvoiceQueryKey,
+  getGetMonthlyDashboardQueryKey,
+  getListAccountConferencesQueryKey,
   useGetAccountOrder,
   useGetLatestAccountInvoice,
   useGenerateChargeMessage,
@@ -165,6 +168,7 @@ function Result({
 }
 
 function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version: number }) {
+  const queryClient = useQueryClient();
   const orderQuery = useGetAccountOrder();
   const pedido = {
     items: orderQuery.data?.items ?? [],
@@ -367,6 +371,8 @@ function ConferenceResults({ invoice, version }: { invoice: NfeInvoice; version:
           results,
         },
       });
+      void queryClient.invalidateQueries({ queryKey: getGetMonthlyDashboardQueryKey() });
+      void queryClient.invalidateQueries({ queryKey: getListAccountConferencesQueryKey() });
       setSaveStatus({
         tone: "success",
         message: "Conferência salva no histórico da sua conta.",

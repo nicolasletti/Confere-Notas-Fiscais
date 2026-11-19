@@ -1,4 +1,4 @@
-import { FileCheck2, FileText, ListChecks, LogOut, Store } from "lucide-react";
+import { FileCheck2, FileText, LayoutDashboard, ListChecks, LogOut, Store } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAppAuth } from "@/lib/auth-context";
 
@@ -16,11 +16,23 @@ export default function AppHeader() {
   return (
     <header className="sticky top-0 z-20 border-b border-border/80 bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-5 sm:py-4">
-        <Link href="/nota-fiscal" aria-label="coNFere — nota fiscal" className="group flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" data-testid="link-home">
+        <Link href="/painel" aria-label="coNFere — painel" className="group flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" data-testid="link-home">
           <span className="grid h-9 w-9 place-items-center rounded-xl border border-primary/15 bg-primary/10 font-display text-lg font-bold text-primary transition-transform group-hover:-rotate-3" aria-hidden="true">c</span>
           <span className="font-display text-[1.35rem] font-bold tracking-[-0.055em] text-foreground">
             co<span className="text-primary">NF</span>ere
           </span>
+        </Link>
+
+        <Link
+          href="/painel"
+          aria-current={location === "/painel" ? "page" : undefined}
+          data-testid="link-painel"
+          className={`order-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:order-none ${
+            location === "/painel" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          }`}
+        >
+          <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+          Painel
         </Link>
 
         <Link

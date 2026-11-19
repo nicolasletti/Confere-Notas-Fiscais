@@ -9,6 +9,81 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Monthly purchases and saved reconciliation totals for the signed-in user
+ */
+export const getMonthlyDashboardQueryMonthRegExp = new RegExp('^\\d{4}-(0[1-9]|1[0-2])$');
+
+
+export const GetMonthlyDashboardQueryParams = zod.object({
+  "month": zod.coerce.string().regex(getMonthlyDashboardQueryMonthRegExp)
+})
+
+export const getMonthlyDashboardResponseCurrentPurchasedCentsRegExp = new RegExp('^\\d+$');
+export const getMonthlyDashboardResponseCurrentInvoiceCountMin = 0;
+
+export const getMonthlyDashboardResponseCurrentExtraChargeCentsRegExp = new RegExp('^\\d+$');
+export const getMonthlyDashboardResponseCurrentDivergentInvoiceCountMin = 0;
+
+export const getMonthlyDashboardResponsePreviousPurchasedCentsRegExp = new RegExp('^\\d+$');
+export const getMonthlyDashboardResponsePreviousInvoiceCountMin = 0;
+
+export const getMonthlyDashboardResponsePreviousExtraChargeCentsRegExp = new RegExp('^\\d+$');
+export const getMonthlyDashboardResponsePreviousDivergentInvoiceCountMin = 0;
+
+
+
+export const GetMonthlyDashboardResponse = zod.object({
+  "month": zod.string(),
+  "previousMonth": zod.string(),
+  "current": zod.object({
+  "purchasedCents": zod.string().regex(getMonthlyDashboardResponseCurrentPurchasedCentsRegExp),
+  "invoiceCount": zod.number().int().min(getMonthlyDashboardResponseCurrentInvoiceCountMin),
+  "extraChargeCents": zod.string().regex(getMonthlyDashboardResponseCurrentExtraChargeCentsRegExp),
+  "divergentInvoiceCount": zod.number().int().min(getMonthlyDashboardResponseCurrentDivergentInvoiceCountMin)
+}),
+  "previous": zod.object({
+  "purchasedCents": zod.string().regex(getMonthlyDashboardResponsePreviousPurchasedCentsRegExp),
+  "invoiceCount": zod.number().int().min(getMonthlyDashboardResponsePreviousInvoiceCountMin),
+  "extraChargeCents": zod.string().regex(getMonthlyDashboardResponsePreviousExtraChargeCentsRegExp),
+  "divergentInvoiceCount": zod.number().int().min(getMonthlyDashboardResponsePreviousDivergentInvoiceCountMin)
+}),
+  "suppliers": zod.array(zod.object({
+  "name": zod.string(),
+  "purchasedCents": zod.string(),
+  "extraChargeCents": zod.string(),
+  "invoiceCount": zod.number().int(),
+  "hasCompleteIbsCbs": zod.boolean(),
+  "latestIssuedAt": zod.string()
+})),
+  "items": zod.array(zod.object({
+  "description": zod.string(),
+  "unit": zod.string(),
+  "quantity": zod.string(),
+  "totalCents": zod.string(),
+  "averagePriceCents": zod.string().nullable()
+})),
+  "unverifiedInvoiceCount": zod.number().int(),
+  "excludedLegacyConferenceCount": zod.number().int()
+})
+
+
+/**
+ * @summary Downloadable UTF-8 semicolon-separated monthly report
+ */
+export const getMonthlyReportQueryMonthRegExp = new RegExp('^\\d{4}-(0[1-9]|1[0-2])$');
+
+
+export const GetMonthlyReportQueryParams = zod.object({
+  "month": zod.coerce.string().regex(getMonthlyReportQueryMonthRegExp)
+})
+
+export const GetMonthlyReportResponse = zod.object({
+  "filename": zod.string(),
+  "content": zod.string()
+})
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

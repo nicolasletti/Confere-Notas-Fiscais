@@ -5,6 +5,51 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface MonthlyMetrics {
+  /** @pattern ^\d+$ */
+  purchasedCents: string;
+  /** @minimum 0 */
+  invoiceCount: number;
+  /** @pattern ^\d+$ */
+  extraChargeCents: string;
+  /** @minimum 0 */
+  divergentInvoiceCount: number;
+}
+
+export interface MonthlySupplier {
+  name: string;
+  purchasedCents: string;
+  extraChargeCents: string;
+  invoiceCount: number;
+  hasCompleteIbsCbs: boolean;
+  latestIssuedAt: string;
+}
+
+export interface MonthlyItem {
+  description: string;
+  unit: string;
+  quantity: string;
+  totalCents: string;
+  /** @nullable */
+  averagePriceCents: string | null;
+}
+
+export interface MonthlyDashboard {
+  month: string;
+  previousMonth: string;
+  current: MonthlyMetrics;
+  previous: MonthlyMetrics;
+  suppliers: MonthlySupplier[];
+  items: MonthlyItem[];
+  unverifiedInvoiceCount: number;
+  excludedLegacyConferenceCount: number;
+}
+
+export interface MonthlyReport {
+  filename: string;
+  content: string;
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -357,6 +402,20 @@ export type ConferenceRecord = ConferenceInput & {
 };
 
 export type ConferenceList = ConferenceRecord[];
+
+export type GetMonthlyDashboardParams = {
+/**
+ * @pattern ^\d{4}-(0[1-9]|1[0-2])$
+ */
+month: string;
+};
+
+export type GetMonthlyReportParams = {
+/**
+ * @pattern ^\d{4}-(0[1-9]|1[0-2])$
+ */
+month: string;
+};
 
 export type BeginBrowserLoginParams = {
 returnTo?: string;

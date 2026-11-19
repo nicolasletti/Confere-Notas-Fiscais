@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   getGetAccountOrderQueryKey,
+  getGetMonthlyDashboardQueryKey,
   getListAccountConferencesQueryKey,
   useImportLegacyAccountData,
 } from "@workspace/api-client-react";
@@ -69,6 +70,7 @@ export default function LegacyDataImport() {
       void Promise.all([
         queryClient.invalidateQueries({ queryKey: getGetAccountOrderQueryKey() }),
         queryClient.invalidateQueries({ queryKey: getListAccountConferencesQueryKey() }),
+        queryClient.invalidateQueries({ queryKey: getGetMonthlyDashboardQueryKey() }),
       ]).catch(() => undefined);
       setMessage(
         `Importação concluída: ${result.importedOrderItems} itens de pedido e ${result.importedConferences} conferências adicionados.`,
