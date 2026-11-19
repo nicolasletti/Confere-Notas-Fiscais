@@ -80,6 +80,7 @@ export const accountInvoicesTable = pgTable(
     hasCompleteIbsCbs: boolean("has_complete_ibs_cbs").notNull(),
     invoice: jsonb("invoice").$type<StoredInvoice>().notNull(),
     originalXml: text("original_xml").notNull(),
+    isDemo: boolean("is_demo").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -87,6 +88,7 @@ export const accountInvoicesTable = pgTable(
   (table) => [
     uniqueIndex("account_invoices_owner_identity_idx").on(table.userId, table.identity),
     index("account_invoices_owner_created_idx").on(table.userId, table.createdAt),
+    index("account_invoices_owner_demo_idx").on(table.userId, table.isDemo),
   ],
 );
 
@@ -105,6 +107,7 @@ export const accountConferencesTable = pgTable(
     totalExtraChargeCents: text("total_extra_charge_cents").notNull(),
     hasCompleteIbsCbs: boolean("has_complete_ibs_cbs").notNull(),
     results: jsonb("results").$type<StoredConferenceResult[]>().notNull().default([]),
+    isDemo: boolean("is_demo").notNull().default(false),
     savedAt: timestamp("saved_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
@@ -115,5 +118,6 @@ export const accountConferencesTable = pgTable(
     }).onDelete("set null"),
     uniqueIndex("account_conferences_owner_identity_idx").on(table.userId, table.identity),
     index("account_conferences_owner_saved_idx").on(table.userId, table.savedAt),
+    index("account_conferences_owner_demo_idx").on(table.userId, table.isDemo),
   ],
 );

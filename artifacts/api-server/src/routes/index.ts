@@ -11,6 +11,7 @@ import openaiRouter from "./openai";
 import orderExtractionRouter from "./order-extraction";
 import orderMatchesRouter from "./order-matches";
 import companyRouter from "./company";
+import demoDataRouter from "./demo-data";
 import { requireAuth } from "../middlewares/authMiddleware";
 
 const router: IRouter = Router();
@@ -19,6 +20,7 @@ router.use(healthRouter);
 router.use(authRouter);
 router.use(requireAuth);
 router.use(accountRouter);
+router.use(demoDataRouter);
 router.use(dashboardRouter);
 router.use(weeklyDashboardRouter);
 router.use(replenishmentRouter);

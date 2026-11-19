@@ -635,6 +635,55 @@ export const SaveAccountCompanyResponse = zod.object({
 
 
 /**
+ * @summary Get this user's demonstration data status
+ */
+export const getDemoDataResponseInvoiceCountMin = 0;
+
+export const getDemoDataResponseConferenceCountMin = 0;
+
+
+
+export const GetDemoDataResponse = zod.object({
+  "hasDemoData": zod.boolean(),
+  "invoiceCount": zod.number().int().min(getDemoDataResponseInvoiceCountMin),
+  "conferenceCount": zod.number().int().min(getDemoDataResponseConferenceCountMin)
+})
+
+
+/**
+ * @summary Create synthetic demonstration data for this user
+ */
+export const loadDemoDataResponseInvoiceCountMin = 0;
+
+export const loadDemoDataResponseConferenceCountMin = 0;
+
+
+
+export const LoadDemoDataResponse = zod.object({
+  "created": zod.boolean(),
+  "invoiceCount": zod.number().int().min(loadDemoDataResponseInvoiceCountMin),
+  "conferenceCount": zod.number().int().min(loadDemoDataResponseConferenceCountMin)
+})
+
+
+/**
+ * @summary Delete only this user's demonstration records and related conferences
+ */
+export const deleteDemoDataResponseDeletedInvoiceCountMin = 0;
+
+export const deleteDemoDataResponseDeletedConferenceCountMin = 0;
+
+
+
+
+export const DeleteDemoDataResponse = zod.object({
+  "deletedInvoiceCount": zod.number().int().min(deleteDemoDataResponseDeletedInvoiceCountMin),
+  "deletedConferenceCount": zod.number().int().min(deleteDemoDataResponseDeletedConferenceCountMin),
+  "deletedInvoiceIds": zod.array(zod.number().int().min(1))
+})
+
+
+/**
  * @summary Request a private upload URL for the user's company logo
  */
 export const requestCompanyLogoUploadBodyNameMax = 255;

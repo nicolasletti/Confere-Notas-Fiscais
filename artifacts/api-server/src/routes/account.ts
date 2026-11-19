@@ -25,36 +25,10 @@ import {
 } from "@workspace/db";
 import { and, desc, eq } from "drizzle-orm";
 import { Router, type IRouter, type Request, type Response } from "express";
+import { lockAccountUser } from "../lib/account-lock";
+import { accountConferenceIdentity, accountInvoiceIdentity } from "../lib/account-identity";
 
 const router: IRouter = Router();
-
-function normalizeSupplierName(name: string): string {
-  return name
-    .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("pt-BR");
-}
-
-function conferenceIdentity(record: {
-  supplierName: string;
-  invoiceNumber: string;
-  issuedAt: string;
-}): string {
-  return JSON.stringify([
-    normalizeSupplierName(record.supplierName),
-    record.invoiceNumber.trim(),
-    record.issuedAt,
-  ]);
-}
-
-function invoiceIdentity(invoice: StoredInvoice): string {
-  return JSON.stringify([
-    normalizeSupplierName(invoice.issuer),
-    invoice.number.trim(),
-    invoice.issuedAt,
-  ]);
-}
 
 function getUserId(req: Request, res: Response): string | null {
   if (!req.isAuthenticated()) {
@@ -97,7 +71,7 @@ async function saveLegacyConference(
     .values({
       userId,
       invoiceId: null,
-      identity: conferenceIdentity(input),
+      identity: accountConferenceIdentity(input),
       supplierName: input.supplierName,
       invoiceNumber: input.invoiceNumber,
       issuedAt: input.issuedAt,
@@ -169,22 +143,13 @@ router.post("/account/invoices", async (req, res): Promise<void> => {
   }
 
   const invoice = parsed.data.invoice as StoredInvoice;
-  const [saved] = await db
-    .insert(accountInvoicesTable)
-    .values({
-      userId,
-      identity: invoiceIdentity(invoice),
-      originalFileName: parsed.data.originalFileName,
-      issuer: invoice.issuer,
-      invoiceNumber: invoice.number,
-      issuedAt: invoice.issuedAt,
-      hasCompleteIbsCbs: invoice.hasCompleteIbsCbs,
-      invoice,
-      originalXml: parsed.data.originalXml,
-    })
-    .onConflictDoUpdate({
-      target: [accountInvoicesTable.userId, accountInvoicesTable.identity],
-      set: {
+  const saved = await db.transaction(async (tx) => {
+    await lockAccountUser(tx, userId);
+    const [row] = await tx
+      .insert(accountInvoicesTable)
+      .values({
+        userId,
+        identity: accountInvoiceIdentity(invoice),
         originalFileName: parsed.data.originalFileName,
         issuer: invoice.issuer,
         invoiceNumber: invoice.number,
@@ -192,10 +157,25 @@ router.post("/account/invoices", async (req, res): Promise<void> => {
         hasCompleteIbsCbs: invoice.hasCompleteIbsCbs,
         invoice,
         originalXml: parsed.data.originalXml,
-        createdAt: new Date(),
-      },
-    })
-    .returning();
+        isDemo: false,
+      })
+      .onConflictDoUpdate({
+        target: [accountInvoicesTable.userId, accountInvoicesTable.identity],
+        set: {
+          originalFileName: parsed.data.originalFileName,
+          issuer: invoice.issuer,
+          invoiceNumber: invoice.number,
+          issuedAt: invoice.issuedAt,
+          hasCompleteIbsCbs: invoice.hasCompleteIbsCbs,
+          invoice,
+          originalXml: parsed.data.originalXml,
+          isDemo: false,
+          createdAt: new Date(),
+        },
+      })
+      .returning();
+    return row;
+  });
   res.status(201).json(SaveAccountInvoiceResponse.parse(saved && invoiceRecord(saved)));
 });
 
@@ -256,51 +236,72 @@ router.post("/account/conferences", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  if (parsed.data.invoiceId !== null) {
-    const [invoice] = await db
-      .select({ id: accountInvoicesTable.id })
-      .from(accountInvoicesTable)
-      .where(
-        and(
-          eq(accountInvoicesTable.id, parsed.data.invoiceId),
-          eq(accountInvoicesTable.userId, userId),
-        ),
-      );
-    if (!invoice) {
-      res.status(404).json({ error: "Nota fiscal não encontrada para esta conta." });
-      return;
-    }
-  }
-
   const input = parsed.data;
-  const [saved] = await db
-    .insert(accountConferencesTable)
-    .values({
-      userId,
-      invoiceId: input.invoiceId,
-      identity: conferenceIdentity(input),
-      supplierName: input.supplierName,
-      invoiceNumber: input.invoiceNumber,
-      issuedAt: input.issuedAt,
-      totalExtraChargeCents: input.totalExtraChargeCents,
-      hasCompleteIbsCbs: input.hasCompleteIbsCbs,
-      results: input.results as StoredConferenceResult[],
-      savedAt: new Date(),
-    })
-    .onConflictDoUpdate({
-      target: [accountConferencesTable.userId, accountConferencesTable.identity],
-      set: {
+  const identity = accountConferenceIdentity(input);
+  const saved = await db.transaction(async (tx) => {
+    await lockAccountUser(tx, userId);
+    let isDemo = false;
+    if (input.invoiceId !== null) {
+      const [invoice] = await tx
+        .select({ id: accountInvoicesTable.id, isDemo: accountInvoicesTable.isDemo })
+        .from(accountInvoicesTable)
+        .where(
+          and(
+            eq(accountInvoicesTable.id, input.invoiceId),
+            eq(accountInvoicesTable.userId, userId),
+          ),
+        );
+      if (!invoice) return null;
+      isDemo = invoice.isDemo;
+    } else {
+      const [source] = await tx
+        .select({ isDemo: accountInvoicesTable.isDemo })
+        .from(accountInvoicesTable)
+        .where(
+          and(
+            eq(accountInvoicesTable.userId, userId),
+            eq(accountInvoicesTable.identity, identity),
+          ),
+        );
+      isDemo = Boolean(source?.isDemo);
+    }
+
+    const [row] = await tx
+      .insert(accountConferencesTable)
+      .values({
+        userId,
         invoiceId: input.invoiceId,
+        identity,
         supplierName: input.supplierName,
         invoiceNumber: input.invoiceNumber,
         issuedAt: input.issuedAt,
         totalExtraChargeCents: input.totalExtraChargeCents,
         hasCompleteIbsCbs: input.hasCompleteIbsCbs,
         results: input.results as StoredConferenceResult[],
+        isDemo,
         savedAt: new Date(),
-      },
-    })
-    .returning();
+      })
+      .onConflictDoUpdate({
+        target: [accountConferencesTable.userId, accountConferencesTable.identity],
+        set: {
+          invoiceId: input.invoiceId,
+          supplierName: input.supplierName,
+          invoiceNumber: input.invoiceNumber,
+          issuedAt: input.issuedAt,
+          totalExtraChargeCents: input.totalExtraChargeCents,
+          hasCompleteIbsCbs: input.hasCompleteIbsCbs,
+          results: input.results as StoredConferenceResult[],
+          isDemo,
+          savedAt: new Date(),
+        },
+      })
+      .returning();
+    return row;
+  });
+  if (!saved) {
+    res.status(404).json({ error: "Nota fiscal não encontrada para esta conta." });
+    return;
+  }
   res.json(SaveAccountConferenceResponse.parse(saved && conferenceRecord(saved)));
 });
 
@@ -314,6 +315,7 @@ router.post("/account/import-legacy", async (req, res): Promise<void> => {
   }
 
   const result = await db.transaction(async (tx) => {
+    await lockAccountUser(tx, userId);
     let importedOrderItems = 0;
     if (parsed.data.orderItems.length > 0) {
       const [current] = await tx

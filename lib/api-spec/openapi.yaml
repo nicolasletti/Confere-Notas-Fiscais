@@ -393,6 +393,41 @@ paths:
               schema: { $ref: "#/components/schemas/CompanyProfileEnvelope" }
         "400": { description: Invalid profile or logo upload }
         "401": { description: Authentication required }
+  /account/demo-data:
+    get:
+      operationId: getDemoData
+      tags: [account]
+      summary: Get this user's demonstration data status
+      responses:
+        "200":
+          description: Counts for synthetic demonstration invoices and conferences
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DemoDataStatus" }
+        "401": { description: Authentication required }
+    post:
+      operationId: loadDemoData
+      tags: [account]
+      summary: Create synthetic demonstration data for this user
+      responses:
+        "200":
+          description: Existing or newly created demonstration records
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoadDemoDataResult" }
+        "401": { description: Authentication required }
+        "409": { description: A real record conflicts with the demonstration dataset }
+    delete:
+      operationId: deleteDemoData
+      tags: [account]
+      summary: Delete only this user's demonstration records and related conferences
+      responses:
+        "200":
+          description: Deleted demonstration record counts and invoice IDs
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DeleteDemoDataResult" }
+        "401": { description: Authentication required }
   /account/company/logo-upload-url:
     post:
       operationId: requestCompanyLogoUpload
@@ -593,6 +628,32 @@ components:
           oneOf:
             - $ref: "#/components/schemas/CompanyProfile"
             - type: "null"
+    DemoDataStatus:
+      type: object
+      additionalProperties: false
+      required: [hasDemoData, invoiceCount, conferenceCount]
+      properties:
+        hasDemoData: { type: boolean }
+        invoiceCount: { type: integer, minimum: 0 }
+        conferenceCount: { type: integer, minimum: 0 }
+    LoadDemoDataResult:
+      type: object
+      additionalProperties: false
+      required: [created, invoiceCount, conferenceCount]
+      properties:
+        created: { type: boolean }
+        invoiceCount: { type: integer, minimum: 0 }
+        conferenceCount: { type: integer, minimum: 0 }
+    DeleteDemoDataResult:
+      type: object
+      additionalProperties: false
+      required: [deletedInvoiceCount, deletedConferenceCount, deletedInvoiceIds]
+      properties:
+        deletedInvoiceCount: { type: integer, minimum: 0 }
+        deletedConferenceCount: { type: integer, minimum: 0 }
+        deletedInvoiceIds:
+          type: array
+          items: { type: integer, minimum: 1 }
     CompanyProfileInput:
       type: object
       additionalProperties: false

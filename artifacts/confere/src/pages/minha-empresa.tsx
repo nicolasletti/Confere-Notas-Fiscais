@@ -1,7 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   getGetAccountCompanyQueryKey,
+  getGetDemoDataQueryKey,
+  getGetLatestAccountInvoiceQueryKey,
+  getGetMonthlyDashboardQueryKey,
+  getGetReplenishmentQueryKey,
+  getGetWeeklyDashboardQueryKey,
+  getListAccountConferencesQueryKey,
+  getListAccountInvoicesQueryKey,
+  useDeleteDemoData,
+  useGetDemoData,
   useGetAccountCompany,
+  useLoadDemoData,
   useRequestCompanyLogoUpload,
   useSaveAccountCompany,
 } from "@workspace/api-client-react";
@@ -23,6 +33,7 @@ import {
   ImagePlus,
   LoaderCircle,
   MapPin,
+  PackageCheck,
   ShieldCheck,
   Trash2,
   Upload,
@@ -37,6 +48,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useNfe } from "@/lib/nfe-context";
 import {
   Select,
   SelectContent,
@@ -137,16 +149,24 @@ function fieldClassName() {
 
 export default function MinhaEmpresa() {
   const companyQuery = useGetAccountCompany();
+  const demoStatusQuery = useGetDemoData();
   const saveCompany = useSaveAccountCompany();
+  const loadDemoData = useLoadDemoData();
+  const deleteDemoData = useDeleteDemoData();
   const requestLogoUpload = useRequestCompanyLogoUpload();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
+  const { invoice: activeInvoice, setInvoice } = useNfe();
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [removeLogo, setRemoveLogo] = useState(false);
   const [formError, setFormError] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
   const [logoError, setLogoError] = useState("");
+  const [demoFeedback, setDemoFeedback] = useState<{
+    tone: "success" | "error";
+    message: string;
+  } | null>(null);
   const profile = companyQuery.data?.profile ?? null;
   const isEditing = Boolean(profile);
 
@@ -283,7 +303,76 @@ export default function MinhaEmpresa() {
     }
   }
 
+  function refreshDemoDataQueries() {
+    void queryClient.invalidateQueries({ queryKey: getGetDemoDataQueryKey() });
+    void queryClient.invalidateQueries({ queryKey: getListAccountInvoicesQueryKey() });
+    void queryClient.invalidateQueries({ queryKey: getGetLatestAccountInvoiceQueryKey() });
+    void queryClient.invalidateQueries({ queryKey: getListAccountConferencesQueryKey() });
+    void queryClient.invalidateQueries({ queryKey: getGetMonthlyDashboardQueryKey() });
+    void queryClient.invalidateQueries({ queryKey: getGetWeeklyDashboardQueryKey() });
+    void queryClient.invalidateQueries({ queryKey: getGetReplenishmentQueryKey() });
+  }
+
+  async function onLoadDemoData() {
+    setDemoFeedback(null);
+    try {
+      const result = await loadDemoData.mutateAsync();
+      const state = {
+        hasDemoData: result.invoiceCount > 0 || result.conferenceCount > 0,
+        invoiceCount: result.invoiceCount,
+        conferenceCount: result.conferenceCount,
+      };
+      queryClient.setQueryData(getGetDemoDataQueryKey(), state);
+      setDemoFeedback({
+        tone: "success",
+        message: result.created
+          ? `Demonstração carregada: ${result.invoiceCount} notas e ${result.conferenceCount} conferências fictícias.`
+          : `Os dados de demonstração já estavam carregados: ${result.invoiceCount} notas e ${result.conferenceCount} conferências. Nada foi duplicado.`,
+      });
+      refreshDemoDataQueries();
+    } catch {
+      setDemoFeedback({
+        tone: "error",
+        message: "Não foi possível carregar a demonstração. Seus dados reais não foram alterados; tente novamente.",
+      });
+    }
+  }
+
+  async function onDeleteDemoData() {
+    if (!window.confirm("Apagar somente as notas e conferências marcadas como demonstração? Seus pedidos e dados reais serão preservados.")) {
+      return;
+    }
+    setDemoFeedback(null);
+    try {
+      const result = await deleteDemoData.mutateAsync();
+      if (
+        activeInvoice?.id !== undefined &&
+        result.deletedInvoiceIds.includes(activeInvoice.id)
+      ) {
+        setInvoice(null);
+      }
+      queryClient.setQueryData(getGetDemoDataQueryKey(), {
+        hasDemoData: false,
+        invoiceCount: 0,
+        conferenceCount: 0,
+      });
+      setDemoFeedback({
+        tone: "success",
+        message: result.deletedInvoiceCount || result.deletedConferenceCount
+          ? `Apagadas ${result.deletedInvoiceCount} notas e ${result.deletedConferenceCount} conferências de demonstração. Seus dados reais foram preservados.`
+          : "Não havia dados de demonstração para apagar.",
+      });
+      refreshDemoDataQueries();
+    } catch {
+      setDemoFeedback({
+        tone: "error",
+        message: "Não foi possível apagar os dados de demonstração. Nenhum dado real foi removido; tente novamente.",
+      });
+    }
+  }
+
   const isSaving = saveCompany.isPending || requestLogoUpload.isPending;
+  const isUpdatingDemoData = loadDemoData.isPending || deleteDemoData.isPending;
 
   if (companyQuery.isLoading) {
     return (
@@ -608,6 +697,85 @@ export default function MinhaEmpresa() {
             {isSaving && <span className="sr-only" role="status" data-testid="status-company-saving">Salvando os dados do comércio…</span>}
           </form>
         </Form>
+
+        <section
+          className="mt-6 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 shadow-sm sm:p-6"
+          aria-labelledby="demo-data-heading"
+          data-testid="section-demo-data"
+        >
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-amber-800 shadow-sm">
+              <PackageCheck className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <h2 id="demo-data-heading" className="font-display text-xl font-bold">
+                Dados de demonstração
+              </h2>
+              <p className="mt-1.5 max-w-3xl text-sm leading-6 text-muted-foreground">
+                Cria notas e conferências fictícias para apresentar o coNFere. Os XMLs são marcados como demonstração, não contêm dados pessoais reais e não têm validade fiscal. Apagar remove somente esses registros e conferências relacionadas; pedidos, perfil e notas reais ficam intactos.
+              </p>
+            </div>
+          </div>
+
+          {demoStatusQuery.isLoading && (
+            <p className="mt-4 text-xs text-muted-foreground" role="status">
+              Verificando os dados de demonstração…
+            </p>
+          )}
+          {demoStatusQuery.isError && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-destructive" role="alert">
+              <span>Não foi possível verificar se há dados de demonstração.</span>
+              <Button type="button" variant="ghost" size="sm" onClick={() => void demoStatusQuery.refetch()}>
+                Tentar novamente
+              </Button>
+            </div>
+          )}
+          {demoStatusQuery.data?.hasDemoData && (
+            <p className="mt-4 text-sm font-medium text-amber-950" data-testid="status-demo-data-loaded">
+              Já carregados: {demoStatusQuery.data.invoiceCount} notas e {demoStatusQuery.data.conferenceCount} conferências de demonstração.
+            </p>
+          )}
+          {demoFeedback && (
+            <p
+              className={`mt-4 rounded-xl px-3.5 py-3 text-sm font-medium ${
+                demoFeedback.tone === "success"
+                  ? "border border-emerald-200 bg-emerald-50 text-emerald-900"
+                  : "border border-destructive/25 bg-white text-destructive"
+              }`}
+              role={demoFeedback.tone === "success" ? "status" : "alert"}
+              aria-live="polite"
+              data-testid="status-demo-feedback"
+            >
+              {demoFeedback.message}
+            </p>
+          )}
+
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Button
+              type="button"
+              onClick={() => void onLoadDemoData()}
+              disabled={isUpdatingDemoData}
+              data-testid="button-load-demo-data"
+            >
+              {loadDemoData.isPending
+                ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                : <PackageCheck className="mr-2 h-4 w-4" aria-hidden="true" />}
+              {loadDemoData.isPending ? "Carregando demonstração…" : "Carregar dados de demonstração"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void onDeleteDemoData()}
+              disabled={isUpdatingDemoData}
+              data-testid="button-delete-demo-data"
+            >
+              {deleteDemoData.isPending
+                ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                : <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />}
+              {deleteDemoData.isPending ? "Apagando demonstração…" : "Apagar dados de demonstração"}
+            </Button>
+          </div>
+        </section>
       </div>
     </main>
   );

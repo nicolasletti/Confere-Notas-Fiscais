@@ -184,6 +184,9 @@ importers:
       '@workspace/integrations-openai-ai-server':
         specifier: workspace:*
         version: link:../../lib/integrations-openai-ai-server
+      '@workspace/reconciliation':
+        specifier: workspace:*
+        version: link:../../lib/reconciliation
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -242,6 +245,9 @@ importers:
       '@workspace/api-zod':
         specifier: workspace:*
         version: link:../../lib/api-zod
+      '@workspace/reconciliation':
+        specifier: workspace:*
+        version: link:../../lib/reconciliation
       '@workspace/replit-auth-web':
         specifier: workspace:*
         version: link:../../lib/replit-auth-web
@@ -671,6 +677,8 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.9
+
+  lib/reconciliation: {}
 
   lib/replit-auth-web:
     dependencies:

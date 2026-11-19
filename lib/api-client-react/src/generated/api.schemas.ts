@@ -56,6 +56,31 @@ export interface CompanyProfileEnvelope {
   profile: CompanyProfile | null;
 }
 
+export interface DemoDataStatus {
+  hasDemoData: boolean;
+  /** @minimum 0 */
+  invoiceCount: number;
+  /** @minimum 0 */
+  conferenceCount: number;
+}
+
+export interface LoadDemoDataResult {
+  created: boolean;
+  /** @minimum 0 */
+  invoiceCount: number;
+  /** @minimum 0 */
+  conferenceCount: number;
+}
+
+export interface DeleteDemoDataResult {
+  /** @minimum 0 */
+  deletedInvoiceCount: number;
+  /** @minimum 0 */
+  deletedConferenceCount: number;
+  /** @items.minimum 1 */
+  deletedInvoiceIds: number[];
+}
+
 export type CompanyProfileInputBusinessType = typeof CompanyProfileInputBusinessType[keyof typeof CompanyProfileInputBusinessType];
 
 

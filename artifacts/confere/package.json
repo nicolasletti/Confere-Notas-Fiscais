@@ -76,6 +76,7 @@
   },
   "dependencies": {
     "@workspace/api-zod": "workspace:*",
+    "@workspace/reconciliation": "workspace:*",
     "@workspace/replit-auth-web": "workspace:*"
   }
 }

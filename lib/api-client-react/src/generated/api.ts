@@ -32,6 +32,8 @@ import type {
   ConferenceInput,
   ConferenceList,
   ConferenceRecord,
+  DeleteDemoDataResult,
+  DemoDataStatus,
   ExtractedOrderItems,
   GeneratedOrderList,
   GetMonthlyDashboardParams,
@@ -47,6 +49,7 @@ import type {
   LatestInvoiceEnvelope,
   LegacyImportInput,
   LegacyImportResult,
+  LoadDemoDataResult,
   LogoutBrowserSessionParams,
   MonthlyDashboard,
   MonthlyReport,
@@ -1804,6 +1807,231 @@ export const useSaveAccountCompany = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getSaveAccountCompanyMutationOptions(options));
+    }
+
+export const getGetDemoDataUrl = () => {
+
+
+
+
+  return `/api/account/demo-data`
+}
+
+/**
+ * @summary Get this user's demonstration data status
+ */
+export const getDemoData = async ( options?: Parameters<typeof customFetch>[1]): Promise<DemoDataStatus> => {
+
+  return customFetch<DemoDataStatus>(getGetDemoDataUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDemoDataQueryKey = () => {
+    return [
+    `/api/account/demo-data`
+    ] as const;
+    }
+
+
+export const getGetDemoDataQueryOptions = <TData = Awaited<ReturnType<typeof getDemoData>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDemoData>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDemoDataQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDemoData>>> = ({ signal }) => getDemoData({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDemoData>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDemoDataQueryResult = NonNullable<Awaited<ReturnType<typeof getDemoData>>>
+export type GetDemoDataQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get this user's demonstration data status
+ */
+
+export function useGetDemoData<TData = Awaited<ReturnType<typeof getDemoData>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDemoData>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDemoDataQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getLoadDemoDataUrl = () => {
+
+
+
+
+  return `/api/account/demo-data`
+}
+
+/**
+ * @summary Create synthetic demonstration data for this user
+ */
+export const loadDemoData = async ( options?: Parameters<typeof customFetch>[1]): Promise<LoadDemoDataResult> => {
+
+  return customFetch<LoadDemoDataResult>(getLoadDemoDataUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getLoadDemoDataMutationKey = () => ['loadDemoData'] as const;
+
+export const getLoadDemoDataMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loadDemoData>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof loadDemoData>>, TError,void, TContext> => {
+
+const mutationKey = getLoadDemoDataMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof loadDemoData>>, void> = () => {
+
+
+          return  loadDemoData(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LoadDemoDataMutationResult = NonNullable<Awaited<ReturnType<typeof loadDemoData>>>
+
+    export type LoadDemoDataMutationError = ErrorType<void>
+
+
+    /**
+ * @summary Create synthetic demonstration data for this user
+ */
+export const useLoadDemoData = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof loadDemoData>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof loadDemoData>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getLoadDemoDataMutationOptions(options));
+    }
+
+export const getDeleteDemoDataUrl = () => {
+
+
+
+
+  return `/api/account/demo-data`
+}
+
+/**
+ * @summary Delete only this user's demonstration records and related conferences
+ */
+export const deleteDemoData = async ( options?: Parameters<typeof customFetch>[1]): Promise<DeleteDemoDataResult> => {
+
+  return customFetch<DeleteDemoDataResult>(getDeleteDemoDataUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteDemoDataMutationKey = () => ['deleteDemoData'] as const;
+
+export const getDeleteDemoDataMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDemoData>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDemoData>>, TError,void, TContext> => {
+
+const mutationKey = getDeleteDemoDataMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDemoData>>, void> = () => {
+
+
+          return  deleteDemoData(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDemoDataMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDemoData>>>
+
+    export type DeleteDemoDataMutationError = ErrorType<void>
+
+
+    /**
+ * @summary Delete only this user's demonstration records and related conferences
+ */
+export const useDeleteDemoData = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDemoData>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDemoData>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getDeleteDemoDataMutationOptions(options));
     }
 
 export const getRequestCompanyLogoUploadUrl = () => {
