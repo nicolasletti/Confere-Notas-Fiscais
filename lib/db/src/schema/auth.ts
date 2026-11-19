@@ -20,6 +20,14 @@ export const usersTable = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   companyName: varchar("company_name", { length: 500 }),
+  companyCnpj: varchar("company_cnpj", { length: 14 }),
+  companyBusinessType: varchar("company_business_type", { length: 24 }),
+  companyCity: varchar("company_city", { length: 120 }),
+  companyState: varchar("company_state", { length: 2 }),
+  companyWhatsapp: varchar("company_whatsapp", { length: 30 }),
+  companyTaxRegime: varchar("company_tax_regime", { length: 24 }),
+  accountantEmail: varchar("accountant_email", { length: 320 }),
+  companyLogoObjectPath: varchar("company_logo_object_path", { length: 1000 }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

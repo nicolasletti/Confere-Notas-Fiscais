@@ -20,3 +20,4 @@
 export * from "./auth";
 export * from "./account";
 export * from "./supplier-orders";
+export * from "./company";

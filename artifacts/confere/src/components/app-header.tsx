@@ -1,11 +1,18 @@
-import { FileCheck2, FileText, LayoutDashboard, ListChecks, LogOut, PackageSearch, Store } from "lucide-react";
+import { Building2, FileCheck2, FileText, LayoutDashboard, ListChecks, LogOut, PackageSearch, Store } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAppAuth } from "@/lib/auth-context";
+import { useGetAccountCompany } from "@workspace/api-client-react";
 
 export default function AppHeader() {
   const [location] = useLocation();
   const { user, isLoading, logout } = useAppAuth();
-  const accountLabel = user?.companyName?.trim() || user?.email || "Minha conta";
+  const companyQuery = useGetAccountCompany();
+  const company = companyQuery.data?.profile;
+  const accountLabel = company?.name?.trim() || user?.email || "Minha conta";
+  const basePath = import.meta.env.BASE_URL.endsWith("/") ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+  const logoSrc = company?.hasLogo
+    ? `${basePath}api/account/company/logo?updated=${encodeURIComponent(company.updatedAt)}`
+    : null;
 
   const links = [
     { href: "/pedido", label: "Pedido", icon: ListChecks },
@@ -61,6 +68,20 @@ export default function AppHeader() {
           Fornecedores
         </Link>
 
+        <Link
+          href="/minha-empresa"
+          aria-current={location === "/minha-empresa" ? "page" : undefined}
+          data-testid="link-minha-empresa"
+          className={`order-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:order-none ${
+            location === "/minha-empresa"
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          }`}
+        >
+          <Building2 className="h-4 w-4" aria-hidden="true" />
+          Minha empresa
+        </Link>
+
         <nav aria-label="Etapas do Confere" className="order-3 grid w-full grid-cols-3 gap-1 rounded-xl border border-border/80 bg-muted/60 p-1 sm:order-none sm:w-auto sm:min-w-[390px]">
           {links.map(({ href, label, icon: Icon }, index) => {
             const active = location === href;
@@ -86,9 +107,13 @@ export default function AppHeader() {
 
         <div className="order-1 ml-auto flex min-w-0 items-center gap-2 sm:order-none sm:ml-0 sm:gap-3">
           <div className="flex min-w-0 items-center gap-2 rounded-full border border-border/80 bg-card/80 py-1.5 pl-1.5 pr-3">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 font-display text-sm font-bold text-primary" aria-hidden="true">
-              {isLoading ? "…" : accountLabel.charAt(0).toLocaleUpperCase()}
-            </span>
+            {logoSrc ? (
+              <img src={logoSrc} alt="" className="h-8 w-8 shrink-0 rounded-full border border-border/70 bg-background object-contain p-0.5" data-testid="img-company-logo-header" />
+            ) : (
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 font-display text-sm font-bold text-primary" aria-hidden="true">
+                {isLoading ? "…" : accountLabel.charAt(0).toLocaleUpperCase()}
+              </span>
+            )}
             <span className="max-w-[112px] truncate text-xs font-semibold text-foreground sm:max-w-[170px]" data-testid="text-account-name" title={accountLabel}>
               {isLoading ? "Carregando conta" : accountLabel}
             </span>

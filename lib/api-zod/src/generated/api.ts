@@ -513,6 +513,120 @@ export const LogoutBrowserSessionResponse = zod.void()
 
 
 /**
+ * @summary Get the signed-in user's company profile
+ */
+export const getAccountCompanyResponseProfileOneNameMax = 500;
+
+export const getAccountCompanyResponseProfileOneCnpjRegExp = new RegExp('^[A-Z0-9]{12}\\d{2}$');
+export const getAccountCompanyResponseProfileOneCityMax = 120;
+
+export const getAccountCompanyResponseProfileOneStateRegExp = new RegExp('^[A-Z]{2}$');
+export const getAccountCompanyResponseProfileOneWhatsappMax = 30;
+
+export const getAccountCompanyResponseProfileOneAccountantEmailMax = 320;
+
+
+
+export const GetAccountCompanyResponse = zod.object({
+  "profile": zod.union([zod.object({
+  "name": zod.string().min(1).max(getAccountCompanyResponseProfileOneNameMax),
+  "cnpj": zod.string().regex(getAccountCompanyResponseProfileOneCnpjRegExp),
+  "businessType": zod.enum(['mercado', 'padaria', 'restaurante', 'bar', 'outro']),
+  "city": zod.string().min(1).max(getAccountCompanyResponseProfileOneCityMax),
+  "state": zod.string().regex(getAccountCompanyResponseProfileOneStateRegExp),
+  "whatsapp": zod.string().max(getAccountCompanyResponseProfileOneWhatsappMax),
+  "taxRegime": zod.enum(['simples_nacional', 'lucro_presumido', 'lucro_real', 'mei', 'nao_sei']),
+  "accountantEmail": zod.string().max(getAccountCompanyResponseProfileOneAccountantEmailMax),
+  "hasLogo": zod.boolean(),
+  "updatedAt": zod.string()
+}),zod.null()])
+})
+
+
+/**
+ * @summary Save the signed-in user's company profile
+ */
+export const saveAccountCompanyBodyNameMax = 500;
+
+export const saveAccountCompanyBodyCnpjRegExp = new RegExp('^[A-Z0-9]{12}\\d{2}$');
+export const saveAccountCompanyBodyCityMax = 120;
+
+export const saveAccountCompanyBodyStateRegExp = new RegExp('^[A-Z]{2}$');
+export const saveAccountCompanyBodyWhatsappMax = 30;
+
+export const saveAccountCompanyBodyAccountantEmailMax = 320;
+
+export const saveAccountCompanyBodyRemoveLogoDefault = false;
+
+export const SaveAccountCompanyBody = zod.object({
+  "name": zod.string().min(1).max(saveAccountCompanyBodyNameMax),
+  "cnpj": zod.string().regex(saveAccountCompanyBodyCnpjRegExp),
+  "businessType": zod.enum(['mercado', 'padaria', 'restaurante', 'bar', 'outro']),
+  "city": zod.string().min(1).max(saveAccountCompanyBodyCityMax),
+  "state": zod.string().regex(saveAccountCompanyBodyStateRegExp),
+  "whatsapp": zod.string().max(saveAccountCompanyBodyWhatsappMax),
+  "taxRegime": zod.enum(['simples_nacional', 'lucro_presumido', 'lucro_real', 'mei', 'nao_sei']),
+  "accountantEmail": zod.string().max(saveAccountCompanyBodyAccountantEmailMax),
+  "logoUploadId": zod.string().uuid().nullish(),
+  "removeLogo": zod.boolean().default(saveAccountCompanyBodyRemoveLogoDefault)
+})
+
+export const saveAccountCompanyResponseProfileOneNameMax = 500;
+
+export const saveAccountCompanyResponseProfileOneCnpjRegExp = new RegExp('^[A-Z0-9]{12}\\d{2}$');
+export const saveAccountCompanyResponseProfileOneCityMax = 120;
+
+export const saveAccountCompanyResponseProfileOneStateRegExp = new RegExp('^[A-Z]{2}$');
+export const saveAccountCompanyResponseProfileOneWhatsappMax = 30;
+
+export const saveAccountCompanyResponseProfileOneAccountantEmailMax = 320;
+
+
+
+export const SaveAccountCompanyResponse = zod.object({
+  "profile": zod.union([zod.object({
+  "name": zod.string().min(1).max(saveAccountCompanyResponseProfileOneNameMax),
+  "cnpj": zod.string().regex(saveAccountCompanyResponseProfileOneCnpjRegExp),
+  "businessType": zod.enum(['mercado', 'padaria', 'restaurante', 'bar', 'outro']),
+  "city": zod.string().min(1).max(saveAccountCompanyResponseProfileOneCityMax),
+  "state": zod.string().regex(saveAccountCompanyResponseProfileOneStateRegExp),
+  "whatsapp": zod.string().max(saveAccountCompanyResponseProfileOneWhatsappMax),
+  "taxRegime": zod.enum(['simples_nacional', 'lucro_presumido', 'lucro_real', 'mei', 'nao_sei']),
+  "accountantEmail": zod.string().max(saveAccountCompanyResponseProfileOneAccountantEmailMax),
+  "hasLogo": zod.boolean(),
+  "updatedAt": zod.string()
+}),zod.null()])
+})
+
+
+/**
+ * @summary Request a private upload URL for the user's company logo
+ */
+export const requestCompanyLogoUploadBodyNameMax = 255;
+
+export const requestCompanyLogoUploadBodySizeMax = 2097152;
+
+
+
+export const RequestCompanyLogoUploadBody = zod.object({
+  "name": zod.string().min(1).max(requestCompanyLogoUploadBodyNameMax),
+  "size": zod.number().int().min(1).max(requestCompanyLogoUploadBodySizeMax),
+  "contentType": zod.enum(['image/png', 'image/jpeg', 'image/webp'])
+})
+
+export const RequestCompanyLogoUploadResponse = zod.object({
+  "uploadId": zod.string().uuid(),
+  "uploadURL": zod.string().url()
+})
+
+
+/**
+ * @summary Serve this user's private company logo
+ */
+export const GetAccountCompanyLogoResponse = zod.unknown()
+
+
+/**
  * @summary Get this user's supplier order
  */
 export const getAccountOrderResponseItemsItemIdMax = 100;

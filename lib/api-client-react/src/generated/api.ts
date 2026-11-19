@@ -25,6 +25,10 @@ import type {
   ChargeMessageError,
   ChargeMessageInput,
   ChargeMessageResult,
+  CompanyLogoUploadInput,
+  CompanyLogoUploadResponse,
+  CompanyProfileEnvelope,
+  CompanyProfileInput,
   ConferenceInput,
   ConferenceList,
   ConferenceRecord,
@@ -1540,6 +1544,336 @@ export function useLogoutBrowserSession<TData = Awaited<ReturnType<typeof logout
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getLogoutBrowserSessionQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAccountCompanyUrl = () => {
+
+
+
+
+  return `/api/account/company`
+}
+
+/**
+ * @summary Get the signed-in user's company profile
+ */
+export const getAccountCompany = async ( options?: Parameters<typeof customFetch>[1]): Promise<CompanyProfileEnvelope> => {
+
+  return customFetch<CompanyProfileEnvelope>(getGetAccountCompanyUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAccountCompanyQueryKey = () => {
+    return [
+    `/api/account/company`
+    ] as const;
+    }
+
+
+export const getGetAccountCompanyQueryOptions = <TData = Awaited<ReturnType<typeof getAccountCompany>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAccountCompany>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAccountCompanyQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAccountCompany>>> = ({ signal }) => getAccountCompany({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAccountCompany>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAccountCompanyQueryResult = NonNullable<Awaited<ReturnType<typeof getAccountCompany>>>
+export type GetAccountCompanyQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the signed-in user's company profile
+ */
+
+export function useGetAccountCompany<TData = Awaited<ReturnType<typeof getAccountCompany>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAccountCompany>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAccountCompanyQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSaveAccountCompanyUrl = () => {
+
+
+
+
+  return `/api/account/company`
+}
+
+/**
+ * @summary Save the signed-in user's company profile
+ */
+export const saveAccountCompany = async (companyProfileInput: CompanyProfileInput, options?: Parameters<typeof customFetch>[1]): Promise<CompanyProfileEnvelope> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CompanyProfileEnvelope>(getSaveAccountCompanyUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(companyProfileInput)
+  }
+);}
+
+
+
+
+
+export const getSaveAccountCompanyMutationKey = () => ['saveAccountCompany'] as const;
+
+export const getSaveAccountCompanyMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAccountCompany>>, TError,SaveAccountCompanyMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveAccountCompany>>, TError,SaveAccountCompanyMutationVariables, TContext> => {
+
+const mutationKey = getSaveAccountCompanyMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveAccountCompany>>, SaveAccountCompanyMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  saveAccountCompany(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveAccountCompanyMutationResult = NonNullable<Awaited<ReturnType<typeof saveAccountCompany>>>
+    export type SaveAccountCompanyMutationBody = BodyType<CompanyProfileInput>
+    export type SaveAccountCompanyMutationError = ErrorType<void>
+    export type SaveAccountCompanyMutationVariables = {data: BodyType<CompanyProfileInput>}
+
+    /**
+ * @summary Save the signed-in user's company profile
+ */
+export const useSaveAccountCompany = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveAccountCompany>>, TError,SaveAccountCompanyMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveAccountCompany>>,
+        TError,
+        SaveAccountCompanyMutationVariables,
+        TContext
+      > => {
+      return useMutation(getSaveAccountCompanyMutationOptions(options));
+    }
+
+export const getRequestCompanyLogoUploadUrl = () => {
+
+
+
+
+  return `/api/account/company/logo-upload-url`
+}
+
+/**
+ * @summary Request a private upload URL for the user's company logo
+ */
+export const requestCompanyLogoUpload = async (companyLogoUploadInput: CompanyLogoUploadInput, options?: Parameters<typeof customFetch>[1]): Promise<CompanyLogoUploadResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<CompanyLogoUploadResponse>(getRequestCompanyLogoUploadUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(companyLogoUploadInput)
+  }
+);}
+
+
+
+
+
+export const getRequestCompanyLogoUploadMutationKey = () => ['requestCompanyLogoUpload'] as const;
+
+export const getRequestCompanyLogoUploadMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestCompanyLogoUpload>>, TError,RequestCompanyLogoUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestCompanyLogoUpload>>, TError,RequestCompanyLogoUploadMutationVariables, TContext> => {
+
+const mutationKey = getRequestCompanyLogoUploadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestCompanyLogoUpload>>, RequestCompanyLogoUploadMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  requestCompanyLogoUpload(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestCompanyLogoUploadMutationResult = NonNullable<Awaited<ReturnType<typeof requestCompanyLogoUpload>>>
+    export type RequestCompanyLogoUploadMutationBody = BodyType<CompanyLogoUploadInput>
+    export type RequestCompanyLogoUploadMutationError = ErrorType<void>
+    export type RequestCompanyLogoUploadMutationVariables = {data: BodyType<CompanyLogoUploadInput>}
+
+    /**
+ * @summary Request a private upload URL for the user's company logo
+ */
+export const useRequestCompanyLogoUpload = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestCompanyLogoUpload>>, TError,RequestCompanyLogoUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof requestCompanyLogoUpload>>,
+        TError,
+        RequestCompanyLogoUploadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRequestCompanyLogoUploadMutationOptions(options));
+    }
+
+export const getGetAccountCompanyLogoUrl = () => {
+
+
+
+
+  return `/api/account/company/logo`
+}
+
+/**
+ * @summary Serve this user's private company logo
+ */
+export const getAccountCompanyLogo = async ( options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetAccountCompanyLogoUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAccountCompanyLogoQueryKey = () => {
+    return [
+    `/api/account/company/logo`
+    ] as const;
+    }
+
+
+export const getGetAccountCompanyLogoQueryOptions = <TData = Awaited<ReturnType<typeof getAccountCompanyLogo>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAccountCompanyLogo>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAccountCompanyLogoQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAccountCompanyLogo>>> = ({ signal }) => getAccountCompanyLogo({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAccountCompanyLogo>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAccountCompanyLogoQueryResult = NonNullable<Awaited<ReturnType<typeof getAccountCompanyLogo>>>
+export type GetAccountCompanyLogoQueryError = ErrorType<void>
+
+
+/**
+ * @summary Serve this user's private company logo
+ */
+
+export function useGetAccountCompanyLogo<TData = Awaited<ReturnType<typeof getAccountCompanyLogo>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAccountCompanyLogo>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAccountCompanyLogoQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

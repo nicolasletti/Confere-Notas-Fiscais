@@ -338,6 +338,67 @@ paths:
       responses:
         "302":
           description: Redirect after logout
+  /account/company:
+    get:
+      operationId: getAccountCompany
+      tags: [account]
+      summary: Get the signed-in user's company profile
+      responses:
+        "200":
+          description: Company profile, or null when onboarding is incomplete
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CompanyProfileEnvelope" }
+        "401": { description: Authentication required }
+    put:
+      operationId: saveAccountCompany
+      tags: [account]
+      summary: Save the signed-in user's company profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CompanyProfileInput" }
+      responses:
+        "200":
+          description: Saved company profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CompanyProfileEnvelope" }
+        "400": { description: Invalid profile or logo upload }
+        "401": { description: Authentication required }
+  /account/company/logo-upload-url:
+    post:
+      operationId: requestCompanyLogoUpload
+      tags: [account]
+      summary: Request a private upload URL for the user's company logo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CompanyLogoUploadInput" }
+      responses:
+        "200":
+          description: Temporary URL and owner-bound upload identifier
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CompanyLogoUploadResponse" }
+        "400": { description: Unsupported image or invalid size }
+        "401": { description: Authentication required }
+  /account/company/logo:
+    get:
+      operationId: getAccountCompanyLogo
+      tags: [account]
+      summary: Serve this user's private company logo
+      responses:
+        "200":
+          description: Private image served only to its owner
+          content:
+            image/png: { schema: { type: string, format: binary } }
+            image/jpeg: { schema: { type: string, format: binary } }
+            image/webp: { schema: { type: string, format: binary } }
+        "404": { description: No logo saved }
+        "401": { description: Authentication required }
   /account/order:
     get:
       operationId: getAccountOrder
@@ -482,6 +543,60 @@ paths:
                 $ref: "#/components/schemas/LegacyImportResult"
 components:
   schemas:
+    CompanyProfile:
+      type: object
+      additionalProperties: false
+      required: [name, cnpj, businessType, city, state, whatsapp, taxRegime, accountantEmail, hasLogo, updatedAt]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 500 }
+        cnpj: { type: string, pattern: '^[A-Z0-9]{12}\d{2}$' }
+        businessType: { type: string, enum: [mercado, padaria, restaurante, bar, outro] }
+        city: { type: string, minLength: 1, maxLength: 120 }
+        state: { type: string, pattern: '^[A-Z]{2}$' }
+        whatsapp: { type: string, maxLength: 30 }
+        taxRegime: { type: string, enum: [simples_nacional, lucro_presumido, lucro_real, mei, nao_sei] }
+        accountantEmail: { type: string, maxLength: 320 }
+        hasLogo: { type: boolean }
+        updatedAt: { type: string }
+    CompanyProfileEnvelope:
+      type: object
+      additionalProperties: false
+      required: [profile]
+      properties:
+        profile:
+          oneOf:
+            - $ref: "#/components/schemas/CompanyProfile"
+            - type: "null"
+    CompanyProfileInput:
+      type: object
+      additionalProperties: false
+      required: [name, cnpj, businessType, city, state, whatsapp, taxRegime, accountantEmail]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 500 }
+        cnpj: { type: string, pattern: '^[A-Z0-9]{12}\d{2}$' }
+        businessType: { type: string, enum: [mercado, padaria, restaurante, bar, outro] }
+        city: { type: string, minLength: 1, maxLength: 120 }
+        state: { type: string, pattern: '^[A-Z]{2}$' }
+        whatsapp: { type: string, maxLength: 30 }
+        taxRegime: { type: string, enum: [simples_nacional, lucro_presumido, lucro_real, mei, nao_sei] }
+        accountantEmail: { type: string, maxLength: 320 }
+        logoUploadId: { type: ["string", "null"], format: uuid }
+        removeLogo: { type: boolean, default: false }
+    CompanyLogoUploadInput:
+      type: object
+      additionalProperties: false
+      required: [name, size, contentType]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        size: { type: integer, minimum: 1, maximum: 2097152 }
+        contentType: { type: string, enum: [image/png, image/jpeg, image/webp] }
+    CompanyLogoUploadResponse:
+      type: object
+      additionalProperties: false
+      required: [uploadId, uploadURL]
+      properties:
+        uploadId: { type: string, format: uuid }
+        uploadURL: { type: string, format: uri }
     SupplierContact:
       type: object
       required: [key, name, whatsapp]

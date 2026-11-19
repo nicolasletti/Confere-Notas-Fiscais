@@ -5,6 +5,133 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type CompanyProfileBusinessType = typeof CompanyProfileBusinessType[keyof typeof CompanyProfileBusinessType];
+
+
+export const CompanyProfileBusinessType = {
+  mercado: 'mercado',
+  padaria: 'padaria',
+  restaurante: 'restaurante',
+  bar: 'bar',
+  outro: 'outro',
+} as const;
+
+export type CompanyProfileTaxRegime = typeof CompanyProfileTaxRegime[keyof typeof CompanyProfileTaxRegime];
+
+
+export const CompanyProfileTaxRegime = {
+  simples_nacional: 'simples_nacional',
+  lucro_presumido: 'lucro_presumido',
+  lucro_real: 'lucro_real',
+  mei: 'mei',
+  nao_sei: 'nao_sei',
+} as const;
+
+export interface CompanyProfile {
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  name: string;
+  /** @pattern ^[A-Z0-9]{12}\d{2}$ */
+  cnpj: string;
+  businessType: CompanyProfileBusinessType;
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  city: string;
+  /** @pattern ^[A-Z]{2}$ */
+  state: string;
+  /** @maxLength 30 */
+  whatsapp: string;
+  taxRegime: CompanyProfileTaxRegime;
+  /** @maxLength 320 */
+  accountantEmail: string;
+  hasLogo: boolean;
+  updatedAt: string;
+}
+
+export interface CompanyProfileEnvelope {
+  profile: CompanyProfile | null;
+}
+
+export type CompanyProfileInputBusinessType = typeof CompanyProfileInputBusinessType[keyof typeof CompanyProfileInputBusinessType];
+
+
+export const CompanyProfileInputBusinessType = {
+  mercado: 'mercado',
+  padaria: 'padaria',
+  restaurante: 'restaurante',
+  bar: 'bar',
+  outro: 'outro',
+} as const;
+
+export type CompanyProfileInputTaxRegime = typeof CompanyProfileInputTaxRegime[keyof typeof CompanyProfileInputTaxRegime];
+
+
+export const CompanyProfileInputTaxRegime = {
+  simples_nacional: 'simples_nacional',
+  lucro_presumido: 'lucro_presumido',
+  lucro_real: 'lucro_real',
+  mei: 'mei',
+  nao_sei: 'nao_sei',
+} as const;
+
+export interface CompanyProfileInput {
+  /**
+     * @minLength 1
+     * @maxLength 500
+     */
+  name: string;
+  /** @pattern ^[A-Z0-9]{12}\d{2}$ */
+  cnpj: string;
+  businessType: CompanyProfileInputBusinessType;
+  /**
+     * @minLength 1
+     * @maxLength 120
+     */
+  city: string;
+  /** @pattern ^[A-Z]{2}$ */
+  state: string;
+  /** @maxLength 30 */
+  whatsapp: string;
+  taxRegime: CompanyProfileInputTaxRegime;
+  /** @maxLength 320 */
+  accountantEmail: string;
+  /** @nullable */
+  logoUploadId?: string | null;
+  removeLogo?: boolean;
+}
+
+export type CompanyLogoUploadInputContentType = typeof CompanyLogoUploadInputContentType[keyof typeof CompanyLogoUploadInputContentType];
+
+
+export const CompanyLogoUploadInputContentType = {
+  'image/png': 'image/png',
+  'image/jpeg': 'image/jpeg',
+  'image/webp': 'image/webp',
+} as const;
+
+export interface CompanyLogoUploadInput {
+  /**
+     * @minLength 1
+     * @maxLength 255
+     */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 2097152
+     */
+  size: number;
+  contentType: CompanyLogoUploadInputContentType;
+}
+
+export interface CompanyLogoUploadResponse {
+  uploadId: string;
+  uploadURL: string;
+}
+
 export interface SupplierContact {
   key: string;
   name: string;

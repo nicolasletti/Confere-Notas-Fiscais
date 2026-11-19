@@ -20,7 +20,7 @@ export default function Cadastro() {
     setError("");
     setIsRedirecting(true);
     try {
-      await signup("/painel");
+      await signup("/minha-empresa");
     } catch {
       setError("Não foi possível iniciar seu cadastro. Tente novamente.");
       setIsRedirecting(false);
