@@ -187,6 +187,32 @@ paths:
           description: Invalid month
         "401":
           description: Authentication required
+  /account/dashboard/monthly-package:
+    get:
+      operationId: getMonthlyPackage
+      tags: [account]
+      summary: Download private monthly ZIP with original invoice XMLs and CSV summary
+      parameters:
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, pattern: '^\d{4}-(0[1-9]|1[0-2])$' }
+      responses:
+        "200":
+          description: ZIP generated for the signed-in user's invoices in the requested month
+          content:
+            application/zip:
+              schema: { type: string, format: binary }
+        "400":
+          description: Invalid month
+        "401":
+          description: Authentication required
+        "404":
+          description: No invoices in the requested month
+        "413":
+          description: Package exceeds the explicit size or invoice limit
+        "500":
+          description: Package generation failed
   /healthz:
     get:
       operationId: healthCheck

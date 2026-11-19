@@ -33,7 +33,7 @@ function rounded(numerator: bigint, denominator: bigint): bigint {
   return (numerator * 2n + denominator) / (2n * denominator);
 }
 
-function cents(raw: string): bigint {
+export function amountToCents(raw: string): bigint {
   const parsed = decimal(raw);
   return rounded(parsed.value * 100n, parsed.scale);
 }
@@ -127,7 +127,7 @@ export function summarizeDateRange(
       supplier.name = row.issuer;
     }
     for (const product of row.invoice.items) {
-      const total = cents(product.total);
+      const total = amountToCents(product.total);
       purchased += total;
       supplier.purchased += total;
       const key = JSON.stringify([normalize(product.description), normalize(product.unit)]);

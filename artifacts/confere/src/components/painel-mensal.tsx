@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
 import {
+  getMonthlyPackage,
   getMonthlyReport,
   getGetMonthlyDashboardQueryKey,
   useGetAccountCompany,
@@ -11,7 +12,7 @@ import {
 } from "@workspace/api-client-react";
 import { companyTaxRegimeGuidance } from "@workspace/api-zod";
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { AlertTriangle, ArrowDownRight, ArrowUpRight, ChevronLeft, ChevronRight, Download, FileUp, Info, Loader2, Minus, RotateCcw } from "lucide-react";
+import { AlertTriangle, ArrowDownRight, ArrowUpRight, ChevronLeft, ChevronRight, Download, FileUp, Info, Loader2, Mail, Minus, PackageCheck, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import IbsCbsSeal from "@/components/ibs-cbs-seal";
 import { formatBRL, formatDecimal } from "@/lib/reconciliation";
@@ -124,13 +125,12 @@ function Notices({ data }: { data: MonthlyDashboard }) {
   );
 }
 
-function ReformTaxCard({ data }: { data: MonthlyDashboard }) {
-  const companyQuery = useGetAccountCompany();
+function ReformTaxCard({ data, taxRegime }: { data: MonthlyDashboard; taxRegime?: string }) {
   const reform = data.reform;
   const percentage = reform.completePercentage === null
     ? null
     : new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(reform.completePercentage);
-  const guidance = companyTaxRegimeGuidance(companyQuery.data?.profile?.taxRegime);
+  const guidance = companyTaxRegimeGuidance(taxRegime);
 
   return (
     <section
@@ -345,15 +345,28 @@ function Skeleton() {
 export default function PainelMensal() {
   const maxMonth = useMemo(currentMonthSaoPaulo, []);
   const [month, setMonth] = useState(maxMonth);
+  const companyQuery = useGetAccountCompany();
   const params = { month };
   const query = useGetMonthlyDashboard(params, {
     query: { queryKey: getGetMonthlyDashboardQueryKey(params), staleTime: 300000, refetchOnMount: "always", refetchOnWindowFocus: false },
   });
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [preparingPackage, setPreparingPackage] = useState(false);
+  const [packageError, setPackageError] = useState<string | null>(null);
+  const [monthlyPackage, setMonthlyPackage] = useState<{ month: string; blob: Blob } | null>(null);
+  const [downloadedPackageMonth, setDownloadedPackageMonth] = useState<string | null>(null);
+  const packageRequestId = useRef(0);
 
   useEffect(() => { document.title = `Painel de compras · ${monthLabel(month)} · coNFere`; }, [month]);
-  useEffect(() => setDownloadError(null), [month]);
+  useEffect(() => {
+    setDownloadError(null);
+    setPackageError(null);
+    setPreparingPackage(false);
+    setMonthlyPackage(null);
+    setDownloadedPackageMonth(null);
+    packageRequestId.current += 1;
+  }, [month]);
 
   const data = query.data;
   const isEmpty = data && data.current.invoiceCount === 0 && data.suppliers.length === 0;
@@ -376,6 +389,70 @@ export default function PainelMensal() {
     } finally {
       setDownloading(false);
     }
+  }
+
+  async function prepareMonthlyPackage() {
+    const requestedMonth = month;
+    const requestId = ++packageRequestId.current;
+    setPreparingPackage(true);
+    setPackageError(null);
+    setMonthlyPackage(null);
+    setDownloadedPackageMonth(null);
+    try {
+      const blob = await getMonthlyPackage({ month: requestedMonth });
+      if (packageRequestId.current === requestId) {
+        setMonthlyPackage({ month: requestedMonth, blob });
+      }
+    } catch (error) {
+      if (packageRequestId.current !== requestId) return;
+      const status = typeof error === "object" && error !== null && "status" in error
+        ? Number((error as { status?: unknown }).status) : 0;
+      const data = typeof error === "object" && error !== null && "data" in error
+        ? (error as { data?: unknown }).data : null;
+      const serverMessage = typeof data === "object" && data !== null && "error" in data
+        && typeof (data as { error?: unknown }).error === "string"
+        ? (data as { error: string }).error : null;
+      if (status === 401) setPackageError("Sua sessão expirou. Entre novamente para preparar o pacote.");
+      else if (status === 404) setPackageError("Não há notas fiscais neste mês para montar o pacote.");
+      else if (status === 413) setPackageError(serverMessage ?? "O pacote deste mês ultrapassa o limite de tamanho.");
+      else setPackageError("Não foi possível montar o pacote deste mês. Tente novamente.");
+    } finally {
+      if (packageRequestId.current === requestId) setPreparingPackage(false);
+    }
+  }
+
+  const currentPackage = monthlyPackage?.month === month ? monthlyPackage : null;
+  const accountantEmail = companyQuery.data?.profile?.accountantEmail.trim() ?? "";
+  const validAccountantEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountantEmail);
+
+  function downloadPackage() {
+    if (!currentPackage) return;
+    const url = URL.createObjectURL(currentPackage.blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `confere-pacote-${month}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+    setDownloadedPackageMonth(month);
+  }
+
+  function openAccountantEmail() {
+    if (!currentPackage || downloadedPackageMonth !== month || !validAccountantEmail) return;
+    const subject = `Documentos de compras — ${monthLabel(month)}`;
+    const body = [
+      `Olá,`,
+      ``,
+      `Estou enviando o pacote mensal de ${monthLabel(month)}, com os XMLs originais das notas e o resumo em CSV.`,
+      `Por favor, confira os documentos e considere os valores de IBS/CBS informados nos XMLs.`,
+      ``,
+      `Lembre-se de anexar manualmente o arquivo confere-pacote-${month}.zip antes de enviar este e-mail.`,
+      ``,
+      `Obrigado!`,
+    ].join("\n");
+    const recipient = encodeURIComponent(accountantEmail).replace(/%40/gi, "@");
+    window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
   return (
@@ -401,9 +478,56 @@ export default function PainelMensal() {
             {downloading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
             {downloading ? "Gerando..." : "Baixar relatório do mês"}
           </Button>
+          <Button
+            variant="outline"
+            onClick={prepareMonthlyPackage}
+            disabled={preparingPackage || !data || query.isFetching || query.isError || data.current.invoiceCount === 0}
+            data-testid="button-prepare-accountant-package"
+          >
+            {preparingPackage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PackageCheck className="mr-2 h-4 w-4" />}
+            {preparingPackage ? "Montando pacote..." : "Enviar mês para o contador"}
+          </Button>
         </div>
       </header>
       {downloadError && <p role="alert" data-testid="text-download-error" className="mt-3 text-right text-sm font-medium text-destructive">{downloadError}</p>}
+      {data?.current.invoiceCount === 0 && !query.isLoading && (
+        <p className="mt-3 text-right text-sm text-muted-foreground" data-testid="text-accountant-package-empty">
+          Este mês não tem notas para montar um pacote.
+        </p>
+      )}
+      {packageError && <p role="alert" data-testid="text-accountant-package-error" className="mt-3 rounded-lg border border-destructive/25 bg-destructive/[0.04] px-3 py-2 text-sm text-destructive">{packageError}</p>}
+      {currentPackage && (
+        <section className="mt-3 rounded-xl border border-primary/20 bg-primary/[0.035] p-4 sm:flex sm:items-center sm:justify-between sm:gap-5" data-testid="card-accountant-package" aria-labelledby="accountant-package-title">
+          <div className="mb-3 sm:mb-0">
+            <h2 id="accountant-package-title" className="font-semibold" role="status">Pacote de {monthLabel(month)} pronto.</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Baixe o ZIP e anexe-o manualmente no aplicativo de e-mail. O coNFere não envia nem anexa arquivos.
+            </p>
+            {validAccountantEmail ? (
+              downloadedPackageMonth !== month && <p className="mt-1 text-xs text-muted-foreground">Baixe o ZIP antes de abrir a mensagem de e-mail.</p>
+            ) : (
+              <p className="mt-1 text-xs text-muted-foreground" data-testid="text-accountant-email-missing">
+                Cadastre um e-mail válido para o contador em <Link href="/minha-empresa" className="font-semibold text-primary underline underline-offset-2">Minha empresa</Link>. O download continua disponível.
+              </p>
+            )}
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Button onClick={downloadPackage} data-testid="button-download-accountant-zip">
+              <Download className="mr-2 h-4 w-4" />Baixar ZIP
+            </Button>
+            {validAccountantEmail && (
+              <Button
+                variant="outline"
+                onClick={openAccountantEmail}
+                disabled={downloadedPackageMonth !== month}
+                data-testid="button-open-accountant-email"
+              >
+                <Mail className="mr-2 h-4 w-4" />Abrir e-mail
+              </Button>
+            )}
+          </div>
+        </section>
+      )}
 
       <div className="mt-6 space-y-4">
         {query.isLoading ? <Skeleton /> : query.isError || !data ? (
@@ -416,7 +540,7 @@ export default function PainelMensal() {
           <div className={`space-y-4 transition-opacity ${query.isFetching ? "opacity-60" : ""}`} aria-busy={query.isFetching}>
             <Metrics data={data} />
             <Notices data={data} />
-            <ReformTaxCard data={data} />
+            <ReformTaxCard data={data} taxRegime={companyQuery.data?.profile?.taxRegime} />
             {isEmpty ? (
           <div className="paper-lines rounded-xl border bg-card px-6 py-14 text-center" data-testid="status-empty">
             <FileUp className="mx-auto h-9 w-9 text-primary" aria-hidden />

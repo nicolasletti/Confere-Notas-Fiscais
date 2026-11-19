@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { companyTaxRegimeGuidance } from "@workspace/api-zod";
-import { monthlyReformTaxSummary, type ReformTaxInvoice } from "./monthly-reform-tax";
+import { extractInvoiceReformTax, monthlyReformTaxSummary, type ReformTaxInvoice } from "./monthly-reform-tax";
 
 type TaxItem = { ibs?: string; cbs?: string; cst?: string; taxClass?: string };
 type TaxTotals = { ibs?: string; cbs?: string };
@@ -70,13 +70,40 @@ test("falls back to precise item amounts with prefixed namespaces and deduplicat
 });
 
 test("treats explicit zero totals as present and does not replace them with item sums", () => {
+  const extraction = extractInvoiceReformTax(
+    nfeXml([{ ibs: "3.00", cbs: "4.00" }], { ibs: "0.00", cbs: "0.00" }),
+  );
   const summary = monthlyReformTaxSummary("2026-11", [
     invoice("Fornecedor A", nfeXml([{ ibs: "3.00", cbs: "4.00" }], { ibs: "0.00", cbs: "0.00" })),
   ]);
 
+  assert.equal(extraction.ibsAmountPresent, true);
+  assert.equal(extraction.cbsAmountPresent, true);
   assert.equal(summary.ibsCents, "0");
   assert.equal(summary.cbsCents, "0");
   assert.equal(summary.totalCents, "0");
+});
+
+test("valid note totals remain usable without parsing item values that are not selected", () => {
+  const summary = monthlyReformTaxSummary("2026-11", [
+    invoice("Fornecedor A", nfeXml([{ ibs: "0.005", cbs: "0.005" }], { ibs: "0.10", cbs: "0.20" })),
+  ]);
+  assert.equal(summary.ibsCents, "10");
+  assert.equal(summary.cbsCents, "20");
+  assert.equal(summary.unreadableInvoiceCount, 0);
+});
+
+test("distinguishes readable XML without tax amounts from explicit zero amounts", () => {
+  const noHighlight = extractInvoiceReformTax(nfeXml([{}]));
+  const explicitZeros = extractInvoiceReformTax(
+    nfeXml([{ ibs: "0.00", cbs: "0.00" }]),
+  );
+  assert.equal(noHighlight.ibsAmountPresent, false);
+  assert.equal(noHighlight.cbsAmountPresent, false);
+  assert.equal(explicitZeros.ibsAmountPresent, true);
+  assert.equal(explicitZeros.cbsAmountPresent, true);
+  assert.equal(explicitZeros.ibsCents, "0");
+  assert.equal(explicitZeros.cbsCents, "0");
 });
 
 test("missing fields and unreadable XML are incomplete; other months are excluded", () => {

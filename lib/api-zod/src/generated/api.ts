@@ -377,6 +377,19 @@ export const GetMonthlyReportResponse = zod.object({
 
 
 /**
+ * @summary Download private monthly ZIP with original invoice XMLs and CSV summary
+ */
+export const getMonthlyPackageQueryMonthRegExp = new RegExp('^\\d{4}-(0[1-9]|1[0-2])$');
+
+
+export const GetMonthlyPackageQueryParams = zod.object({
+  "month": zod.coerce.string().regex(getMonthlyPackageQueryMonthRegExp)
+})
+
+export const GetMonthlyPackageResponse = zod.unknown()
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

@@ -51,27 +51,31 @@ function amountToCents(value: unknown): bigint {
   return BigInt(whole) * 100n + BigInt(fraction.padEnd(2, "0"));
 }
 
-function firstAmount(root: unknown, paths: XmlPath[]): bigint | undefined {
+function firstAmount(root: unknown, paths: XmlPath[]): { present: boolean; value?: bigint } {
   for (const path of paths) {
     const result = readPath(root, path);
-    if (result.present) return amountToCents(result.value);
+    if (result.present) return { present: true, value: amountToCents(result.value) };
   }
-  return undefined;
+  return { present: false };
 }
 
 function addItemAmounts(
   details: unknown[],
   paths: XmlPath[],
-): bigint {
+): { present: boolean; value: bigint } {
   let sum = 0n;
+  let present = false;
   for (const detailValue of details) {
     const taxes = node(node(detailValue)?.imposto);
     for (const groupValue of list(taxes?.IBSCBS)) {
       const amount = firstAmount(groupValue, paths);
-      if (amount !== undefined) sum += amount;
+      if (amount.present) {
+        present = true;
+        sum += amount.value!;
+      }
     }
   }
-  return sum;
+  return { present, value: sum };
 }
 
 function hasCompleteItemTaxFields(details: unknown[]): boolean {
@@ -84,7 +88,15 @@ function hasCompleteItemTaxFields(details: unknown[]): boolean {
   });
 }
 
-function parseInvoice(xml: string): { ibsCents: bigint; cbsCents: bigint; complete: boolean } {
+interface ParsedReformTax {
+  ibsCents: bigint;
+  cbsCents: bigint;
+  ibsAmountPresent: boolean;
+  cbsAmountPresent: boolean;
+  complete: boolean;
+}
+
+function parseInvoice(xml: string): ParsedReformTax {
   if (!xml.trim() || Buffer.byteLength(xml, "utf8") > MAX_XML_BYTES || /<!DOCTYPE|<!ENTITY/i.test(xml)) {
     throw new Error("Unreadable NF-e XML.");
   }
@@ -100,17 +112,40 @@ function parseInvoice(xml: string): { ibsCents: bigint; cbsCents: bigint; comple
   const totals = node(info.total)?.IBSCBSTot;
   const totalIbs = firstAmount(totals, [["gIBS", "vIBS"], ["vIBS"]]);
   const totalCbs = firstAmount(totals, [["gCBS", "vCBS"], ["vCBS"]]);
-  const ibsCents = totalIbs ?? addItemAmounts(details, [["gIBSCBS", "vIBS"], ["vIBS"]]);
-  const cbsCents = totalCbs ?? addItemAmounts(details, [
+  const itemIbs = totalIbs.present ? null : addItemAmounts(details, [["gIBSCBS", "vIBS"], ["vIBS"]]);
+  const itemCbs = totalCbs.present ? null : addItemAmounts(details, [
     ["gIBSCBS", "gCBS", "vCBS"],
     ["gCBS", "vCBS"],
     ["vCBS"],
   ]);
+  const ibsCents = totalIbs.present ? totalIbs.value! : itemIbs!.value;
+  const cbsCents = totalCbs.present ? totalCbs.value! : itemCbs!.value;
 
   return {
     ibsCents,
     cbsCents,
+    ibsAmountPresent: totalIbs.present || itemIbs!.present,
+    cbsAmountPresent: totalCbs.present || itemCbs!.present,
     complete: hasCompleteItemTaxFields(details),
+  };
+}
+
+export interface InvoiceReformTaxExtraction {
+  ibsCents: string;
+  cbsCents: string;
+  ibsAmountPresent: boolean;
+  cbsAmountPresent: boolean;
+  complete: boolean;
+}
+
+export function extractInvoiceReformTax(xml: string): InvoiceReformTaxExtraction {
+  const parsed = parseInvoice(xml);
+  return {
+    ibsCents: parsed.ibsCents.toString(),
+    cbsCents: parsed.cbsCents.toString(),
+    ibsAmountPresent: parsed.ibsAmountPresent,
+    cbsAmountPresent: parsed.cbsAmountPresent,
+    complete: parsed.complete,
   };
 }
 
@@ -131,11 +166,11 @@ export function monthlyReformTaxSummary(
   const incompleteSuppliers = new Map<string, string>();
 
   for (const invoice of periodInvoices) {
-    let parsed: ReturnType<typeof parseInvoice> | undefined;
+    let parsed: InvoiceReformTaxExtraction | undefined;
     try {
-      parsed = parseInvoice(invoice.originalXml);
-      ibsCents += parsed.ibsCents;
-      cbsCents += parsed.cbsCents;
+      parsed = extractInvoiceReformTax(invoice.originalXml);
+      ibsCents += BigInt(parsed.ibsCents);
+      cbsCents += BigInt(parsed.cbsCents);
     } catch {
       unreadableInvoiceCount++;
     }

@@ -35,6 +35,7 @@ export * from './generatedOrder';
 export * from './generatedOrderKind';
 export * from './generatedOrderList';
 export * from './getMonthlyDashboardParams';
+export * from './getMonthlyPackageParams';
 export * from './getMonthlyReportParams';
 export * from './getWeeklyDashboardParams';
 export * from './getWeeklyReportParams';

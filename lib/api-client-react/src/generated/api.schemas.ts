@@ -715,6 +715,13 @@ export type GetMonthlyReportParams = {
 month: string;
 };
 
+export type GetMonthlyPackageParams = {
+/**
+ * @pattern ^\d{4}-(0[1-9]|1[0-2])$
+ */
+month: string;
+};
+
 export type BeginBrowserLoginParams = {
 returnTo?: string;
 };

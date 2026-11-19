@@ -35,6 +35,7 @@ import type {
   ExtractedOrderItems,
   GeneratedOrderList,
   GetMonthlyDashboardParams,
+  GetMonthlyPackageParams,
   GetMonthlyReportParams,
   GetWeeklyDashboardParams,
   GetWeeklyReportParams,
@@ -880,6 +881,90 @@ export function useGetMonthlyReport<TData = Awaited<ReturnType<typeof getMonthly
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetMonthlyReportQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetMonthlyPackageUrl = (params: GetMonthlyPackageParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/account/dashboard/monthly-package?${stringifiedParams}` : `/api/account/dashboard/monthly-package`
+}
+
+/**
+ * @summary Download private monthly ZIP with original invoice XMLs and CSV summary
+ */
+export const getMonthlyPackage = async (params: GetMonthlyPackageParams, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetMonthlyPackageUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMonthlyPackageQueryKey = (params?: GetMonthlyPackageParams,) => {
+    return [
+    `/api/account/dashboard/monthly-package`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetMonthlyPackageQueryOptions = <TData = Awaited<ReturnType<typeof getMonthlyPackage>>, TError = ErrorType<void>>(params: GetMonthlyPackageParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMonthlyPackage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMonthlyPackageQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMonthlyPackage>>> = ({ signal }) => getMonthlyPackage(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMonthlyPackage>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMonthlyPackageQueryResult = NonNullable<Awaited<ReturnType<typeof getMonthlyPackage>>>
+export type GetMonthlyPackageQueryError = ErrorType<void>
+
+
+/**
+ * @summary Download private monthly ZIP with original invoice XMLs and CSV summary
+ */
+
+export function useGetMonthlyPackage<TData = Awaited<ReturnType<typeof getMonthlyPackage>>, TError = ErrorType<void>>(
+ params: GetMonthlyPackageParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMonthlyPackage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMonthlyPackageQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
