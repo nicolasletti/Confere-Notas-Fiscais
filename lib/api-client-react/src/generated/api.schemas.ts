@@ -307,6 +307,28 @@ export interface WeeklyDashboard {
   excludedLegacyConferenceCount: number;
 }
 
+export interface ReformTaxSummary {
+  /** @pattern ^\d+$ */
+  ibsCents: string;
+  /** @pattern ^\d+$ */
+  cbsCents: string;
+  /** @pattern ^\d+$ */
+  totalCents: string;
+  /** @minimum 0 */
+  invoiceCount: number;
+  /** @minimum 0 */
+  completeInvoiceCount: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     * @nullable
+     */
+  completePercentage: number | null;
+  suppliersMissingFields: string[];
+  /** @minimum 0 */
+  unreadableInvoiceCount: number;
+}
+
 export interface MonthlyDashboard {
   month: string;
   previousMonth: string;
@@ -316,6 +338,7 @@ export interface MonthlyDashboard {
   items: MonthlyItem[];
   unverifiedInvoiceCount: number;
   excludedLegacyConferenceCount: number;
+  reform: ReformTaxSummary;
 }
 
 export interface MonthlyReport {

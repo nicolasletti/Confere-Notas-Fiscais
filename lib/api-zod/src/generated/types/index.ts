@@ -62,6 +62,7 @@ export * from './orderMatchSuggestion';
 export * from './orderMatchSuggestionsInput';
 export * from './orderMatchSuggestionsResult';
 export * from './orderSnapshot';
+export * from './reformTaxSummary';
 export * from './replenishmentItem';
 export * from './replenishmentItemIdentification';
 export * from './replenishmentItemStatus';

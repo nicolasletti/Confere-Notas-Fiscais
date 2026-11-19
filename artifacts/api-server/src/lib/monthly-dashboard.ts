@@ -184,7 +184,7 @@ export function summarizeDateRange(
 
 export function monthlyDashboard(
   month: string, invoices: DashboardInvoice[], conferences: DashboardConference[],
-): MonthlyDashboard {
+): Omit<MonthlyDashboard, "reform"> {
   if (!validMonth(month)) throw new Error("Mês inválido.");
   const previous = previousMonth(month);
   const [year, number] = month.split("-").map(Number);
@@ -219,7 +219,7 @@ interface ReportPeriod {
   sealLabel: string;
 }
 
-export function monthlyCsv(data: MonthlyDashboard, period?: ReportPeriod): string {
+export function monthlyCsv(data: Omit<MonthlyDashboard, "reform">, period?: ReportPeriod): string {
   const rows: (string | number)[][] = [
     [period?.title ?? "coNFere — Relatório do mês", period?.label ?? data.month],
     ["Critério", period?.criterion ?? "Mês de emissão da nota; compras = soma dos valores dos produtos (vProd), sem frete e outros acréscimos."],

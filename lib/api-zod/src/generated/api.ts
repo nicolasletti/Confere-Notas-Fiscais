@@ -301,6 +301,18 @@ export const getMonthlyDashboardResponsePreviousInvoiceCountMin = 0;
 export const getMonthlyDashboardResponsePreviousExtraChargeCentsRegExp = new RegExp('^\\d+$');
 export const getMonthlyDashboardResponsePreviousDivergentInvoiceCountMin = 0;
 
+export const getMonthlyDashboardResponseReformIbsCentsRegExp = new RegExp('^\\d+$');
+export const getMonthlyDashboardResponseReformCbsCentsRegExp = new RegExp('^\\d+$');
+export const getMonthlyDashboardResponseReformTotalCentsRegExp = new RegExp('^\\d+$');
+export const getMonthlyDashboardResponseReformInvoiceCountMin = 0;
+
+export const getMonthlyDashboardResponseReformCompleteInvoiceCountMin = 0;
+
+export const getMonthlyDashboardResponseReformCompletePercentageMin = 0;
+export const getMonthlyDashboardResponseReformCompletePercentageMax = 100;
+
+export const getMonthlyDashboardResponseReformUnreadableInvoiceCountMin = 0;
+
 
 
 export const GetMonthlyDashboardResponse = zod.object({
@@ -334,7 +346,17 @@ export const GetMonthlyDashboardResponse = zod.object({
   "averagePriceCents": zod.string().nullable()
 })),
   "unverifiedInvoiceCount": zod.number().int(),
-  "excludedLegacyConferenceCount": zod.number().int()
+  "excludedLegacyConferenceCount": zod.number().int(),
+  "reform": zod.object({
+  "ibsCents": zod.string().regex(getMonthlyDashboardResponseReformIbsCentsRegExp),
+  "cbsCents": zod.string().regex(getMonthlyDashboardResponseReformCbsCentsRegExp),
+  "totalCents": zod.string().regex(getMonthlyDashboardResponseReformTotalCentsRegExp),
+  "invoiceCount": zod.number().int().min(getMonthlyDashboardResponseReformInvoiceCountMin),
+  "completeInvoiceCount": zod.number().int().min(getMonthlyDashboardResponseReformCompleteInvoiceCountMin),
+  "completePercentage": zod.number().min(getMonthlyDashboardResponseReformCompletePercentageMin).max(getMonthlyDashboardResponseReformCompletePercentageMax).nullable(),
+  "suppliersMissingFields": zod.array(zod.string()),
+  "unreadableInvoiceCount": zod.number().int().min(getMonthlyDashboardResponseReformUnreadableInvoiceCountMin)
+})
 })
 
 

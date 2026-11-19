@@ -3,11 +3,13 @@ import { Link } from "wouter";
 import {
   getMonthlyReport,
   getGetMonthlyDashboardQueryKey,
+  useGetAccountCompany,
   useGetMonthlyDashboard,
   type MonthlyDashboard,
   type MonthlyMetrics,
   type MonthlySupplier,
 } from "@workspace/api-client-react";
+import { companyTaxRegimeGuidance } from "@workspace/api-zod";
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, ChevronLeft, ChevronRight, Download, FileUp, Info, Loader2, Minus, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -119,6 +121,92 @@ function Notices({ data }: { data: MonthlyDashboard }) {
         </div>
       )}
     </div>
+  );
+}
+
+function ReformTaxCard({ data }: { data: MonthlyDashboard }) {
+  const companyQuery = useGetAccountCompany();
+  const reform = data.reform;
+  const percentage = reform.completePercentage === null
+    ? null
+    : new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(reform.completePercentage);
+  const guidance = companyTaxRegimeGuidance(companyQuery.data?.profile?.taxRegime);
+
+  return (
+    <section
+      className="rounded-xl border border-primary/15 bg-primary/[0.035] p-4 sm:p-5"
+      aria-labelledby="reform-tax-title"
+      data-testid="card-reform-tax"
+    >
+      <div className="flex items-start gap-3">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+          <Info className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 id="reform-tax-title" className="font-display text-lg font-bold">Reforma tributária</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            IBS/CBS destacado nas suas compras:{" "}
+            <strong className="font-mono text-base text-foreground" data-testid="text-reform-tax-total">
+              {brl(reform.totalCents)}
+            </strong>
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            IBS {brl(reform.ibsCents)} <span aria-hidden="true">·</span> CBS {brl(reform.cbsCents)}
+          </p>
+        </div>
+      </div>
+
+      {reform.invoiceCount === 0 ? (
+        <p className="mt-4 rounded-lg border bg-card/70 px-3 py-2.5 text-sm text-muted-foreground" data-testid="text-reform-tax-empty">
+          Nenhuma nota fiscal neste mês para resumir.
+        </p>
+      ) : (
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="rounded-lg border bg-card/75 p-3.5">
+            <p className="text-sm font-semibold">Campos IBS/CBS nas notas</p>
+            <p className="mt-1 text-sm text-muted-foreground" data-testid="text-reform-tax-completion">
+              {percentage === null
+                ? `Percentual indisponível (${reform.completeInvoiceCount} de ${reform.invoiceCount} notas)`
+                : `${percentage}% completas (${reform.completeInvoiceCount} de ${reform.invoiceCount} notas)`}
+            </p>
+            {reform.suppliersMissingFields.length === 0 ? (
+              <p className="mt-2 text-sm text-emerald-800" data-testid="text-reform-tax-suppliers-ok">
+                Nenhum fornecedor com campos ausentes neste mês.
+              </p>
+            ) : (
+              <div className="mt-2" data-testid="text-reform-tax-suppliers-missing">
+                <p className="text-sm font-medium text-amber-900">Fornecedores com notas sem os campos:</p>
+                <ul className="mt-1 list-inside list-disc space-y-0.5 text-sm text-amber-950">
+                  {reform.suppliersMissingFields.map((supplier) => <li key={supplier}>{supplier}</li>)}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-lg border bg-card/75 p-3.5">
+            <p className="text-sm font-semibold">Sobre o seu regime tributário</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground" data-testid="text-reform-tax-guidance">
+              {guidance}
+            </p>
+            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+              Este resumo apenas verifica os campos e soma os valores declarados nos XMLs. Não calcula impostos nem créditos.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {reform.unreadableInvoiceCount > 0 && (
+        <p
+          className="mt-3 flex gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm text-amber-950"
+          role="note"
+          data-testid="text-reform-tax-unreadable"
+        >
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          Não foi possível ler os campos de {reform.unreadableInvoiceCount} XML{reform.unreadableInvoiceCount === 1 ? "" : "s"}.
+          Essas notas foram consideradas incompletas, não prontas para a reforma.
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -328,6 +416,7 @@ export default function PainelMensal() {
           <div className={`space-y-4 transition-opacity ${query.isFetching ? "opacity-60" : ""}`} aria-busy={query.isFetching}>
             <Metrics data={data} />
             <Notices data={data} />
+            <ReformTaxCard data={data} />
             {isEmpty ? (
           <div className="paper-lines rounded-xl border bg-card px-6 py-14 text-center" data-testid="status-empty">
             <FileUp className="mx-auto h-9 w-9 text-primary" aria-hidden />

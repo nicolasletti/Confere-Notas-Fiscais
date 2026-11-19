@@ -740,7 +740,7 @@ components:
         averagePriceCents: { type: ["string", "null"] }
     MonthlyDashboard:
       type: object
-      required: [month, previousMonth, current, previous, suppliers, items, unverifiedInvoiceCount, excludedLegacyConferenceCount]
+      required: [month, previousMonth, current, previous, suppliers, items, unverifiedInvoiceCount, excludedLegacyConferenceCount, reform]
       properties:
         month: { type: string }
         previousMonth: { type: string }
@@ -754,6 +754,21 @@ components:
           items: { $ref: "#/components/schemas/MonthlyItem" }
         unverifiedInvoiceCount: { type: integer }
         excludedLegacyConferenceCount: { type: integer }
+        reform: { $ref: "#/components/schemas/ReformTaxSummary" }
+    ReformTaxSummary:
+      type: object
+      required: [ibsCents, cbsCents, totalCents, invoiceCount, completeInvoiceCount, completePercentage, suppliersMissingFields, unreadableInvoiceCount]
+      properties:
+        ibsCents: { type: string, pattern: '^\d+$' }
+        cbsCents: { type: string, pattern: '^\d+$' }
+        totalCents: { type: string, pattern: '^\d+$' }
+        invoiceCount: { type: integer, minimum: 0 }
+        completeInvoiceCount: { type: integer, minimum: 0 }
+        completePercentage: { type: ["number", "null"], minimum: 0, maximum: 100 }
+        suppliersMissingFields:
+          type: array
+          items: { type: string }
+        unreadableInvoiceCount: { type: integer, minimum: 0 }
     MonthlyReport:
       type: object
       required: [filename, content]

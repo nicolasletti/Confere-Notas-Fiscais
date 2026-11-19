@@ -8,6 +8,7 @@
 import type { MonthlyItem } from './monthlyItem';
 import type { MonthlyMetrics } from './monthlyMetrics';
 import type { MonthlySupplier } from './monthlySupplier';
+import type { ReformTaxSummary } from './reformTaxSummary';
 
 export interface MonthlyDashboard {
   month: string;
@@ -18,4 +19,5 @@ export interface MonthlyDashboard {
   items: MonthlyItem[];
   unverifiedInvoiceCount: number;
   excludedLegacyConferenceCount: number;
+  reform: ReformTaxSummary;
 }

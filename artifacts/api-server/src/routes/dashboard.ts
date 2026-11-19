@@ -6,6 +6,7 @@ import {
   GetMonthlyReportResponse,
 } from "@workspace/api-zod";
 import { monthlyDashboard, monthlyCsv, previousMonth, validMonth } from "../lib/monthly-dashboard";
+import { monthlyReformTaxSummary, type ReformTaxInvoice } from "../lib/monthly-reform-tax";
 
 const router: IRouter = Router();
 
@@ -20,11 +21,23 @@ router.get(["/account/dashboard", "/account/dashboard/report"], async (req, res)
     return;
   }
   const month = parsed.data.month;
+  const isReport = req.path.endsWith("/report");
   const from = `${previousMonth(month)}-01`;
   const [year, number] = month.split("-").map(Number);
   const until = `${number === 12 ? year + 1 : year}-${String(number === 12 ? 1 : number + 1).padStart(2, "0")}-01`;
   // A bounded two-month query, no XML bytes or other users' data loaded.
-  const [invoices, conferences] = await Promise.all([
+  const reformInvoicesQuery = isReport
+    ? Promise.resolve([] as ReformTaxInvoice[])
+    : db.select({
+        issuer: accountInvoicesTable.issuer,
+        issuedAt: accountInvoicesTable.issuedAt,
+        originalXml: accountInvoicesTable.originalXml,
+      }).from(accountInvoicesTable).where(and(
+        eq(accountInvoicesTable.userId, req.user.id),
+        gte(accountInvoicesTable.issuedAt, `${month}-01`),
+        lt(accountInvoicesTable.issuedAt, until),
+      ));
+  const [invoices, conferences, reformInvoices] = await Promise.all([
     db.select({
       id: accountInvoicesTable.id, identity: accountInvoicesTable.identity,
       issuer: accountInvoicesTable.issuer, issuedAt: accountInvoicesTable.issuedAt,
@@ -42,15 +55,20 @@ router.get(["/account/dashboard", "/account/dashboard/report"], async (req, res)
       eq(accountConferencesTable.userId, req.user.id),
       gte(accountConferencesTable.issuedAt, from), lt(accountConferencesTable.issuedAt, until),
     )),
+    reformInvoicesQuery,
   ]);
-  const data = GetMonthlyDashboardResponse.parse(monthlyDashboard(month, invoices, conferences));
-  if (req.path.endsWith("/report")) {
+  const dashboard = monthlyDashboard(month, invoices, conferences);
+  if (isReport) {
     res.json(GetMonthlyReportResponse.parse({
-      filename: `confere-relatorio-${month}.csv`, content: monthlyCsv(data),
+      filename: `confere-relatorio-${month}.csv`, content: monthlyCsv(dashboard),
     }));
-  } else {
-    res.json(data);
+    return;
   }
+  const data = GetMonthlyDashboardResponse.parse({
+    ...dashboard,
+    reform: monthlyReformTaxSummary(month, reformInvoices),
+  });
+  res.json(data);
 });
 
 export default router;
