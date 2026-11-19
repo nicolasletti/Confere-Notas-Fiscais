@@ -3,3 +3,4 @@
 - [Critérios de reposição](reposicao.md) — previsão sem IA, identidade por cProd/CNPJ e limites das estimativas baseadas em compras.
 - [Pedidos de reposição](pedidos-reposicao.md) — preços históricos são referência; pedidos por fornecedor preservam o pedido ativo.
 - [Cache entre contas](cache-entre-contas.md) — preparar o cache antes de montar consultas privadas evita cancelamentos e dados de outra sessão.
+- [CNPJ alfanumérico](cnpj-alfanumerico.md) — preserve o formato atual e legado com o algoritmo oficial dos dígitos verificadores.

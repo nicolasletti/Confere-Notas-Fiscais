@@ -23,8 +23,7 @@ export default function AppHeader() {
   return (
     <header className="sticky top-0 z-20 border-b border-border/80 bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-5 sm:py-4">
-        <Link href="/painel" aria-label="coNFere — painel" className="group flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" data-testid="link-home">
-          <span className="grid h-9 w-9 place-items-center rounded-xl border border-primary/15 bg-primary/10 font-display text-lg font-bold text-primary transition-transform group-hover:-rotate-3" aria-hidden="true">c</span>
+        <Link href="/painel" aria-label="coNFere — painel" className="flex shrink-0 items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" data-testid="link-home">
           <span className="font-display text-[1.35rem] font-bold tracking-[-0.055em] text-foreground">
             co<span className="text-primary">NF</span>ere
           </span>
