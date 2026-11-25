@@ -1,5 +1,8 @@
 <div align="center">
-  <img src="docs/assets/confere-logo.jpg" alt="CoNFere" width="480" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/confere-logo-dark.png" />
+    <img src="docs/assets/confere-logo.png" alt="CoNFere" width="420" />
+  </picture>
 
   <p><strong>Conferência de notas fiscais para pequenos comerciantes.</strong><br />
   Compare pedido, nota fiscal e mercadoria recebida e veja quanto foi cobrado a mais.</p>
