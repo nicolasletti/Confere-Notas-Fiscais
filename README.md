@@ -20,8 +20,6 @@
   </p>
 </div>
 
----
-
 ## Sumário
 
 - [Sobre o projeto](#sobre-o-projeto)
@@ -153,10 +151,6 @@ pnpm --filter @workspace/api-spec run codegen   # regenera hooks e schemas a par
 ├── docs/assets/              # Imagens usadas na documentação
 └── scripts/                  # Scripts de manutenção
 ```
-
-## Contexto
-
-O CoNFere foi desenvolvido no Desafio Replit PUCPR 2026, "Da ideia ao software", imersão de três dias (17, 18 e 19 de novembro) promovida pela Área de Empreendedorismo da PUCPR em parceria com o Curso de Administração da Escola de Negócios e com a Replit. O formato é de hackathon no estilo vibe coding: o participante parte de uma ideia de negócio e, em três dias, a transforma em uma aplicação web funcional, apresentada em pitch no último dia.
 
 ## Contribuindo
 
