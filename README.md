@@ -20,23 +20,11 @@
   </p>
 </div>
 
-## Sumário
-
-- [Sobre o projeto](#sobre-o-projeto)
-- [Como funciona](#como-funciona)
-- [Funcionalidades](#funcionalidades)
-- [Tecnologias](#tecnologias)
-- [Como executar localmente](#como-executar-localmente)
-- [Estrutura do repositório](#estrutura-do-repositório)
-- [Contexto](#contexto)
-- [Contribuindo](#contribuindo)
-- [Autor](#autor)
-
 ## Sobre o projeto
 
 Pequenos comerciantes recebem mercadorias com preços diferentes do combinado, quantidades menores que as cobradas ou itens que não pediram. A conferência manual entre pedidos feitos pelo WhatsApp, notas fiscais e produtos recebidos toma tempo e deixa erros passarem despercebidos, reduzindo a margem do negócio.
 
-O CoNFere facilita essa comparação e mostra o valor das divergências para apoiar a cobrança ao fornecedor. Tudo em uma plataforma web, sem exigir certificado digital ou ERP.
+**O CoNFere facilita essa comparação e mostra o valor das divergências para apoiar a cobrança ao fornecedor. Tudo em uma plataforma web, sem exigir certificado digital ou ERP.**
 
 ## Como funciona
 
